@@ -1,0 +1,2087 @@
+const {
+  CreateCustomer,
+  CreateAbsence,
+  Login,
+  CreateVacancy,
+  CreateUncoveredVacancy,
+  GetMyInstitue,
+  CreateUncoverSchedule,
+  GetScheduleAbsence,
+  GetAbsence,
+  GetInstituteCoveredSchedule,
+  GetDraftAndPublishedVacany,
+  GetAllAbsence,
+  GetUncoveredSchedule,
+  GetAbsenceStaff,
+  GetInternalTeacher,
+  GetMyConsultant,
+  GetMyCustomer,
+  GetMyScheduleIns,
+  GetFilledAndUnfilled,
+  GetCoveredAndUnCovered,
+  CreateUncoveredVacancyExternal,
+  CreateUncoveredVacancyInternal,
+  ADDMyCons,
+  GetMyCons,
+  Create_Customer_Get_Ins,
+  GetAbsenceStaffCount,
+  Validation,
+  GetInternalTeacherByAbscent,
+  DenyAbsence,
+  GetDenyList,
+  GetMyConsultant_API,
+  CreateCustomerAPI,
+  MakeCustomerVerfied,
+  GetMyConsultantNotification
+} = require("../Service/ins_post_services");
+const { GetInstitueRequirement } = require("../Service/ins__get_services");
+const { UpdateAbsenceStatus } = require("../Service/ins_edit_services");
+const jwt = require("jsonwebtoken");
+const { genSaltSync, hashSync, compareSync } = require("bcrypt");
+const { sign } = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+var fun = require("../../functions/Basic_methods");
+var moment = require('moment'); // require
+const { GetALLConsultant } = require("../../Cron/services/Cron_Services");
+moment().format();
+module.exports = {
+  login: (req, res) => {
+    const body = req.body;
+
+    if (!body.email_id || !body.password) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    Login(body, (err, results) => {
+      console.log(results);
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      console.log(results);
+      if (results.length == 0) {
+        return res.status(500).json({
+          success: false,
+          message: "No Users Found",
+        });
+      }
+      console.log(body.password);
+      console.log(results.data.password);
+
+      const result = compareSync(body.password, results.data.password);
+
+      if (result) {
+        results.password = undefined;
+        return res.json({
+          success: true,
+          message: results,
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: "Invalid email or password",
+        });
+      }
+    });
+  },
+  create_customer_api: (req, res) => {
+    const data1 = req.body;
+    var pass = data1.password;
+    console.log(data1);
+    if (
+      !data1.first_name ||
+      !data1.last_name ||
+      !data1.title ||
+      !data1.title_id ||
+      !data1.company_name ||
+      !data1.organization_no ||
+      !data1.organization_type ||
+      !data1.organization_type_id ||
+      !data1.email_id ||
+      !data1.telephone_number ||
+      !data1.address ||
+      !data1.postal_code ||
+      !data1.area_name ||
+      !data1.invoice_address ||
+      !data1.invoice_postal_code ||
+      !data1.invoice_area_name ||
+      !data1.invoice_email_id ||
+      !data1.password ||
+      !data1.invoice_reference
+
+    ) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    Validation(data1, (errorr, validation) => {
+
+      if (errorr) {
+        console.log(errorr);
+        return res.status(500).json({
+          success: false,
+          message: errorr.sqlMessage,
+        });
+      }
+
+      if (validation.length != 0) {
+        return res.status(500).json({
+          success: false,
+          message: "Email Already Present",
+        });
+      }
+       
+      var [username, domain] = data1.email_id.split('@');
+
+      domain="@"+domain;
+      
+      Create_Customer_Get_Ins(domain, (error, ins) => {
+        if (error) {
+          console.log(error);
+          return res.status(500).json({
+            success: false,
+            message: error.sqlMessage,
+          });
+        }
+       if (ins.length != 0) {
+        
+        var institute=ins[0];
+        const salt = genSaltSync(10);
+        const match = data1.email_id.match(/([^@]*)@/);
+        const emailhash = match[1];
+        let randomNumbers = Math.floor(Math.random() * 90) + 10;
+
+        data1.unique_id  = data1.title.substring(0, 2) +emailhash+data1.telephone_number.toString().substring(3, 4)+randomNumbers;
+                
+        data1.password = hashSync(data1.password, salt);
+        data1.ins_id=institute.id;
+
+        CreateCustomerAPI(data1, (err, results) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({
+              success: false,
+              message: err.sqlMessage,
+            });
+          }
+
+
+          var payload = {
+            id: results.insertId,
+            email_id: data1.email_id,
+            password: pass
+          };
+          var token = jwt.sign(payload, process.env.JWT_KEY);
+          console.log(token);
+          var fullUrl = req.protocol + '://' + req.get('host') + '/verfiy/' + token;
+
+
+          fun.sendMail(
+            data1.email_id,
+            "Verifiera ditt företagskonto / Verify your company account - DoHR",
+            `
+            <p>Hej!</p>
+
+            <p>Nu när du har skapat ett företagskonto för att använda DoHR mobilappen är du ett steg närmare kontakten med våra vikarier.</p>
+            
+            <p>Vänligen verifiera ditt konto innan du fortsätter. För att göra det, klicka på länken ${fullUrl} .</p>
+            
+            <p>Efter att ha följt dessa steg kommer du att kunna publicera ett jobb så snart du behöver en vikarie. Du loggar helt enkelt in, publicerar ett jobb och lämnar resten till vår vikarie.</p>
+            
+            <p>Som DoHR kund får du information om nya apprelease och erbjudanden i marknadsföringssyfte. Om du inte vill få dessa meddelanden, vänligen kontakta oss.</p>
+            
+            <p>Vi ser fram emot att samarbeta med er!</p>
+            
+            
+            <p>Greetings,</p>
+            
+            <p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) mobile app, you're one step closer to connecting with our top team of Substitutes.</p>
+            
+            <p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
+            
+            <p>Following this step, you will be able to post a job whenever a substitute is needed. You log in, create a vacancy, and leave the rest to our substitute.</p>
+            
+            <p>As a customer, you will receive information from DoHR about new app releases, offers, and other marketing communications. You can opt out of receiving these communications at any time by unsubscribing or contacting us.</p>
+            
+            <p>We are eager to collaborate with you!</p>
+            
+            
+            <br>
+        <p>Med vänliga hälsningar / Best wishes,</p>
+        <p>DoHR (/ˈdɔr/) team</p>
+        <br>
+        <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
+              `
+          );
+          return res.status(200).json({
+            success: true,
+            message: "Customer registered successfully",
+          });
+        });
+        }else{
+          return res.status(200).json({
+                success: false,
+                message: "Domain Not Found",
+              });
+
+        }
+
+
+
+
+
+
+
+
+      });
+    });
+
+
+
+  },
+  create_absence: (req, res) => {
+    const data = req.body;
+    console.log(data);
+    if (
+      !data.unique_id ||
+      !data.first_name ||
+      !data.last_name ||
+      !data.leave_type_id ||
+      !data.leave_type ||
+      !data.from_date ||
+      !data.to_date ||
+      !data.from_time ||
+      !data.to_time ||
+      !data.ins_id
+    ) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    var days = fun.DayFinder(data.from_date, data.to_date);
+
+    console.log(days);
+
+    var body = {
+      unique_id: data.unique_id,
+      day: days,
+      from_date: data.from_date,
+      to_date: data.to_date,
+      from_time: data.from_time,
+      to_time: data.to_time,
+    };
+    GetScheduleAbsence(body, (err, schedule) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      console.log(schedule.length);
+
+      if (schedule.length == 0 && data.substitute_required == true) {
+        return res.status(500).json({
+          success: false,
+          message:
+            "No schedule is found on the selected dates and substitute_required is enabled",
+        });
+      } else {
+        if (data.from_date == data.to_date) {
+          CreateAbsence(data, (err, results) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+
+            if (
+              data.leave_type.toLowerCase() === "vab" ||
+              data.leave_type.toLowerCase() === "sick"
+            ) {
+              console.log(schedule.length);
+              if (schedule.length == 0) {
+                UpdateAbsenceStatus(results.insertId, (err, uncovered) => {
+                  if (err) {
+                    console.log(err);
+                    return res.status(500).json({
+                      success: false,
+                      message: err.sqlMessage,
+                    });
+                  }
+
+                  return res.status(200).json({
+                    success: true,
+                    message: "Absence Approved ",
+                  });
+                });
+              } else {
+                var uncovered = [];
+                if (days.length > 0) {
+                  schedule.forEach((s, indexs) => {
+                    days.forEach((d, indexd) => {
+                      console.log(s.day);
+                      console.log(d);
+                      if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                        uncovered.push([
+                          d.date,
+                          s.id,
+                          results.insertId,
+                          s.ins_id,
+                          s.cus_id,
+                        ]);
+                      }
+                    });
+                  });
+                } else {
+                  uncovered.push([
+                    data.from_date,
+                    schedule[0].id,
+                    results.insertId,
+                    schedule[0].ins_id,
+                    schedule[0].cus_id,
+                  ]);
+                }
+
+                CreateUncoverSchedule(uncovered, (err, uncovered) => {
+                  if (err) {
+                    console.log(err);
+                    return res.status(500).json({
+                      success: false,
+                      message: err.sqlMessage,
+                    });
+                  }
+
+                  UpdateAbsenceStatus(results.insertId, (err, uncovered) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        success: false,
+                        message: err.sqlMessage,
+                      });
+                    }
+
+                    return res.status(200).json({
+                      success: true,
+                      message: "Absence Approved",
+                    });
+                  });
+                });
+              }
+            } else {
+              return res.status(200).json({
+                success: true,
+                message: "Absence registred",
+              });
+            }
+          });
+        } else {
+          var multicheck = [];
+          schedule.forEach((schedata) => {
+            days.forEach((datedata) => {
+              if (schedata.day.toLowerCase() == datedata.day.toLowerCase()) {
+                multicheck.push(schedata);
+              }
+            });
+          });
+          if (multicheck.length == 0 && data.substitute_required == true) {
+            return res.status(500).json({
+              success: false,
+              message:
+                "No schedule is found on the selected dates and substitute_required is enabled",
+            });
+          } else {
+            CreateAbsence(data, (err, results) => {
+              if (err) {
+                console.log(err);
+                return res.status(500).json({
+                  success: false,
+                  message: err.sqlMessage,
+                });
+              }
+
+              if (
+                data.leave_type.toLowerCase() === "vab" ||
+                data.leave_type.toLowerCase() === "sick"
+              ) {
+                console.log(schedule.length);
+                if (schedule.length == 0) {
+                  UpdateAbsenceStatus(results.insertId, (err, uncovered) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        success: false,
+                        message: err.sqlMessage,
+                      });
+                    }
+
+                    return res.status(200).json({
+                      success: true,
+                      message: "Absence Approved ",
+                    });
+                  });
+                } else {
+                  var uncovered = [];
+                  if (days.length > 0) {
+                    schedule.forEach((s, indexs) => {
+                      days.forEach((d, indexd) => {
+                        console.log(s.day);
+                        console.log(d);
+                        if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                          uncovered.push([
+                            d.date,
+                            s.id,
+                            results.insertId,
+                            s.ins_id,
+                            s.cus_id,
+                          ]);
+                        }
+                      });
+                    });
+                  } else {
+                    uncovered.push([
+                      data.from_date,
+                      schedule[0].id,
+                      results.insertId,
+                      schedule[0].ins_id,
+                      schedule[0].cus_id,
+                    ]);
+                  }
+
+                  CreateUncoverSchedule(uncovered, (err, uncovered) => {
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        success: false,
+                        message: err.sqlMessage,
+                      });
+                    }
+
+                    UpdateAbsenceStatus(results.insertId, (err, uncovered) => {
+                      if (err) {
+                        console.log(err);
+                        return res.status(500).json({
+                          success: false,
+                          message: err.sqlMessage,
+                        });
+                      }
+
+                      return res.status(200).json({
+                        success: true,
+                        message: "Absence Approved",
+                      });
+                    });
+                  });
+                }
+              } else {
+                return res.status(200).json({
+                  success: true,
+                  message: "Absence registred",
+                });
+              }
+            });
+          }
+        }
+      }
+    });
+  },
+
+  approve_absence: (req, res) => {
+    const data = req.body;
+
+    if (!data.id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetAbsence(data, (err, absence) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      console.log(absence);
+      var days = fun.DayFinder(absence.from_date, absence.to_date);
+
+      var body = {
+        unique_id: absence.unique_id,
+        day: days,
+        from_date: absence.from_date,
+        to_date: absence.to_date,
+        from_time: absence.from_time,
+        to_time: absence.to_time,
+      };
+
+      GetScheduleAbsence(body, (err, schedule) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+        console.log(schedule);
+        var multicheck = [];
+        schedule.forEach((schedata) => {
+          console.log("in");
+          const weekday = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+
+          if (absence.from_date == absence.to_date) {
+            const d = new Date(absence.from_date);
+            let day = weekday[d.getDay()];
+            console.log(day);
+            if (schedata.day.toLowerCase() == day.toLowerCase()) {
+              multicheck.push(schedata);
+            }
+          } else {
+            days.forEach((datedata) => {
+              console.log(
+                schedata.day.toLowerCase() + "==" + datedata.day.toLowerCase()
+              );
+              if (schedata.day.toLowerCase() == datedata.day.toLowerCase()) {
+                multicheck.push(schedata);
+              }
+            });
+          }
+
+        });
+        console.log(multicheck.length);
+
+        if (multicheck.length == 0) {
+          UpdateAbsenceStatus(absence.id, (err, uncovered) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+
+            return res.status(200).json({
+              success: true,
+              message: "Absence Approved ",
+            });
+          });
+        } else {
+          var uncovered = [];
+          if (days.length > 0) {
+            schedule.forEach((s, indexs) => {
+              days.forEach((d, indexd) => {
+                if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                  uncovered.push([
+                    d.date,
+                    s.id,
+                    absence.id,
+                    s.ins_id,
+                    s.cus_id,
+                  ]);
+                }
+              });
+            });
+          } else {
+            uncovered.push([
+              absence.from_date,
+              schedule[0].id,
+              absence.id,
+              schedule[0].ins_id,
+              schedule[0].cus_id,
+            ]);
+          }
+
+          CreateUncoverSchedule(uncovered, (err, uncovered) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+
+            UpdateAbsenceStatus(absence.id, (err, uncovered) => {
+              if (err) {
+                console.log(err);
+                return res.status(500).json({
+                  success: false,
+                  message: err.sqlMessage,
+                });
+              }
+
+              return res.status(200).json({
+                success: true,
+                message: "Absence Approved",
+              });
+            });
+          });
+        }
+      });
+    });
+  },
+
+
+
+  create_customer: (req, res) => {
+    const data = req.body;
+    var pass = data.password;
+
+    if (
+      !data.first_name ||
+      !data.last_name ||
+      !data.title ||
+      !data.title_id ||
+      !data.company_name ||
+      !data.organization_no ||
+      !data.organization_type ||
+      !data.organization_type_id ||
+      !data.email_id ||
+      !data.telephone_number ||
+      !data.address ||
+      !data.postal_code ||
+      !data.area_name ||
+      !data.invoice_address ||
+      !data.invoice_postal_code ||
+      !data.invoice_area_name ||
+      !data.invoice_email_id ||
+      !data.password ||
+      !data.ins_id
+    ) {
+      return res.status(503).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    Validation(data, (error, validation) => {
+      if (error) {
+        console.log(error);
+        return res.status(502).json({
+          success: false,
+          message: error.sqlMessage,
+        });
+      }
+
+      if (validation.length != 0) {
+        return res.status(501).json({
+          success: false,
+          message: "Email Already Present",
+        });
+      }
+
+      const match = data.email_id.match(/([^@]*)@/);
+      const emailhash = match[1];
+      
+      data.unique_id =
+              data.title.substring(0, 2) +
+              emailhash+
+              data.telephone_number.toString().substring(3, 4);
+              console.log(data.unique_id);
+      data.password = hashSync(data.password, salt);
+
+
+
+      CreateCustomer(data, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(504).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+        var payload = {
+          id: results.insertId,
+          email_id: data.email_id,
+          password: pass
+        };
+        var token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '60m' });
+        console.log(token);
+        var fullUrl = req.protocol + '://' + req.get('host') + '/verfiy/' + token;
+
+
+        //${fullUrl}.
+
+        fun.sendMail(
+          data.email_id,
+          "Verifiera ditt företagskonto / Verify your company account - DoHR",
+          ` 
+          <p>Hej!</p>
+
+<p>Nu när du har skapat ett företagskonto för att använda DoHR mobilappen är du ett steg närmare kontakten med våra vikarier.</p>
+
+<p>Vänligen verifiera ditt konto innan du fortsätter. För att göra det, klicka på länken ${fullUrl} .</p>
+
+<p>Efter att ha följt dessa steg kommer du att kunna publicera ett jobb så snart du behöver en vikarie. Du loggar helt enkelt in, publicerar ett jobb och lämnar resten till vår vikarie.</p>
+
+<p>Som DoHR kund får du information om nya apprelease och erbjudanden i marknadsföringssyfte. Om du inte vill få dessa meddelanden, vänligen kontakta oss.</p>
+
+<p>Vi ser fram emot att samarbeta med er!</p>
+
+
+<p>Greetings,</p>
+
+<p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) mobile app, you're one step closer to connecting with our top team of Substitutes.</p>
+
+<p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
+
+<p>Following this step, you will be able to post a job whenever a substitute is needed. You log in, create a vacancy, and leave the rest to our substitute.</p>
+
+<p>As a customer, you will receive information from DoHR about new app releases, offers, and other marketing communications. You can opt out of receiving these communications at any time by unsubscribing or contacting us.</p>
+
+<p>We are eager to collaborate with you!</p>
+
+
+<br>
+        <p>Med vänliga hälsningar / Best wishes,</p>
+        <p>DoHR (/ˈdɔr/) team</p>
+        <br>
+        <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>   
+          `
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: "Customer registered successfully",
+        });
+      });
+    });
+
+
+  },
+
+  add_my_consultant: (req, res) => {
+    const data = req.body;
+    var pass = data.password;
+
+    if (!data.cons_id || !data.unique_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    ADDMyCons(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(results.stscode).json({
+        success: true,
+        message: results.name,
+      });
+    });
+  },
+
+  deny_Absence: (req, res) => {
+    const data = req.body;
+
+
+    if (!data.id || !data.email_id || !data.reason) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    DenyAbsence(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      fun.sendMail(data.email_id, "DOHR", data.reason);
+
+      return res.status(200).json({
+        success: true,
+        message: "Absence Denied",
+      });
+    });
+  },
+
+  get_ins_my_consultant: (req, res) => {
+    const data = req.body;
+    var pass = data.password;
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyCons(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  create_uncovered_vacancy: (req, res) => {
+    const data = req.body;
+    var schedulecheck = [];
+    if (data.Vacancy.length == 0 || !data.assigned_to) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyScheduleIns(data.assigned_to, (errr, ress) => {
+      if (errr) {
+        console.log(errr);
+        return res.status(500).json({
+          success: false,
+          message: errr.sqlMessage,
+        });
+      }
+
+      ress.forEach((schedule, index) => {
+        data.Vacancy.forEach((vac) => {
+          console.log(vac);
+          // console.log(schedule.day);
+          //console.log(schedule.start_time);
+          console.log(vac.day);
+          console.log(vac.start_time);
+          if (
+            schedule.day.toLowerCase() == vac.day.toLowerCase() &&
+            schedule.start_time == vac.start_time
+          ) {
+            schedulecheck.push(schedule);
+          }
+        });
+      });
+      console.log(data.Vacancy.length);
+
+      if (schedulecheck.length == 0) {
+        var insert = [];
+        data.Vacancy.forEach((Data) => {
+          insert.push([
+            Data.position,
+            Data.position_id,
+            Data.v_date,
+            Data.day,
+            Data.start_time,
+            Data.end_time,
+            Data.break_time,
+            Data.total_whrs,
+            Data.ins_id,
+            Data.uncovered_id,
+            Data.other_info,
+            Data.assigned_to_internal,
+            Data.assigned_to_external,
+            Data.absence_id,
+            Data.vacancy_status,
+            Data.report_start_time,
+            Data.report_end_time,
+            Data.report_break_time,
+            Data.report_total_whours,
+            Data.report_reason,
+            Data.publish_to_internal,
+            Data.publish_to_external,
+            Data.is_draft,
+          ]);
+        });
+        console.log(insert);
+        CreateUncoveredVacancy(insert, (err, results) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({
+              success: false,
+              message: err.sqlMessage,
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "registered successfully",
+          });
+        });
+      } else {
+        return res.status(200).json({
+          success: true,
+          message: "the teacher already have a schedule",
+          schedules: schedulecheck,
+        });
+      }
+    });
+  },
+
+  create_uncovered_vacancy_external: (req, res) => {
+    const data = req.body;
+    var schedulecheck = [];
+    if (data.externalVacancy.length == 0) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    console.log(data);
+    var insert = [];
+    insert.push([
+      data.externalVacancy[0].position,
+      data.externalVacancy[0].position_id,
+      data.externalVacancy[0].v_date,
+      data.externalVacancy[0].day,
+      data.fromtime,
+      data.totime,
+      "",
+      "",
+      data.externalVacancy[0].ins_id,
+      0o0,
+      data.externalVacancy[0].other_info,
+      0o0,
+      data.externalVacancy[0].assigned_to_external,
+      0o0,
+      0,
+      false,
+      true,
+      data.isdraft,
+      data.location,
+      JSON.stringify(data.description),
+      data.externalVacancy[0].assigned_from,
+      data.externalVacancy[0].created_by,
+      data.publish_to,
+      data.publish_to_id,
+    ]);
+    data.externalVacancy.forEach((Data) => { });
+    var insert_data = {
+      a: insert,
+      b: data,
+    };
+
+    CreateUncoveredVacancyExternal(insert_data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "registered successfully",
+      });
+    });
+  },
+
+  create_uncovered_vacancy_internal: (req, res) => {
+    const data = req.body;
+    var schedulecheck = [];
+    if (data.Vacancy.length == 0 || !data.assigned_to) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyScheduleIns(data.assigned_to, (errr, ress) => {
+      if (errr) {
+        console.log(errr);
+        return res.status(500).json({
+          success: false,
+          message: errr.sqlMessage,
+        });
+      }
+
+      ress.forEach((schedule, index) => {
+        data.Vacancy.forEach((vac) => {
+          if (
+            schedule.day.toLowerCase() == vac.day.toLowerCase() &&
+            schedule.start_time == vac.start_time
+          ) {
+            schedulecheck.push(schedule);
+          }
+        });
+      });
+
+      if (schedulecheck.length == 0) {
+        var insert = [];
+        data.Vacancy.forEach((Data) => {
+          insert.push([
+            Data.position,
+            Data.position_id,
+            Data.v_date,
+            Data.day,
+            Data.start_time,
+            Data.end_time,
+            Data.break_time,
+            Data.total_whrs,
+            Data.ins_id,
+            Data.uncovered_id,
+            Data.other_info,
+            Data.assigned_to_internal,
+            0o0,
+            0,
+            Data.publish_to_internal,
+            false,
+            false,
+            Data.assigned_from,
+            Data.created_by
+          ]);
+        });
+
+        CreateUncoveredVacancyInternal(insert, (err, results) => {
+          if (err) {
+            console.log(err);
+            return res.status(500).json({
+              success: false,
+              message: err.sqlMessage,
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "registered successfully",
+          });
+        });
+      } else {
+        return res.status(500).json({
+          success: true,
+          message: "the teacher already have a schedule",
+          schedules: schedulecheck,
+        });
+      }
+    });
+  },
+  create_vacancy: (req, res) => {
+    const data = req.body;
+    // three types==> publish_to_All //internal_staff //my_consultant
+
+    
+    // if (
+    //   !data.position||
+    //   !data.position_id||
+    //   !data.v_date||
+    //   !data.day||
+    //   !data.start_time||
+    //   !data.end_time||
+    //   !data.break_time||
+    //   !data.total_whrs||
+    //   !data.ins_id||
+    //   !data.uncovered_id||
+    //   !data.other_info||
+    //   !data.assigned_to_internal||
+    //   !data.assigned_to_external||
+    //   !data.absence_id||
+    //   !data.vacancy_status||
+    //   !data.report_start_time||
+    //   !data.report_end_time||
+    //   !data.report_break_time||
+    //   !data.report_total_whours||
+    //   !data.report_reason||
+    //   !data.external_type
+
+    // ) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "fields are missing",
+    //   });
+    // }
+
+    CreateVacancy(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      GetALLConsultant((error, cons) => {
+
+        var notificationIds = [];
+        if (data.publish_to_id == 1) {
+
+          cons.forEach((X) => {
+            notificationIds.push(X.notification_id);
+          });
+
+          if (notificationIds.length != 0 && data.is_draft==0) {
+            var message = {
+              "notification": {
+                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                "title": "A New Message"
+              },
+              "registration_ids": notificationIds
+            }
+
+
+
+            fun.FCM_MESSAGE(message);
+          }
+        }
+
+
+        if (data.publish_to_id == 2) {
+          cons.forEach((X) => {
+            if (X.iam_student == 1) {
+              notificationIds.push(X.notification_id);
+            }
+
+          });
+          console.log("heree");
+          console.log(notificationIds);
+
+
+          if (notificationIds.length != 0 && data.is_draft==0) {
+            var message = {
+              "notification": {
+                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                "title": "A New Message"
+              },
+              "registration_ids": notificationIds
+            }
+
+
+
+            fun.FCM_MESSAGE(message);
+          }
+        }
+
+
+
+
+
+      });
+
+
+      GetMyConsultantNotification(data, (error2, mycons) => {
+        var notificationIds = [];
+        if (data.publish_to_id == 3) {
+          mycons.forEach((X) => {
+            console.log(data.my_consultant);
+
+
+            data.my_consultant.forEach((Y) => {
+              console.log(Y);
+              if (Y == X.cons_id) {
+                console.log("in da ");
+                notificationIds.push(X.notification_id);
+              }
+
+            });
+
+
+
+          });
+          console.log(notificationIds);
+          if (notificationIds.length != 0 && data.is_draft==0) {
+            var message = {
+              "notification": {
+                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                "title": "A New Message"
+              },
+              "registration_ids": notificationIds
+            }
+
+
+
+            fun.FCM_MESSAGE(message);
+          }
+
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "registered successfully",
+      });
+
+    });
+  },
+
+  get_covered_schedule: (req, res) => {
+    const data = req.body;
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetInstituteCoveredSchedule(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      // console.log(results);
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_draft_vacancy: (req, res) => {
+    const data = req.body;
+    //1==>draft 0==> published
+    if (!data.unique_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetDraftAndPublishedVacany(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_my_institute: (req, res) => {
+    const data = req.body;
+    if (!data.id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    var finalArray = [];
+    GetMyInstitue(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      console.log(results);
+      if (results.length == 0) {
+        return res.status(500).json({
+          success: false,
+          message: "Institute Not Found",
+        });
+      }
+
+      results.forEach((institute, index) => {
+        var ins = {
+          id: institute.id,
+          institute_name: institute.institute_name,
+          institute_id: institute.institute_id,
+          address: institute.address,
+          locality: institute.locality,
+          postcode: institute.postcode,
+          institute_type: institute.institute_type,
+          institute_type_id: institute.institute_type_id,
+          institute_domin: institute.institute_domin,
+          contact_number: institute.contact_number,
+          requirement_info: [],
+        };
+        finalArray.push(ins);
+
+        if (index + 1 == results.length) {
+          GetInstitueRequirement((error, result) => {
+            if (error) {
+              console.log(error);
+              return res.status(500).json({
+                success: false,
+                message: error.sqlMessage,
+              });
+            }
+
+            finalArray.forEach((institutes, index) => {
+              result.forEach((requirement, rindex) => {
+                if (institutes.id === requirement.ins_id) {
+                  finalArray[index].requirement_info.push(requirement);
+                }
+              });
+
+              if (index + 1 == finalArray.length) {
+                return res.status(200).json({
+                  success: true,
+                  message: finalArray,
+                });
+              }
+            });
+          });
+        }
+      });
+    });
+  },
+
+  get_all_absence: (req, res) => {
+    const data = req.body;
+
+    GetAllAbsence(data, (err, results) => {
+      var finalArray = [];
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      results.forEach((filter) => {
+        if (filter.is_denied == 0) {
+          finalArray.push(filter);
+        }
+
+      });
+      return res.status(200).json({
+        success: true,
+        message: finalArray,
+      });
+    });
+  },
+
+  get_uncovered_schedule: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    GetUncoveredSchedule(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      results.forEach((ResData, index) => {
+        var index = finalArray
+          .map(function (img) {
+            return img.title;
+          })
+          .indexOf(ResData.first_name + "" + ResData.last_name);
+        console.log(index);
+        if (index == -1) {
+          finalArray.push({
+            title: ResData.first_name + "" + ResData.last_name,
+            Data: [ResData],
+          });
+        } else {
+          finalArray[index].Data.push(ResData);
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: finalArray,
+      });
+    });
+  },
+
+  get_internal_teacher: (req, res) => {
+    const data = req.body;
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetInternalTeacher(data, (err, allList) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      GetInternalTeacherByAbscent(data, (err, workedList) => {
+        var worked_List = [];
+        var calculated_Time = [];
+        var ALL_Data = [];
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+
+        var currentTime = new Date()
+        var month = currentTime.toISOString().slice(5, 7);
+        var year = currentTime.getFullYear()
+        var startdate = year + "-" + month + "-" + "01";
+        var ongoingDate = currentTime.toISOString().slice(0, 10);
+        console.log(startdate, ongoingDate)
+        var present_month_dates = fun.DateFinder(startdate, ongoingDate);
+        console.log(present_month_dates);
+        present_month_dates.forEach((P_Date) => {
+          workedList.forEach((W_Date) => {
+
+            if (W_Date.v_date === P_Date) {
+              worked_List.push(W_Date);
+            }
+
+          });
+        });
+
+        worked_List.forEach((TimeCalculation) => {
+          var A_INDEX = calculated_Time.findIndex(x => x.id === TimeCalculation.assigned_to_internal);
+          if (A_INDEX == -1) {
+            var startTime = moment(TimeCalculation.v_date + "T" + TimeCalculation.from_time);
+            var end = moment(TimeCalculation.v_date + "T" + TimeCalculation.to_time);
+
+            var duration = end.diff(startTime, 'hours');
+            //console.log(duration);
+
+            calculated_Time.push(
+              {
+                "id": TimeCalculation.assigned_to_internal,
+                "hours": duration
+              }
+            );
+          } else {
+            var startTime = moment(TimeCalculation.v_date + "T" + TimeCalculation.from_time);
+            var end = moment(TimeCalculation.v_date + "T" + TimeCalculation.to_time);
+
+            var d = end.diff(startTime, 'hours');
+            var A = calculated_Time[A_INDEX].hours + d;
+            calculated_Time[A_INDEX].hours = Math.abs(A)
+          }
+
+
+
+        });
+
+        allList.forEach((ALLData) => {
+          ALLData.assigned_work_time = 0;
+          if (ALLData.title.toLowerCase() == "teacher") {
+            ALL_Data.push(ALLData);
+          }
+
+
+          calculated_Time.forEach((t_check) => {
+
+            if (ALLData.id == t_check.id) {
+              ALLData.assigned_work_time = t_check.hours;
+            }
+
+          });
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: ALL_Data,
+        });
+      });
+
+
+    });
+  },
+
+  get_my_consultant: (req, res) => {
+    const data = req.body;
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyConsultant(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_my_consultant_API: (req, res) => {
+    const data = req.body;
+
+    if (!data.unique_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyConsultant_API(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      results.forEach((X) => {
+        X.is_selected = false;
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_my_customer: (req, res) => {
+    const data = req.body;
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyCustomer(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_absence_staff: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    GetAbsenceStaff(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      var datetime = new Date();
+      console.log(datetime.toISOString().slice(0, 10));
+
+      results.forEach((res_data, index) => {
+
+        finalArray.push({
+          data: res_data,
+          type: "Absent",
+        });
+
+
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: finalArray,
+      });
+    });
+  },
+
+  get_absence_count: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+    GetAbsenceStaff(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      var datetime = new Date();
+      console.log(datetime.toISOString().slice(0, 10));
+
+      results.forEach((res_data, index) => {
+        if (
+          Date.parse(res_data.to_date) >=
+          Date.parse(datetime.toISOString().slice(0, 10))
+        ) {
+          var dateFrom = res_data.from_date;
+          var dateTo = res_data.to_date;
+          var dateCheck = data.date;
+
+          var d1 = dateFrom.split("/");
+          var d2 = dateTo.split("/");
+          var c = dateCheck.split("/");
+
+          var from = new Date(d1[2], parseInt(d1[1]) - 1, d1[0]); // -1 because months are from 0 to 11
+          var to = new Date(d2[2], parseInt(d2[1]) - 1, d2[0]);
+          var check = new Date(c[2], parseInt(c[1]) - 1, c[0]);
+          if (check > from && check < to) {
+            finalArray.push(res_data);
+          }
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        count: finalArray.length,
+      });
+    });
+  },
+
+  get_absence_count_graph: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+
+    if (!data.ins_id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetAbsenceStaffCount(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      console.log('res');
+      console.log(results);
+      var currentTime = new Date()
+      var year = currentTime.getFullYear()
+
+
+      var full_year = fun.DateFinder(year + "-01-01", year + "-12-31");
+
+      var datetime = new Date();
+
+      // fixed data validation by index of array(obj);
+      var obj = [
+        {//0
+          name: `Leave with pay`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {//1
+          name: `Sick`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+
+
+
+        {//2
+          name: `VAB`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+
+        {//3
+          name: `Vacation`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+
+        {//4
+          name: `Leave without pay`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+
+        {//5
+          name: `parental leave`,
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+
+      ];
+
+      function _fun(index, leave_t) {
+
+        if (leave_t.replace(/^\s+/g, '').toLowerCase() == "leave with pay") {
+          finalArray.push(obj[0].data[index] += 1);
+        } else
+          if (leave_t.replace(/^\s+/g, '').toLowerCase() == "leave without pay") {
+            console.log("in")
+            finalArray.push(obj[4].data[index] += 1);
+          } else
+            if (leave_t.replace(/^\s+/g, '').toLowerCase() == "vab") {
+
+              finalArray.push(obj[2].data[index] += 1);
+            } else
+              if (leave_t.replace(/^\s+/g, '').toLowerCase() == "vacation") {
+                finalArray.push(obj[3].data[index] += 1);
+              } else
+                if (leave_t.replace(/^\s+/g, '').toLowerCase() == "parental leave") {
+                  finalArray.push(obj[5].data[index] += 1);
+                } else
+                  if (leave_t.replace(/^\s+/g, '').toLowerCase() == "sick") {
+
+                    finalArray.push(obj[1].data[index] += 1);
+                  }
+      };
+
+
+
+      finalArray.push(obj);
+      results.forEach((res_data, index) => {
+        console.log(res_data.leave_type);
+        if (data.date == "" || data.date == undefined || data.date == null) {
+
+          var absence_dates = [];
+          if (res_data.from_date == res_data.to_date) {
+            absence_dates = [res_data.from_date];
+          } else {
+            absence_dates = fun.DateFinder(res_data.from_date, res_data.to_date);
+          }
+
+
+
+          absence_dates.forEach((AbDate) => {
+
+            full_year.forEach((YearDates) => {
+
+
+              if (AbDate === YearDates) {
+                //  console.log(AbDate,YearDates);
+                //  console.log(res_data.leave_type);
+                var the_month = AbDate.toString().substring(5, 7).replace("0", "");
+
+                switch (the_month) {
+                  case "1":
+                    _fun(0, res_data.leave_type);
+                    break
+                  case "2":
+                    _fun(1, res_data.leave_type);
+                    break
+                  case "3":
+                    _fun(2, res_data.leave_type);
+                    break
+                  case "4":
+                    _fun(3, res_data.leave_type);
+                    break
+                  case "5":
+                    _fun(4, res_data.leave_type);
+                    break
+                  case "6":
+                    _fun(5, res_data.leave_type);
+                    break
+                  case "7":
+                    _fun(6, res_data.leave_type);
+                    break
+                  case "8":
+
+                    _fun(7, res_data.leave_type);
+                    break
+                  case "9":
+                    _fun(8, res_data.leave_type);
+                    break
+                  case "10":
+                    _fun(9, res_data.leave_type);
+                    break
+                  case "11":
+                    _fun(10, res_data.leave_type);
+                    break
+                  case "12":
+                    _fun(11, res_data.leave_type);
+                    break
+                }
+              }
+
+
+
+
+            });
+
+
+          });
+
+        } else {
+          console.log("not here");
+
+          var absence_dates = [];
+          if (res_data.from_date == res_data.to_date) {
+            absence_dates = [res_data.from_date];
+          } else {
+            absence_dates = fun.DateFinder(res_data.from_date, res_data.to_date);
+          }
+          absence_dates.forEach((AbDate) => {
+
+
+
+
+            if (AbDate === data.date) {
+
+              var the_month = AbDate.toString().substring(5, 7).replace("0", "");
+
+              switch (the_month) {
+                case "1":
+                  _fun(0, res_data.leave_type);
+                  break
+                case "2":
+                  _fun(1, res_data.leave_type);
+                  break
+                case "3":
+                  _fun(2, res_data.leave_type);
+                  break
+                case "4":
+                  _fun(3, res_data.leave_type);
+                  break
+                case "5":
+                  _fun(4, res_data.leave_type);
+                  break
+                case "6":
+                  _fun(5, res_data.leave_type);
+                  break
+                case "7":
+                  _fun(6, res_data.leave_type);
+                  break
+                case "8":
+
+                  _fun(7, res_data.leave_type);
+                  break
+                case "9":
+                  _fun(8, res_data.leave_type);
+                  break
+                case "10":
+                  _fun(9, res_data.leave_type);
+                  break
+                case "11":
+                  _fun(10, res_data.leave_type);
+                  break
+                case "12":
+                  _fun(11, res_data.leave_type);
+                  break
+              }
+            }
+
+
+
+
+
+
+
+          });
+        }
+        if (index + 1 == results.length) {
+          return res.status(200).json({
+            success: true,
+            count: finalArray[0],
+          });
+        }
+      });
+
+
+    });
+  },
+
+  get_filledOrunfill_count: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    if (!data.ins_id || !data.status) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetFilledAndUnfilled(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        count: results.length,
+      });
+    });
+  },
+  get_coverOruncover_count: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    if (!data.ins_id || !data.status) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetCoveredAndUnCovered(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        count: results.length,
+      });
+    });
+  },
+
+  get_deny_list: (req, res) => {
+    const data = req.body;
+    var finalArray = [];
+    if (!data.vid) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetDenyList(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        count: results.length,
+      });
+    });
+  },
+
+  verify_customer: (req, res) => {
+    const { token } = req.params;
+    var finalArray = [];
+    try {
+      const verfication = jwt.verify(token, process.env.JWT_KEY);
+      console.log(verfication);
+
+      const salt = genSaltSync(10);
+
+      const data = {
+        id: verfication.id
+      }
+      console.log(data);
+      MakeCustomerVerfied(data, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+
+      
+
+
+        res.render("user_verfication");
+        fun.sendMail(
+          verfication.email_id,
+          "Välkommen till DoHR / Welcome to DoHR",
+          `<p>Hej!</p>
+
+          <p>Vi är glada att kunna meddela dig att registreringen av ditt företagskonto hos oss har lyckats. För att börja använda DoHR  (/ˈdɔr/)  mobilappen för dina vikariebehov, vänligen validera ditt konto via länken i ett separat e-postmeddelande. Vi har också inkluderat dina inloggningsuppgifter för framtida referens, samt information om några viktiga funktioner i DoHR mobilappen.</p>
+          
+          <h4>Änvandarnamn/username: ${verfication.email_id}</h4>
+          <h4>Lösenord/password:  ${verfication.password}</h4>
+          
+          <p>Vi har många användbara funktioner för att effektivisera publicering av nya jobb, en av dem är "Rutin information".  Du kan lägga till denna information under "Min profil" och den kommer automatiskt att visas när du skapar ett nytt jobb. Allt du behöver göra nästa gång du skapar ett jobb är att markera rutan, så kommer rutininformation att inkluderas i arbetsbeskrivningen.</p>
+          
+          <p>Dessutom finns det ett mer effektivt sätt att godkänna tidrapporter. Appen kommer automatiskt att godkänna tidrapporter efter 48 timmar om du var för upptagen för att göra den här uppgiften själv, vilket eliminerar behovet av pappersarbete och manuellt godkännande.</p>
+          
+          <p>Utöver DoHR mobilappen har vi även utvecklat en webbaserad applikation för vikarie- och frånvarohantering som ger dig ett mer effektivt sätt att hantera personalens frånvaro, publicera ett jobb med flera dagars varaktighet, samt få tillgång till olika statistik. Det ger dig flexibiliteten att lägga ut dina vikariebehov till DoHR eller helt enkelt använda plattformen med dina egna resurser. För mer information besök www.dohr.io eller kontakta oss.</p>
+          
+          <p>Slutligen vill vi göra dig uppmärksam på våra Vanliga frågor och Villkor och policyer, där du kan hitta de flesta av dina svar samt kopia på Villkor som du godkände när du skapade ditt företagskonto.</p>
+          
+          <p>DoHR-mobilappen är väldigt enkel att använda, men om du behöver en snabb handledning, skicka ett e-postmeddelande, så kontaktar vi dig för att ordna ett online-demomöte.</p>
+          
+          <p>Tack för ditt förtroende!</p>
+          
+          
+          <p>Greetings,</p>
+          
+          <p>We are pleased to see that you have successfully registered your company account with us. As soon as your account is validated via a link supplied in a separate email, you will be able to use the DoHR mobile app to fullfill your substitute needs. Within the text in Swedish above, you will find your login information for future reference, as well as information about some of the key features of DoHR mobile app.</p>
+          
+          <p>We have a lot of great features to make publishing of vacancies more efficient, one of which is "Routine instructions". You can add this information under "My profile", saving you the time of having to enter it again, and it will appear automatically when you create a new vacancy. All you have to do the next time you create a vacancy is check the box, and routine information will be included in the job description.</p>
+          
+          <p>Furthermore, there is a more efficient way to approve timesheets. There is no need for paperwork or manual approval of timesheets because the system will approve automatically after 48 hours if you were too busy to complete this task yourself.</p>
+          
+          <p>In addition to the DoHR mobile app, we have also created a web-based application for our customers that allows them to access various statistics, publish a vacancy with multiple days of duration at once, or obtain an overview of their staff absences. It also offers a more efficient way to manage employee absences. It gives you the option to use the platform with your own resources or to outsource your substitute needs to DoHR. To learn more, go to www.dohr.io</p>
+          
+          <p>Finally, we would like to bring your attention to FAQ, and Legal where you will find the most of your answers along with a copy of the terms and conditions you accepted when creating your company account. </p>
+          
+          <p>The DoHR mobile app is very simple to use, but if you need a quick tutorial, send us an email, and we'll get in touch with you to arrange a convenient online demo meeting.</p>
+          
+          <p>Thank you for the opportunity to collaborate with you.</p>
+          
+          <br>
+        <p>Med vänliga hälsningar / Best wishes,</p>
+        <p>DoHR (/ˈdɔr/) team</p>
+        <br>
+        <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
+          `
+
+        );
+
+      });
+
+    } catch (e) {
+      console.log(e);
+      res.render("invaild_link");
+
+    }
+  },
+
+
+};
+
+

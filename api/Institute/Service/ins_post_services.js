@@ -5,13 +5,14 @@ module.exports = {
     //pool.query("select * from dh_my_schedule where (date between ? and ?) AND unique_id=?",[date])
 
     pool.query(
-      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,additional_comment,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
       [
         data.unique_id,
         data.first_name,
         data.last_name,
         data.leave_type_id,
         data.leave_type,
+        data.additional_comment,
         data.Parental_leave_percentage,
         data.child_first_name,
         data.child_last_name,
@@ -68,7 +69,6 @@ module.exports = {
                 console.log(error2);
                 return callback(error2);
               }
-            
 
               if (institute.length == 0) {
                 pool.query(
@@ -82,8 +82,11 @@ module.exports = {
                     if (con.length == 0) {
                       return callback(null, con);
                     }
-                    pool.query(`UPDATE dh_substitute_consultant
-                    SET notification_id = ? WHERE id=?`, [data.deviceId, con[0].id]);
+                    pool.query(
+                      `UPDATE dh_substitute_consultant
+                    SET notification_id = ? WHERE id=?`,
+                      [data.deviceId, con[0].id]
+                    );
                     console.log(con);
 
                     console.log("this");
@@ -104,14 +107,16 @@ module.exports = {
             }
           );
         } else {
-          pool.query(`UPDATE dh_customer
-          SET notification_id = ? WHERE id=?`, [data.deviceId, customer[0].id]);
-          
+          pool.query(
+            `UPDATE dh_customer
+          SET notification_id = ? WHERE id=?`,
+            [data.deviceId, customer[0].id]
+          );
+
           return callback(null, {
             type: "CUSTOMER",
             data: customer[0],
             Role: customer[0].title,
-           
           });
         }
       }
@@ -119,7 +124,7 @@ module.exports = {
   },
   CreateCustomer: (data, callback) => {
     pool.query(
-      "insert into dh_customer(first_name,last_name,title,title_id,company_name,organization_no,organization_type,organization_type_id,email_id,telephone_number,address,postal_code,area_name,invoice_address,invoice_postal_code,invoice_area_name,invoice_email_id,password,unique_id,ins_id,invoice_reference) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "insert into dh_customer(first_name,last_name,title,title_id,company_name,organization_no,organization_type,organization_type_id,email_id,telephone_number,address,postal_code,area_name,invoice_address,invoice_postal_code,invoice_area_name,invoice_email_id,password,unique_id,ins_id,invoice_reference,Routine_instructions_for_the_substitutedh_customer,from_web) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
       [
         data.first_name,
         data.last_name,
@@ -141,8 +146,9 @@ module.exports = {
         data.password,
         data.unique_id,
         data.ins_id,
-        data.invoice_reference
-
+        data.invoice_reference,
+        data.instructions,
+        true,
       ],
       (error, result, fields) => {
         if (error) {
@@ -153,15 +159,19 @@ module.exports = {
       }
     );
   },
-   
-  CheckUnique_ID:(data,callback)=>{
-  pool.query("select unique_id from dh_customer where unique_id=?",[unique_id],(error, result, fields) => {
-    if (error) {
-      return callback(error);
-    } else {
-      return callback(null, result);
-    }
-  });
+
+  CheckUnique_ID: (data, callback) => {
+    pool.query(
+      "select unique_id from dh_customer where unique_id=?",
+      [unique_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
   },
 
   CreateCustomerAPI: (data, callback) => {
@@ -188,8 +198,7 @@ module.exports = {
         data.password,
         data.unique_id,
         data.ins_id,
-        data.invoice_reference
-
+        data.invoice_reference,
       ],
       (error, result1, fields) => {
         if (error) {
@@ -199,7 +208,6 @@ module.exports = {
         }
       }
     );
-    
   },
 
   Validation: (data, callback) => {
@@ -213,9 +221,7 @@ module.exports = {
           select email_id from dh_institutes
       ) a
       where email_id = ?`,
-      [
-        data.email_id,
-      ],
+      [data.email_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -226,49 +232,44 @@ module.exports = {
     );
   },
 
-
   ADDMyCons: (data, callback) => {
-    // no change in table only sawping the customer unique_id to ins_id so ins_id reffered as unique_id  
+    // no change in table only sawping the customer unique_id to ins_id so ins_id reffered as unique_id
     pool.query(
       "select * from dh_my_consultants where ins_id=? AND cons_id=? AND is_active=1",
-      [
-        data.unique_id,
-        data.cons_id
-      ],
+      [data.unique_id, data.cons_id],
       (error, result1, fields) => {
         if (error) {
           return callback(error);
         } else {
           if (result1.length != 0) {
-            return callback(null, { name: "The Consultant Already Added", stscode: 200 });
+            return callback(null, {
+              name: "The Consultant Already Added",
+              stscode: 200,
+            });
           }
           pool.query(
             "insert into dh_my_consultants(ins_id,cons_id) values(?,?)",
-            [
-              data.unique_id,
-              data.cons_id
-            ],
+            [data.unique_id, data.cons_id],
             (error, result, fields) => {
               if (error) {
                 return callback(error);
               } else {
-                return callback(null, { name: "Consultant added  successfully", stscode: 200 });
+                return callback(null, {
+                  name: "Consultant added  successfully",
+                  stscode: 200,
+                });
               }
             }
           );
         }
       }
     );
-
   },
 
   DenyAbsence: (data, callback) => {
     pool.query(
       "update dh_absence_management set is_denied=1 where id=?",
-      [
-        data.id,
-
-      ],
+      [data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -282,10 +283,7 @@ module.exports = {
   MakeCustomerVerfied: (data, callback) => {
     pool.query(
       "update dh_customer set is_verfied=1 where id=?",
-      [
-        data.id,
-
-      ],
+      [data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -299,9 +297,7 @@ module.exports = {
   GetMyCons: (data, callback) => {
     pool.query(
       "select M.*, C.*,C.id as c_id from dh_my_consultants M join dh_substitute_consultant C on M.cons_id=C.id where M.ins_id=?",
-      [
-        data.ins_id,
-      ],
+      [data.ins_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -312,8 +308,6 @@ module.exports = {
     );
   },
   CreateUncoveredVacancyInternal: (data, callback) => {
-
-
     pool.query(
       `insert into dh_vacancy_new(
             position,  
@@ -478,7 +472,7 @@ module.exports = {
   },
 
   CreateVacancy: (data, callback) => {
-    if(data.id=="0"){
+    if (data.id == "0") {
       pool.query(
         `insert into dh_vacancy_new(
               position,  
@@ -554,7 +548,7 @@ module.exports = {
           data.totalhrs,
           data.preparationTime,
           data.handoverTime,
-          data.institute_type
+          data.institute_type,
         ],
         (error, result, fields) => {
           if (error) {
@@ -564,7 +558,7 @@ module.exports = {
           }
         }
       );
-    }else{
+    } else {
       pool.query(
         `update dh_vacancy_new 
               set position = ?,  
@@ -639,7 +633,7 @@ module.exports = {
           data.totalhrs,
           data.preparationTime,
           data.handoverTime,
-          data.id
+          data.id,
         ],
         (error, result, fields) => {
           if (error) {
@@ -650,7 +644,6 @@ module.exports = {
         }
       );
     }
-    
   },
 
   GetAllConsultant: (callback) => {
@@ -667,8 +660,8 @@ module.exports = {
     );
   },
 
-  GetMyConsultantNotification: (data,callback) => {
-    console.log("this is da : ",data.ins_id);
+  GetMyConsultantNotification: (data, callback) => {
+    console.log("this is da : ", data.ins_id);
     pool.query(
       "SELECT A.notification_id,A.is_active,A.id,B.* FROM dh_my_consultants B join dh_substitute_consultant A on A.id=B.cons_id where B.is_active=1 AND A.is_active=1 AND B.ins_id=?",
       [data.created_by],
@@ -696,18 +689,20 @@ module.exports = {
     );
   },
   Create_Customer_Get_Ins: (data, callback) => {
-    pool.query("select * from dh_institutes where institute_domin=? AND is_active=1", [data], (error, result, fields) => {
-      if (error) {
-        return callback(error);
-      } else {
-        return callback(null, result);
+    pool.query(
+      "select * from dh_institutes where institute_domin=? AND is_active=1",
+      [data],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
       }
-    })
+    );
   },
 
   GetScheduleAbsence: (data, callback) => {
-    console.log(data);
-    console.log(data.to_date);
     if (data.from_date == data.to_date) {
       const weekday = [
         "Sunday",
@@ -723,8 +718,8 @@ module.exports = {
       console.log(day);
 
       pool.query(
-        "select * from dh_my_schedule where unique_id=? AND day=? AND start_time=? AND end_time=?",
-        [data.unique_id, day, data.from_time, data.to_time],
+        "select * from dh_my_schedule where unique_id=? AND day=?",
+        [data.unique_id, day],
         (error, result, fields) => {
           if (error) {
             return callback(error);
@@ -734,8 +729,6 @@ module.exports = {
         }
       );
     } else {
-      console.log(data.unique_id);
-      console.log("this");
       pool.query(
         "select * from dh_my_schedule where unique_id=?",
         [data.unique_id],
@@ -822,7 +815,6 @@ module.exports = {
   },
 
   GetAbsenceStaff: (data, callback) => {
-
     pool.query(
       "Select A.ins_id,A.unique_id,A.is_approved,A.to_date,A.from_date,A.from_time,A.to_time,A.leave_type,C.* from dh_absence_management A join dh_customer C on C.unique_id=A.unique_id where A.ins_id=? AND A.is_approved=1 ",
       [data.ins_id],
@@ -837,7 +829,6 @@ module.exports = {
   },
 
   GetAbsenceStaffCount: (data, callback) => {
-
     pool.query(
       "select * from dh_absence_management where ins_id=? AND is_approved=1 ",
       [data.ins_id],
@@ -921,8 +912,6 @@ module.exports = {
     );
   },
 
-
-  
   GetMyConsultant_API: (data, callback) => {
     pool.query(
       "select DISTINCT V.ins_id,V.cons_id,V.id as my_cons_id,C.* from dh_my_consultants V join dh_substitute_consultant C on C.id=V.cons_id where V.ins_id=? AND V.is_active=1",
@@ -939,7 +928,7 @@ module.exports = {
 
   GetMyCustomer: (data, callback) => {
     pool.query(
-      "select * from dh_customer where ins_id=?",
+      "select * from dh_customer where ins_id=? and is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -992,8 +981,6 @@ module.exports = {
       }
     );
   },
-
-
 
   GetDenyList: (data, callback) => {
     pool.query(

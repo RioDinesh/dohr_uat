@@ -2,16 +2,46 @@ const {
   GetConsultantDetails,
   CreateAdmin,
   GetVacancyCanceledUserDetails,
-  AdminLogin, CreateInstitute, ExpressPass, Validation, GetReservedPool, GetTickBoxIsPresent, GetTickBox, AddLegal, AddLegalDescription, ADDFAQ, ADDFAQLIST, Add_feedback_for_dohr, GetAllCons, AddContactUsMessage, GetContactUs, AddContactUsMaster, Get_contactus_master, GetFeedBackDohrCustomer, GetFeedBackDohrConsultant, GetContactUsCustomer, GetCustomerDetails, GetExpressPassUserDetails, GetCustomerDetailsVerfied, GetConsultantDetailsForContactUs, GetCustomerDetailsForContactUs, ValidationINS, GetContactUsWeb, Add_Advertisment, Get_Advertisment, Add_sub_email
+  AdminLogin,
+  CreateInstitute,
+  ExpressPass,
+  Validation,
+  GetReservedPool,
+  GetTickBoxIsPresent,
+  GetTickBox,
+  AddLegal,
+  AddLegalDescription,
+  ADDFAQ,
+  ADDFAQLIST,
+  Add_feedback_for_dohr,
+  GetAllCons,
+  AddContactUsMessage,
+  GetContactUs,
+  AddContactUsMaster,
+  Get_contactus_master,
+  GetFeedBackDohrCustomer,
+  GetFeedBackDohrConsultant,
+  GetContactUsCustomer,
+  GetCustomerDetails,
+  GetExpressPassUserDetails,
+  GetCustomerDetailsVerfied,
+  GetConsultantDetailsForContactUs,
+  GetCustomerDetailsForContactUs,
+  ValidationINS,
+  GetContactUsWeb,
+  Add_Advertisment,
+  Get_Advertisment,
+  Add_sub_email,
 } = require("../Service/admin_post_services");
 
 const {
-  GetExpressPass, GetConsultantVacancy
+  GetExpressPass,
+  GetConsultantVacancy,
 } = require("../Service/admin_get_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-const moment=require("moment");
+const moment = require("moment");
 var fun = require("../../functions/Basic_methods");
 
 module.exports = {
@@ -43,8 +73,6 @@ module.exports = {
       });
     });
   },
-
-
 
   admin_login: (req, res) => {
     const body = req.body;
@@ -150,23 +178,79 @@ module.exports = {
         });
       });
     });
+  },
 
+  add_domain: (req, res) => {
+    const data = req.body;
+    var pass = data.password;
+    console.log(data);
+    // if (
+    //   !data.institute_name ||
+    //   !data.institute_id ||
+    //   !data.address ||
+    //   !data.locality ||
+    //   !data.postcode ||
+    //   !data.institute_type.id ||
+    //   !data.institute_type.name ||
+    //   !data.institute_domin ||
+    //   !data.email_id ||
+    //   !data.contact_number ||
+    //   !data.password
+    // ) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "fields are missing",
+    //   });
+    // }
+    ValidationINS(data, (errorr, validation) => {
+      if (errorr) {
+        console.log(errorr);
+        return res.status(500).json({
+          success: false,
+          message: errorr.sqlMessage,
+        });
+      }
+      console.log(validation);
+
+      if (validation.length != 0) {
+        return res.status(500).json({
+          success: false,
+          message: "Domain Already Present",
+        });
+      }
+      const salt = genSaltSync(10);
+      data.password = hashSync(data.password, salt);
+      CreateInstitute(data, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+
+        // fun.sendMail(
+        //   data.email_id,
+        //   "DOHR", "Your Credentials Email:" + data.email_id + "\n" + "Password:" + pass
+        // );
+
+        return res.status(200).json({
+          success: true,
+          message: "Institute Added",
+        });
+      });
+    });
   },
 
   add_express_pass: (req, res) => {
     const data = req.body;
 
-    if (
-      !data.date ||
-      !data.count
-
-    ) {
+    if (!data.date || !data.count) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
       });
     }
-
 
     ExpressPass(data, (err, results) => {
       if (err) {
@@ -180,20 +264,16 @@ module.exports = {
       GetAllCons((err, cons_result) => {
         var notificationId = [];
         cons_result.forEach((X) => {
-
           notificationId.push(X.notification_id);
-
         });
-        var message =
-        {
-          "notification": {
-            "body": "Reservpoolen är nu öppen! Bli först med att registrera dig.",
-            "title": "A New Message"
+        var message = {
+          notification: {
+            body: "Reservpoolen är nu öppen! Bli först med att registrera dig.",
+            title: "A New Message",
           },
 
-
-          "registration_ids": notificationId
-        }
+          registration_ids: notificationId,
+        };
 
         fun.FCM_MESSAGE(message);
       });
@@ -207,10 +287,7 @@ module.exports = {
 
   add_Legal: (req, res) => {
     const data = req.body;
-    if (
-      !data.title
-
-    ) {
+    if (!data.title) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -233,11 +310,7 @@ module.exports = {
   },
   add_Contactus_Master: (req, res) => {
     const data = req.body;
-    if (
-      !data.phone_number,
-      !data.email_id
-
-    ) {
+    if ((!data.phone_number, !data.email_id)) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -262,12 +335,12 @@ module.exports = {
     const data = req.body;
     console.log("cc", data);
     if (
-      !data.first_name,
+      (!data.first_name,
       !data.last_name,
       !data.cons_id,
       !data.cus_id,
       !data.message,
-      !data.email
+      !data.email)
     ) {
       return res.status(500).json({
         success: false,
@@ -275,12 +348,11 @@ module.exports = {
       });
     }
     Get_contactus_master((err, result) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
           success: false,
-          message: err.sqlMessage
+          message: err.sqlMessage,
         });
       }
       // fun.sendMail(result.email_id, "DOHR", `    <h4>Name: ${data.first_name} ${data.last_name}</h4>
@@ -291,8 +363,8 @@ module.exports = {
 
       //for non registered web users
       if (data.from_web == true) {
-        data.cons_id = 0,
-          data.cus_id = 0,
+        (data.cons_id = 0),
+          (data.cus_id = 0),
           AddContactUsMessage(data, (err, results) => {
             if (err) {
               console.log(err);
@@ -327,7 +399,6 @@ module.exports = {
                 });
               }
 
-
               if (results.length == 0) {
                 return res.status(200).json({
                   success: false,
@@ -351,8 +422,6 @@ module.exports = {
                   });
                 });
               }
-
-
             });
           } else {
             var consultant = results[0];
@@ -372,54 +441,29 @@ module.exports = {
               });
             });
           }
-
-
-
-
-
-
-
         });
-
-
       }
-
-
-
     });
-
-
   },
 
-
   contactUs_menu: (req, res) => {
-
-
     Get_contactus_master((err, result) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
           success: false,
-          message: err.sqlMessage
+          message: err.sqlMessage,
         });
       }
 
       return res.status(200).json({
         success: true,
-        message: result
+        message: result,
       });
-
     });
-
-
-
-
-
   },
 
   Get_ContactUs: (req, res) => {
-
     GetContactUs((err, results) => {
       if (err) {
         console.log(err);
@@ -436,10 +480,8 @@ module.exports = {
     });
   },
 
-
   Get_ContactUsAll: (req, res) => {
     const data = req.body;
-
 
     if (data.type == 3) {
       GetContactUsWeb((err, results) => {
@@ -456,52 +498,43 @@ module.exports = {
           message: results,
         });
       });
-    } else
-
-      if (data.type == 1) {
-        GetContactUsCustomer((err, results) => {
-          if (err) {
-            console.log(err);
-            return res.status(500).json({
-              success: false,
-              message: err.sqlMessage,
-            });
-          }
-
-          return res.status(200).json({
-            success: true,
-            message: results,
+    } else if (data.type == 1) {
+      GetContactUsCustomer((err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
           });
-        });
-      } else {
-        console.log("one");
-        GetFeedBackDohrConsultant((err, results) => {
-          if (err) {
-            console.log(err);
-            return res.status(500).json({
-              success: false,
-              message: err.sqlMessage,
-            });
-          }
+        }
 
-          return res.status(200).json({
-            success: true,
-            message: results,
+        return res.status(200).json({
+          success: true,
+          message: results,
+        });
+      });
+    } else {
+      console.log("one");
+      GetFeedBackDohrConsultant((err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
           });
-        });
-      }
+        }
 
+        return res.status(200).json({
+          success: true,
+          message: results,
+        });
+      });
+    }
   },
-
-
-
 
   add_description: (req, res) => {
     const data = req.body;
-    if (
-      !data.description ||
-      !data.title_id
-    ) {
+    if (!data.description || !data.title_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -525,10 +558,7 @@ module.exports = {
 
   add_faq: (req, res) => {
     const data = req.body;
-    if (
-      !data.title
-
-    ) {
+    if (!data.title) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -552,10 +582,7 @@ module.exports = {
 
   add_faq_list: (req, res) => {
     const data = req.body;
-    if (
-      !data.faq_list ||
-      !data.faq_id
-    ) {
+    if (!data.faq_list || !data.faq_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -579,11 +606,7 @@ module.exports = {
 
   feedback_for_dohr: (req, res) => {
     const data = req.body;
-    if (
-      !data.dohr_service ||
-      !data.dohr_help_service
-
-    ) {
+    if (!data.dohr_service || !data.dohr_help_service) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -606,7 +629,6 @@ module.exports = {
   },
 
   Get_feedback_for_dohr: (req, res) => {
-
     GetFeedBackDohrCustomer((err, results) => {
       if (err) {
         console.log(err);
@@ -622,8 +644,6 @@ module.exports = {
       });
     });
   },
-
-
 
   get_express_pass_api: (req, res) => {
     const data = req.body;
@@ -643,7 +663,6 @@ module.exports = {
         });
       }
 
-
       GetExpressPass((err, results) => {
         var Array = [];
         if (err) {
@@ -655,7 +674,6 @@ module.exports = {
         }
 
         results.forEach((data) => {
-
           Array.push({
             pass_id: data.id,
             pass_user_id: 0,
@@ -664,10 +682,7 @@ module.exports = {
             filled_count: data.filled_count,
             count: data.count,
             reserved_pool: false,
-
           });
-
-
         });
 
         GetReservedPool(data, (errr, rp) => {
@@ -680,20 +695,14 @@ module.exports = {
           }
 
           if (rp.length != 0) {
-
             rp.forEach((Y) => {
               Array.forEach((X, i) => {
-
                 if (X.date == Y.date) {
                   Array[i].reserved_pool = true;
                   Array[i].pass_user_id = Y.id;
-
                 }
-
               });
             });
-
-
           }
 
           Array.forEach((X) => {
@@ -710,22 +719,14 @@ module.exports = {
             }
           });
 
-
           return res.status(200).json({
             success: true,
             message: Array,
           });
-
-
         });
-
-
       });
     });
-
-
   },
-
 
   get_tick_box: (req, res) => {
     const data = req.body;
@@ -739,7 +740,6 @@ module.exports = {
             message: error.sqlMessage,
           });
         }
-
 
         GetTickBox((err, results) => {
           //console.log(response);
@@ -755,43 +755,45 @@ module.exports = {
               arr.push(A);
             });
           } else {
-            if (response[0].Routine_instructions_for_the_substitutedh_customer == null) {
-
+            if (
+              response[0].Routine_instructions_for_the_substitutedh_customer ==
+              null
+            ) {
               results.forEach((A) => {
                 arr.push(A);
               });
             } else {
-
               results.forEach((A) => {
                 arr.push(A);
               });
 
               arr.push({
-                "id": 0,
-                "value": response[0].Routine_instructions_for_the_substitutedh_customer,
-                "created_at": response[0].created_at,
-                "updated_at": response[0].updated_at,
-                "is_active": 1,
-                "is_selected": 0
+                id: 0,
+                value:
+                  response[0]
+                    .Routine_instructions_for_the_substitutedh_customer,
+                created_at: response[0].created_at,
+                updated_at: response[0].updated_at,
+                is_active: 1,
+                is_selected: 0,
               });
 
-              arr.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-
+              arr.sort(
+                (a, b) =>
+                  new Date(b.updated_at).getTime() -
+                  new Date(a.updated_at).getTime()
+              );
             }
-
           }
-
 
           return res.status(200).json({
             success: true,
             message: arr,
           });
         });
-
       });
     } else {
       GetTickBox((err, results) => {
-
         if (err) {
           console.log(err);
           return res.status(500).json({
@@ -805,10 +807,6 @@ module.exports = {
         });
       });
     }
-
-
-
-
   },
 
   customer_analytics: (req, res) => {
@@ -832,26 +830,23 @@ module.exports = {
       switch (data.type) {
         case 2:
           finalarray = results.filter(function (element, index, array) {
-
-            return (element.is_inactive === 0 && element.is_verfied == data.is_verfied);
-
-
+            return (
+              element.is_inactive === 0 && element.is_verfied == data.is_verfied
+            );
           });
-          break
+          break;
 
         case 3:
           finalarray = results.filter(function (element, index, array) {
-
-            return (element.is_inactive === 1 && element.is_verfied == data.is_verfied);
-
-
+            return (
+              element.is_inactive === 1 && element.is_verfied == data.is_verfied
+            );
           });
-          break
+          break;
 
         default:
           finalarray = results;
       }
-
 
       return res.status(200).json({
         success: true,
@@ -859,7 +854,6 @@ module.exports = {
       });
     });
   },
-
 
   consultant_analytics: (req, res) => {
     const data = req.body;
@@ -876,26 +870,26 @@ module.exports = {
       switch (data.type) {
         case 2:
           finalarray = results.filter(function (element, index, array) {
-
-            return (element.is_inactive === 0 && element.is_approved == data.is_verfied);
-
-
+            return (
+              element.is_inactive === 0 &&
+              element.is_approved == data.is_verfied
+            );
           });
-          break
+          break;
 
         case 3:
           finalarray = results.filter(function (element, index, array) {
-
-            return (element.is_inactive === 1 && element.is_approved == data.is_verfied && element.inactive_delete === 1);
-
-
+            return (
+              element.is_inactive === 1 &&
+              element.is_approved == data.is_verfied &&
+              element.inactive_delete === 1
+            );
           });
-          break
+          break;
 
         default:
           finalarray = results;
       }
-
 
       return res.status(200).json({
         success: true,
@@ -904,11 +898,9 @@ module.exports = {
     });
   },
 
-
   ExpressPassUserDetails: (req, res) => {
     const data = req.body;
     GetExpressPassUserDetails(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -916,7 +908,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       return res.status(200).json({
         success: true,
@@ -927,7 +918,6 @@ module.exports = {
   GetVacancyCancelUserDeatils: (req, res) => {
     const data = req.body;
     GetVacancyCanceledUserDetails(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -935,7 +925,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       return res.status(200).json({
         success: true,
@@ -944,12 +933,9 @@ module.exports = {
     });
   },
 
-
-
   Add_advertisment: (req, res) => {
     const data = req.body;
     Add_Advertisment(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -957,7 +943,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       return res.status(200).json({
         success: true,
@@ -969,7 +954,6 @@ module.exports = {
   Add_subscribe_email: (req, res) => {
     const data = req.body;
     Add_sub_email(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -978,7 +962,6 @@ module.exports = {
         });
       }
 
-
       return res.status(200).json({
         success: true,
         message: "Added",
@@ -986,13 +969,11 @@ module.exports = {
     });
   },
 
-
   Get_advertisment: (req, res) => {
     const data = req.body;
     var finalarray = [];
     const currentDate = moment();
     Get_Advertisment(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -1007,7 +988,10 @@ module.exports = {
             const targetDate = moment(data.end_date);
             console.log(targetDate);
             console.log(currentDate);
-            if (currentDate.isBefore(targetDate)||currentDate.isSame(targetDate, 'day')) {
+            if (
+              currentDate.isBefore(targetDate) ||
+              currentDate.isSame(targetDate, "day")
+            ) {
               finalarray.push(data);
             }
           });
@@ -1016,14 +1000,13 @@ module.exports = {
         case 3:
           results.forEach((data) => {
             const targetDate = new Date(data.end_date);
-            if (currentDate.isAfter(targetDate, 'day')){
+            if (currentDate.isAfter(targetDate, "day")) {
               finalarray.push(data);
               // if(currentDate.isSame){
 
               // }else{
-                
+
               // }
-              
             }
           });
           break;
@@ -1032,8 +1015,6 @@ module.exports = {
           results.forEach((data) => {
             finalarray.push(data);
           });
-
-
       }
 
       return res.status(200).json({
@@ -1042,6 +1023,4 @@ module.exports = {
       });
     });
   },
-
 };
-

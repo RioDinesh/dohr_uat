@@ -37,7 +37,8 @@ const {
   GetAllVacancyByDateAndType,
   ADDPAIDSTATUS,
   GetAllVacancyByDateAndSatus,
-  GetAllConsultant
+  GetAllConsultant,
+  GetMyVacancyFeedBack,
 } = require("../Service/common_post_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -45,10 +46,8 @@ const nodemailer = require("nodemailer");
 var fun = require("../../functions/Basic_methods");
 const { Validation } = require("../../Admin/Service/admin_post_services");
 const crypto = require("crypto");
-const socketio = require('socket.io');
+const socketio = require("socket.io");
 module.exports = {
-
-
   add_title: (req, res) => {
     const data = req.body;
     if (!data.title) {
@@ -75,7 +74,12 @@ module.exports = {
 
   add_feedback_to_completed_vacancy: (req, res) => {
     const data = req.body;
-    if (!data.rate_your_day || !data.rate_info || !data.rate_sufficiency || !data.id) {
+    if (
+      !data.rate_your_day ||
+      !data.rate_info ||
+      !data.rate_sufficiency ||
+      !data.id
+    ) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -195,6 +199,32 @@ module.exports = {
       });
     });
   },
+
+  get_my_feedback_based_on_vacancy: (req, res) => {
+    const data = req.body;
+
+    if (!data.vid) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    GetMyVacancyFeedBack(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
   get_my_completed_vacancy: (req, res) => {
     const data = req.body;
 
@@ -226,12 +256,10 @@ module.exports = {
           success: true,
           message: {
             Consultant: cons,
-            Customer: cus
+            Customer: cus,
           },
         });
       });
-
-
     });
   },
 
@@ -266,12 +294,10 @@ module.exports = {
           success: true,
           message: {
             Consultant: cons,
-            Customer: cus
+            Customer: cus,
           },
         });
       });
-
-
     });
   },
 
@@ -323,10 +349,7 @@ module.exports = {
             //   finalarray.push(v1);
             // }
             finalarray.push(v1);
-
-
           });
-
 
           GetConsOnlyVacancy(data, (err, Vacancy) => {
             if (err) {
@@ -337,7 +360,10 @@ module.exports = {
               });
             }
 
-            finalarray.sort((d1, d2) => new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime());
+            finalarray.sort(
+              (d1, d2) =>
+                new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime()
+            );
             if (Vacancy.length == 0) {
               return res.status(200).json({
                 success: true,
@@ -345,39 +371,32 @@ module.exports = {
               });
             }
 
-
             fav.forEach((c1) => {
               Vacancy.forEach((c2) => {
-
                 if (c1.ins_id == c2.ins_id) {
                   var cons_id = JSON.parse(c2.my_consultant);
                   cons_id.forEach((X) => {
                     if (data.id == X) {
                       finalarray.push(c2);
                     }
-
                   });
-
                 }
-
               });
-
             });
 
-            finalarray.sort((d1, d2) => new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime());
+            finalarray.sort(
+              (d1, d2) =>
+                new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime()
+            );
 
             return res.status(200).json({
               success: true,
               message: finalarray,
             });
-
-
           });
         });
       });
-
     });
-
   },
 
   consultant_feedback: (req, res) => {
@@ -450,7 +469,7 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      GetAllCustomer( data, (err, results) => {
+      GetAllCustomer(data, (err, results) => {
         if (err) {
           console.log(err);
           return res.status(500).json({
@@ -465,10 +484,9 @@ module.exports = {
               if (fun.IsNOtPassed30Days(X.created_at)) {
                 arr.push({
                   feedback: X,
-                  created_by: Y
+                  created_by: Y,
                 });
               }
-              
             }
           });
         });
@@ -478,8 +496,6 @@ module.exports = {
           message: arr,
         });
       });
-
-
     });
   },
   Create_Chat: (req, res) => {
@@ -512,8 +528,8 @@ module.exports = {
           title: data.title,
           cusdeviceId: cus.notification_id,
           vid: data.vid,
-          vdate: data.vdate
-        }
+          vdate: data.vdate,
+        };
         CreateChat(data1, (err, results) => {
           if (err) {
             console.log(err);
@@ -523,7 +539,7 @@ module.exports = {
             });
           }
 
-          GetChatProfileById(results,(err, chatprofile) => {
+          GetChatProfileById(results, (err, chatprofile) => {
             if (err) {
               console.log(err);
               return res.status(500).json({
@@ -531,28 +547,21 @@ module.exports = {
                 message: err.sqlMessage,
               });
             }
-  
-            
-  
+
             return res.status(200).json({
               success: true,
-              message:results,
-              chatdata:chatprofile
+              message: results,
+              chatdata: chatprofile,
             });
           });
-
 
           // return res.status(200).json({
           //   success: true,
           //   message: results,
           // });
         });
-
       });
-
-
     });
-
   },
 
   Get_My_chat: (req, res) => {
@@ -564,8 +573,6 @@ module.exports = {
         message: "fields are missing",
       });
     }
-
-
 
     GetChatprofile(data, (err, results) => {
       if (err) {
@@ -593,7 +600,6 @@ module.exports = {
       });
     }
     if (data.type == 1) {
-      
       GetNotificationIDCon(data, (err, notifcation) => {
         if (err) {
           console.log(err);
@@ -604,15 +610,14 @@ module.exports = {
         }
         console.log(notifcation);
         var message = {
-          "notification": {
-            "body": "Det finns ett nytt meddelande i din Chatt!",
-            "title": "A New Message"
+          notification: {
+            body: "Det finns ett nytt meddelande i din Chatt!",
+            title: "A New Message",
           },
-          "to": notifcation.notification_id
+          to: notifcation.notification_id,
         };
 
-        fun.FCM_MESSAGE(message)
-
+        fun.FCM_MESSAGE(message);
 
         CusChat(data, (err, results) => {
           if (err) {
@@ -628,11 +633,8 @@ module.exports = {
             message: "Posted",
           });
         });
-
       });
-
     } else if (data.type == 2) {
-     
       GetNotificationIDCus(data, (err, notifcation) => {
         if (err) {
           console.log(err);
@@ -642,15 +644,14 @@ module.exports = {
           });
         }
         var message = {
-          "notification": {
-            "body": "Det finns ett nytt meddelande i din Chatt!",
-            "title": "A New Message"
+          notification: {
+            body: "Det finns ett nytt meddelande i din Chatt!",
+            title: "A New Message",
           },
-          "to": notifcation.notification_id
+          to: notifcation.notification_id,
         };
 
-        fun.FCM_MESSAGE(message)
-
+        fun.FCM_MESSAGE(message);
 
         ConChat(data, (err, results) => {
           if (err) {
@@ -666,12 +667,8 @@ module.exports = {
             message: "Posted",
           });
         });
-
       });
-
     }
-
-
   },
 
   Get_Chat: (req, res) => {
@@ -806,7 +803,7 @@ module.exports = {
   },
 
   Cancel_express_pass_api: (req, res) => {
-    console.log("in-------------------------------------")
+    console.log("in-------------------------------------");
     const data = req.body;
     if (!data.id) {
       return res.status(500).json({
@@ -815,7 +812,6 @@ module.exports = {
       });
     }
     ExpressPassCancel(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -824,19 +820,12 @@ module.exports = {
         });
       }
 
-
       return res.status(200).json({
         success: true,
         message: "Canceled",
       });
-
-
     });
-
-
-
   },
-
 
   Forgot_Password_ALL: (req, res) => {
     const data = req.body;
@@ -847,10 +836,7 @@ module.exports = {
       });
     }
 
-
-
     ForgotPasswordEmailCheck(data, (err, results) => {
-
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -867,12 +853,21 @@ module.exports = {
       } else {
         var payload = {
           email: data.email_id,
-          type: results.type
+          type: results.type,
         };
-        var token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '15m' });
+        var token = jwt.sign(payload, process.env.JWT_KEY, {
+          expiresIn: "15m",
+        });
         console.log(token);
-        var fullUrl = req.protocol + '://' + req.get('host') + '/Forgot_Password_view/' + token;
-        fun.sendMail(data.email_id, "Återställ ditt lösenord / Reset your password - DoHR app",
+        var fullUrl =
+          req.protocol +
+          "://" +
+          req.get("host") +
+          "/Forgot_Password_view/" +
+          token;
+        fun.sendMail(
+          data.email_id,
+          "Återställ ditt lösenord / Reset your password - DoHR app",
           `<h4>Hej!</h4>
 
           <p>Vi har tagit emot din begäran om att återställa ditt DoHR mobilapp lösenord.</p>
@@ -906,15 +901,7 @@ module.exports = {
           message: fullUrl,
         });
       }
-
-
-
-
-
     });
-
-
-
   },
   Forgot_Password_View: (req, res) => {
     const { token } = req.params;
@@ -922,12 +909,10 @@ module.exports = {
     try {
       const verfication = jwt.verify(token, process.env.JWT_KEY);
 
-      res.render('forgot_password');
+      res.render("forgot_password");
     } catch (e) {
       s.render("forgot_password_failed");
     }
-
-
   },
   Forgot_Password_View_2: (req, res) => {
     const data = req.body;
@@ -944,8 +929,8 @@ module.exports = {
       const data1 = {
         email_id: verfication.email,
         password: data.password,
-        type: verfication.type
-      }
+        type: verfication.type,
+      };
 
       UpdatePassword(data1, (err, results) => {
         if (err) {
@@ -956,29 +941,23 @@ module.exports = {
           });
         }
 
-        res.render('forgot_password_changed');
-
+        res.render("forgot_password_changed");
       });
-
     } catch (e) {
       res.render("forgot_password_failed");
     }
-
-
   },
 
   Get_Vacancy_by_Date_All_type: (req, res) => {
     const data = req.body;
-    var finalarray =[];
-    
+    var finalarray = [];
+
     // if (!data.type) {
     //   return res.status(500).json({
     //     success: false,
     //     message: "fields are missing",
     //   });
     // }
-
-   
 
     GetAllVacancyByDateAndType(data, (err, results) => {
       if (err) {
@@ -989,79 +968,79 @@ module.exports = {
         });
       }
       //vacancy_status
-      if(data.get_all==false){
-        
-        switch(data.type){
+      if (data.get_all == false) {
+        switch (data.type) {
           case 0:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type&&element.v_date === data.date);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return (
+                element.vacancy_status === data.type &&
+                element.v_date === data.date
+              );
+            });
+            break;
 
           case 1:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type&&element.v_date === data.date);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return (
+                element.vacancy_status === data.type &&
+                element.v_date === data.date
+              );
+            });
+            break;
 
           case 2:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type&&element.v_date === data.date);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return (
+                element.vacancy_status === data.type &&
+                element.v_date === data.date
+              );
+            });
+            break;
 
           default:
-            finalarray=results.filter(function (element, index, array) {
-              return (element.v_date === data.date);
+            finalarray = results.filter(function (element, index, array) {
+              return element.v_date === data.date;
             });
-           // finalarray=results;
+          // finalarray=results;
         }
-      }else{
-      
-        results.forEach((x)=>{
+      } else {
+        results.forEach((x) => {
           console.log(x.vacancy_status);
         });
-        switch(data.type){
-          
+        switch (data.type) {
           case 0:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return element.vacancy_status === data.type;
+            });
+            break;
 
           case 1:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return element.vacancy_status === data.type;
+            });
+            break;
 
           case 2:
-           finalarray=results.filter(function (element, index, array) {
-            return (element.vacancy_status === data.type);
-          });
-          break
+            finalarray = results.filter(function (element, index, array) {
+              return element.vacancy_status === data.type;
+            });
+            break;
 
           default:
-            finalarray=results;
+            finalarray = results;
+        }
       }
-    }
-      
-  
-      
 
       return res.status(200).json({
         success: true,
         message: finalarray,
       });
     });
-
-    
   },
-
 
   Get_Vacancy_by_Paid_Status: (req, res) => {
     const data = req.body;
-    var finalarray =[];
+    var finalarray = [];
     GetAllVacancyByDateAndSatus(data, (err, results) => {
       if (err) {
         console.log(err);
@@ -1071,21 +1050,16 @@ module.exports = {
         });
       }
 
-      finalarray=results.filter(function (element, index, array) {
-        return (element.is_paid === data.is_paid);
+      finalarray = results.filter(function (element, index, array) {
+        return element.is_paid === data.is_paid;
       });
       //vacancy_status
-    
-  
-      
 
       return res.status(200).json({
         success: true,
         message: finalarray,
       });
     });
-
-    
   },
 
   Add_Paid_Status: (req, res) => {
@@ -1098,29 +1072,22 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      var message =
-      {
-        "notification": {
-          "body": "Vi vill tacka dig för ditt arbete. Det är nu betalt.",
-          "title": "A New Message"
+      var message = {
+        notification: {
+          body: "Vi vill tacka dig för ditt arbete. Det är nu betalt.",
+          title: "A New Message",
         },
 
-
-        "to": data.notificationId
-      }
+        to: data.notificationId,
+      };
       fun.FCM_MESSAGE(message);
-  
-      
 
       return res.status(200).json({
         success: true,
         message: "Paid",
       });
     });
-
-    
   },
-
 
   Send_Notification_Manual: (req, res) => {
     const data = req.body;
@@ -1147,83 +1114,62 @@ module.exports = {
             message: err.sqlMessage,
           });
         }
-  
-        var ids=[];
-        if(data.all==true){
-          
-          customer.forEach((X)=>{
-            if(X.notification_id!='NA'&&X.notification_id!=null){
+
+        var ids = [];
+        if (data.all == true) {
+          customer.forEach((X) => {
+            if (X.notification_id != "NA" && X.notification_id != null) {
               ids.push(X.notification_id);
             }
-        
           });
 
-          consultant.forEach((Y)=>{
-            if(Y.notification_id!='NA'&&Y.notification_id!=null){
+          consultant.forEach((Y) => {
+            if (Y.notification_id != "NA" && Y.notification_id != null) {
               ids.push(Y.notification_id);
             }
           });
-
-        }else if(data.only_consultant==true){
-          consultant.forEach((X)=>{
-            if(X.notification_id!='NA'&&X.notification_id!=null){
+        } else if (data.only_consultant == true) {
+          consultant.forEach((X) => {
+            if (X.notification_id != "NA" && X.notification_id != null) {
               ids.push(X.notification_id);
             }
-            
           });
-        }else{
- 
-          customer.forEach((X)=>{
-            if(X.notification_id!='NA'&&X.notification_id!=null){
+        } else {
+          customer.forEach((X) => {
+            if (X.notification_id != "NA" && X.notification_id != null) {
               ids.push(X.notification_id);
             }
-        
           });
         }
-       console.log(ids);
+        console.log(ids);
         if (ids.length != 0) {
           var message = {
-            "notification": {
-              "body": data.message,
-              "title": data.title
+            notification: {
+              body: data.message,
+              title: data.title,
             },
 
-
-            "registration_ids": ids
-          }
+            registration_ids: ids,
+          };
 
           fun.FCM_MESSAGE(message);
 
           return res.status(200).json({
-          success: true,
-          message: "Done",
-        });
-        }else{
-return res.status(400).json({
-          success: false,
-          message: "Failed",
-        });
+            success: true,
+            message: "Done",
+          });
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: "Failed",
+          });
         }
-        
-  
-        
-      });  
-  
-      
+      });
 
       // return res.status(200).json({
       //   success: true,
       //   message: "Paid",
       // });
     });
-
-
-    
   },
-
-
-}
-
-
-
-
+};

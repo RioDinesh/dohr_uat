@@ -82,6 +82,19 @@ module.exports = {
       }
     );
   },
+  GetMyVacancyFeedBack: (data, callback) => {
+    pool.query(
+      "select * from dh_feedback where is_active=1 and vid=?",
+      [data.vid],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
 
   GetMyCompletedVacancyCus: (data, callback) => {
     pool.query(
@@ -167,7 +180,7 @@ module.exports = {
   CustomerFeebBack: (data, callback) => {
     pool.query(
       "insert into dh_feedback(rating,feedback,cus_id,created_by) values(?,?,?,?)",
-      [data.rating, data.feedback, data.cus_id,data.created_by],
+      [data.rating, data.feedback, data.cus_id, data.created_by],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -181,7 +194,15 @@ module.exports = {
   ConsultantFeebBack: (data, callback) => {
     pool.query(
       "insert into dh_feedback(rating,feedback,cons_id,created_by,postion,V_date,vid) values(?,?,?,?,?,?,?)",
-      [data.rating, data.feedback, data.cons_id,data.created_by,data.postion,data.v_date,data.vid],
+      [
+        data.rating,
+        data.feedback,
+        data.cons_id,
+        data.created_by,
+        data.postion,
+        data.v_date,
+        data.vid,
+      ],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -195,15 +216,15 @@ module.exports = {
               } else {
                 return callback(null, result);
               }
-            });
-         // return callback(null, result);
+            }
+          );
+          // return callback(null, result);
         }
       }
     );
   },
 
   GetConsultantLocations: (data, callback) => {
-   
     pool.query(
       "select * from dh_substitute_consultant where id=?",
       [data.id],
@@ -226,7 +247,6 @@ module.exports = {
         if (erroru) {
           return callback(erroru);
         } else {
-
           pool.query(
             "insert into dh_chats(cus_message,chat_id) values(?,?)",
             [data.message, data.chat_id],
@@ -241,8 +261,6 @@ module.exports = {
         }
       }
     );
-    
-    
   },
 
   GetNotificationIDCon: (data, callback) => {
@@ -276,7 +294,7 @@ module.exports = {
   },
 
   GetChat: (data, callback) => {
-    if(data.type==1){
+    if (data.type == 1) {
       pool.query(
         "update dh_chat_profile set customer_has_new_message=0 where id=?",
         [data.chat_id],
@@ -299,7 +317,7 @@ module.exports = {
         }
       );
     }
-    if(data.type==2){
+    if (data.type == 2) {
       pool.query(
         "update dh_chat_profile set consultant_has_new_message=0 where id=?",
         [data.chat_id],
@@ -322,9 +340,6 @@ module.exports = {
         }
       );
     }
-    
-    
-   
   },
 
   ConChat: (data, callback) => {
@@ -351,8 +366,6 @@ module.exports = {
         }
       }
     );
-    
-    
   },
 
   GetRating: (data, callback) => {
@@ -381,7 +394,6 @@ module.exports = {
         }
       );
     }
-
   },
 
   GetAllCustomer: (data, callback) => {
@@ -398,7 +410,6 @@ module.exports = {
         }
       );
     }
-
   },
   GetCusByUniqueId: (data, callback) => {
     pool.query(
@@ -604,43 +615,48 @@ module.exports = {
   CreateChat: (data, callback) => {
     pool.query(
       "select * from dh_chat_profile where unique_id=? AND cons_id=? AND vid=? AND is_active=1",
-      [data.unique_id, data.cons_id,data.vid],
+      [data.unique_id, data.cons_id, data.vid],
       (error, result, fields) => {
         if (error) {
           return callback(error);
         } else {
-          if(result.length!=0){
+          if (result.length != 0) {
             console.log(result);
-            return callback(null,{"message":"Chat Already exist",chat_id:result[0].id});
+            return callback(null, {
+              message: "Chat Already exist",
+              chat_id: result[0].id,
+            });
           }
 
           pool.query(
             "insert into dh_chat_profile (unique_id,cons_id,cons_device_id,title,vid,vdate) values(?,?,?,?,?,?)",
-            [data.unique_id, data.cons_id, data.consdeviceId,data.title,data.vid,data.vdate],
+            [
+              data.unique_id,
+              data.cons_id,
+              data.consdeviceId,
+              data.title,
+              data.vid,
+              data.vdate,
+            ],
             (error, result, fields) => {
               if (error) {
                 return callback(error);
               } else {
                 if (result.length != 0) {
-                  return callback(null, {"message":"Chat Created",
-                  chat_id:result.insertId
-                });
+                  return callback(null, {
+                    message: "Chat Created",
+                    chat_id: result.insertId,
+                  });
                 }
-
-
-
               }
             }
           );
-
         }
       }
     );
-
-
   },
 
-  GetChatProfileById:(data, callback)=>{
+  GetChatProfileById: (data, callback) => {
     pool.query(
       "select C.*,A.ins_id,A.first_name as customer_fname, A.last_name as customer_lname ,A.profile_img,B.first_name as consultant_fname,B.last_name as consultant_lname,I.institute_name from dh_chat_profile C join dh_customer A on C.unique_id = A.unique_id join dh_substitute_consultant B on C.cons_id=B.id join dh_institutes I on A.ins_id = I.id where C.id=? AND C.is_active=1",
       [data.chat_id],
@@ -658,7 +674,7 @@ module.exports = {
     if (data.type == 1) {
       pool.query(
         "select D.*,A.ins_id,A.first_name as customer_fname, A.last_name as customer_lname ,B.profile_img,B.first_name as consultant_fname,B.last_name as consultant_lname,I.institute_name from dh_chat_profile D join dh_customer A on D.unique_id = A.unique_id join dh_substitute_consultant B on D.cons_id=B.id join dh_institutes I on A.ins_id = I.id where D.unique_id=?  AND D.is_active=1",
-        [data.id,],
+        [data.id],
         (error, result, fields) => {
           if (error) {
             return callback(error);
@@ -670,21 +686,16 @@ module.exports = {
     } else {
       pool.query(
         "select C.*,A.ins_id,A.first_name as customer_fname, A.last_name as customer_lname ,A.profile_img,B.first_name as consultant_fname,B.last_name as consultant_lname,I.institute_name from dh_chat_profile C join dh_customer A on C.unique_id = A.unique_id join dh_substitute_consultant B on C.cons_id=B.id join dh_institutes I on A.ins_id = I.id where C.cons_id=?  AND C.is_active=1",
-        [data.id,],
+        [data.id],
         (error, result, fields) => {
           if (error) {
             return callback(error);
           } else {
-
             return callback(null, result);
-
-}
+          }
         }
       );
     }
-
-
-
   },
 
   MyProfile: (data, callback) => {
@@ -713,7 +724,7 @@ module.exports = {
         }
       );
     } else if (data.type == 3) {
-      console.log("1")
+      console.log("1");
       pool.query(
         "select * from dh_institutes where id=?",
         [data.id],
@@ -726,7 +737,6 @@ module.exports = {
         }
       );
     }
-
   },
   ADDTICKBOX: (data, callback) => {
     pool.query(
@@ -745,7 +755,7 @@ module.exports = {
   ADDPAIDSTATUS: (data, callback) => {
     pool.query(
       "update dh_vacancy_new set is_paid=? where id=?",
-      [data.is_paid,data.id],
+      [data.is_paid, data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -798,10 +808,9 @@ module.exports = {
     );
   },
 
-
-
   ExpressPassCancel: (data, callback) => {
-    pool.query("Update dh_express_pass_users join dh_express_pass ON dh_express_pass_users.pass_id= dh_express_pass.id set dh_express_pass_users.is_active=0,dh_express_pass.filled_count=dh_express_pass.filled_count-1 where  dh_express_pass_users.id=?",
+    pool.query(
+      "Update dh_express_pass_users join dh_express_pass ON dh_express_pass_users.pass_id= dh_express_pass.id set dh_express_pass_users.is_active=0,dh_express_pass.filled_count=dh_express_pass.filled_count-1 where  dh_express_pass_users.id=?",
       [data.id],
       (error, result, fields) => {
         if (error) {
@@ -814,55 +823,61 @@ module.exports = {
   },
 
   UpdatePassword: (data, callback) => {
-console.log(data.type);
-if(data.type=="customer"){
-  pool.query("Update dh_customer  set password=? where email_id=?",
-  [data.password,data.email_id],
-  (error, result, fields) => {
-    if (error) {
-      return callback(error);
+    console.log(data.type);
+    if (data.type == "customer") {
+      pool.query(
+        "Update dh_customer  set password=? where email_id=?",
+        [data.password, data.email_id],
+        (error, result, fields) => {
+          if (error) {
+            return callback(error);
+          } else {
+            return callback(null, result);
+          }
+        }
+      );
     } else {
-      return callback(null, result);
+      console.log("passss");
+      pool.query(
+        "Update dh_substitute_consultant  set password=? where email_id=?",
+        [data.password, data.email_id],
+        (error, result, fields) => {
+          if (error) {
+            return callback(error);
+          } else {
+            console.log(result);
+            return callback(null, result);
+          }
+        }
+      );
     }
-  }
-);
-}else{
-  console.log("passss");
-  pool.query("Update dh_substitute_consultant  set password=? where email_id=?",
-  [data.password,data.email_id],
-  (error, result, fields) => {
-    if (error) {
-      return callback(error);
-    } else {
-      console.log(result);
-      return callback(null, result);
-    }
-  }
-);
-}
-
   },
 
   ForgotPasswordEmailCheck: (data, callback) => {
-    pool.query("select * from dh_customer where email_id=? AND is_active=1",
+    pool.query(
+      "select * from dh_customer where email_id=? AND is_active=1",
       [data.email_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
         } else {
-          if(result.length==0){
-            pool.query("select * from dh_substitute_consultant where email_id=? AND is_active=1",
-            [data.email_id],
-            (error, result2, fields) => {
-              if (error) {
-                return callback(error);
-              } else {
-                return callback(null, {result:result2,type:"consultant"});
+          if (result.length == 0) {
+            pool.query(
+              "select * from dh_substitute_consultant where email_id=? AND is_active=1",
+              [data.email_id],
+              (error, result2, fields) => {
+                if (error) {
+                  return callback(error);
+                } else {
+                  return callback(null, {
+                    result: result2,
+                    type: "consultant",
+                  });
+                }
               }
-            }
-          );
-          }else{
-            return callback(null, {result:result,type:"customer"});
+            );
+          } else {
+            return callback(null, { result: result, type: "customer" });
           }
         }
       }

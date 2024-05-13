@@ -1,0 +1,3 @@
+for dk 
+1 . domain api for mob chnage due ti institute
+2. avoid web/mob cons to login

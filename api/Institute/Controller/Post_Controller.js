@@ -32,7 +32,7 @@ const {
   GetMyConsultant_API,
   CreateCustomerAPI,
   MakeCustomerVerfied,
-  GetMyConsultantNotification
+  GetMyConsultantNotification,
 } = require("../Service/ins_post_services");
 const { GetInstitueRequirement } = require("../Service/ins__get_services");
 const { UpdateAbsenceStatus } = require("../Service/ins_edit_services");
@@ -41,7 +41,7 @@ const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 var fun = require("../../functions/Basic_methods");
-var moment = require('moment'); // require
+var moment = require("moment"); // require
 const { GetALLConsultant } = require("../../Cron/services/Cron_Services");
 moment().format();
 module.exports = {
@@ -113,7 +113,6 @@ module.exports = {
       !data1.invoice_email_id ||
       !data1.password ||
       !data1.invoice_reference
-
     ) {
       return res.status(500).json({
         success: false,
@@ -121,7 +120,6 @@ module.exports = {
       });
     }
     Validation(data1, (errorr, validation) => {
-
       if (errorr) {
         console.log(errorr);
         return res.status(500).json({
@@ -136,11 +134,11 @@ module.exports = {
           message: "Email Already Present",
         });
       }
-       
-      var [username, domain] = data1.email_id.split('@');
 
-      domain="@"+domain;
-      
+      var [username, domain] = data1.email_id.split("@");
+
+      domain = "@" + domain;
+
       Create_Customer_Get_Ins(domain, (error, ins) => {
         if (error) {
           console.log(error);
@@ -149,43 +147,45 @@ module.exports = {
             message: error.sqlMessage,
           });
         }
-       if (ins.length != 0) {
-        
-        var institute=ins[0];
-        const salt = genSaltSync(10);
-        const match = data1.email_id.match(/([^@]*)@/);
-        const emailhash = match[1];
-        let randomNumbers = Math.floor(Math.random() * 90) + 10;
+        if (ins.length != 0) {
+          var institute = ins[0];
+          const salt = genSaltSync(10);
+          const match = data1.email_id.match(/([^@]*)@/);
+          const emailhash = match[1];
+          let randomNumbers = Math.floor(Math.random() * 90) + 10;
 
-        data1.unique_id  = data1.title.substring(0, 2) +emailhash+data1.telephone_number.toString().substring(3, 4)+randomNumbers;
-                
-        data1.password = hashSync(data1.password, salt);
-        data1.ins_id=institute.id;
+          data1.unique_id =
+            data1.title.substring(0, 2) +
+            emailhash +
+            data1.telephone_number.toString().substring(3, 4) +
+            randomNumbers;
 
-        CreateCustomerAPI(data1, (err, results) => {
-          if (err) {
-            console.log(err);
-            return res.status(500).json({
-              success: false,
-              message: err.sqlMessage,
-            });
-          }
+          data1.password = hashSync(data1.password, salt);
+          data1.ins_id = institute.id;
 
+          CreateCustomerAPI(data1, (err, results) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
 
-          var payload = {
-            id: results.insertId,
-            email_id: data1.email_id,
-            password: pass
-          };
-          var token = jwt.sign(payload, process.env.JWT_KEY);
-          console.log(token);
-          var fullUrl = req.protocol + '://' + req.get('host') + '/verfiy/' + token;
+            var payload = {
+              id: results.insertId,
+              email_id: data1.email_id,
+              password: pass,
+            };
+            var token = jwt.sign(payload, process.env.JWT_KEY);
+            console.log(token);
+            var fullUrl =
+              req.protocol + "://" + req.get("host") + "/verfiy/" + token;
 
-
-          fun.sendMail(
-            data1.email_id,
-            "Verifiera ditt företagskonto / Verify your company account - DoHR",
-            `
+            fun.sendMail(
+              data1.email_id,
+              "Verifiera ditt företagskonto / Verify your company account - DoHR",
+              `
             <p>Hej!</p>
 
             <p>Nu när du har skapat ett företagskonto för att använda DoHR mobilappen är du ett steg närmare kontakten med våra vikarier.</p>
@@ -218,32 +218,20 @@ module.exports = {
         <br>
         <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
               `
-          );
-          return res.status(200).json({
-            success: true,
-            message: "Customer registered successfully",
+            );
+            return res.status(200).json({
+              success: true,
+              message: "Customer registered successfully",
+            });
           });
-        });
-        }else{
+        } else {
           return res.status(200).json({
-                success: false,
-                message: "Domain Not Found",
-              });
-
+            success: false,
+            message: "Domain Not Found",
+          });
         }
-
-
-
-
-
-
-
-
       });
     });
-
-
-
   },
   create_absence: (req, res) => {
     const data = req.body;
@@ -267,8 +255,6 @@ module.exports = {
     }
     var days = fun.DayFinder(data.from_date, data.to_date);
 
-    console.log(days);
-
     var body = {
       unique_id: data.unique_id,
       day: days,
@@ -277,6 +263,7 @@ module.exports = {
       from_time: data.from_time,
       to_time: data.to_time,
     };
+
     GetScheduleAbsence(body, (err, schedule) => {
       if (err) {
         console.log(err);
@@ -285,9 +272,30 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      console.log(schedule.length);
 
-      if (schedule.length == 0 && data.substitute_required == true) {
+      let haveschedule = [];
+      schedule.forEach((x) => {
+        // Example times
+        const scheduleStartTime = new Date(`${data.from_date}T${x.start_time}`);
+        const scheduleEndTime = new Date(`${data.from_date}T${x.end_time}`);
+        const leaveStartTime = new Date(`${data.from_date}T${x.from_time}`);
+        const leaveEndTime = new Date(`${data.to_date}T${x.to_time}`);
+
+        if (
+          fun.checkhaveSchedule(
+            scheduleStartTime,
+            scheduleEndTime,
+            leaveStartTime,
+            leaveEndTime
+          )
+        ) {
+        } else {
+          haveschedule.push(x);
+          console.log("The leave is not during work hours.");
+        }
+      });
+
+      if (haveschedule.length == 0 && data.substitute_required == true) {
         return res.status(500).json({
           success: false,
           message:
@@ -308,7 +316,6 @@ module.exports = {
               data.leave_type.toLowerCase() === "vab" ||
               data.leave_type.toLowerCase() === "sick"
             ) {
-              console.log(schedule.length);
               if (schedule.length == 0) {
                 UpdateAbsenceStatus(results.insertId, (err, uncovered) => {
                   if (err) {
@@ -326,31 +333,32 @@ module.exports = {
                 });
               } else {
                 var uncovered = [];
-                if (days.length > 0) {
-                  schedule.forEach((s, indexs) => {
-                    days.forEach((d, indexd) => {
-                      console.log(s.day);
-                      console.log(d);
-                      if (d.day.toLowerCase() == s.day.toLowerCase()) {
-                        uncovered.push([
-                          d.date,
-                          s.id,
-                          results.insertId,
-                          s.ins_id,
-                          s.cus_id,
-                        ]);
-                      }
-                    });
+
+                // if (days.length > 0) {
+                schedule.forEach((s, indexs) => {
+                  days.forEach((d, indexd) => {
+                    console.log(s.day);
+                    console.log(d);
+                    if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                      uncovered.push([
+                        d.date,
+                        s.id,
+                        results.insertId,
+                        s.ins_id,
+                        s.cus_id,
+                      ]);
+                    }
                   });
-                } else {
-                  uncovered.push([
-                    data.from_date,
-                    schedule[0].id,
-                    results.insertId,
-                    schedule[0].ins_id,
-                    schedule[0].cus_id,
-                  ]);
-                }
+                });
+                // else {
+                //   uncovered.push([
+                //     data.from_date,
+                //     schedule[0].id,
+                //     results.insertId,
+                //     schedule[0].ins_id,
+                //     schedule[0].cus_id,
+                //   ]);
+                // }
 
                 CreateUncoverSchedule(uncovered, (err, uncovered) => {
                   if (err) {
@@ -431,31 +439,31 @@ module.exports = {
                   });
                 } else {
                   var uncovered = [];
-                  if (days.length > 0) {
-                    schedule.forEach((s, indexs) => {
-                      days.forEach((d, indexd) => {
-                        console.log(s.day);
-                        console.log(d);
-                        if (d.day.toLowerCase() == s.day.toLowerCase()) {
-                          uncovered.push([
-                            d.date,
-                            s.id,
-                            results.insertId,
-                            s.ins_id,
-                            s.cus_id,
-                          ]);
-                        }
-                      });
+                  // if (days.length > 0) {
+                  schedule.forEach((s, indexs) => {
+                    days.forEach((d, indexd) => {
+                      console.log(s.day);
+                      console.log(d);
+                      if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                        uncovered.push([
+                          d.date,
+                          s.id,
+                          results.insertId,
+                          s.ins_id,
+                          s.cus_id,
+                        ]);
+                      }
                     });
-                  } else {
-                    uncovered.push([
-                      data.from_date,
-                      schedule[0].id,
-                      results.insertId,
-                      schedule[0].ins_id,
-                      schedule[0].cus_id,
-                    ]);
-                  }
+                  });
+                  // } else {
+                  //   uncovered.push([
+                  //     data.from_date,
+                  //     schedule[0].id,
+                  //     results.insertId,
+                  //     schedule[0].ins_id,
+                  //     schedule[0].cus_id,
+                  //   ]);
+                  // }
 
                   CreateUncoverSchedule(uncovered, (err, uncovered) => {
                     if (err) {
@@ -513,7 +521,7 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      console.log(absence);
+
       var days = fun.DayFinder(absence.from_date, absence.to_date);
 
       var body = {
@@ -533,10 +541,9 @@ module.exports = {
             message: err.sqlMessage,
           });
         }
-        console.log(schedule);
+
         var multicheck = [];
         schedule.forEach((schedata) => {
-          console.log("in");
           const weekday = [
             "Sunday",
             "Monday",
@@ -564,7 +571,6 @@ module.exports = {
               }
             });
           }
-
         });
         console.log(multicheck.length);
 
@@ -585,29 +591,23 @@ module.exports = {
           });
         } else {
           var uncovered = [];
-          if (days.length > 0) {
-            schedule.forEach((s, indexs) => {
-              days.forEach((d, indexd) => {
-                if (d.day.toLowerCase() == s.day.toLowerCase()) {
-                  uncovered.push([
-                    d.date,
-                    s.id,
-                    absence.id,
-                    s.ins_id,
-                    s.cus_id,
-                  ]);
-                }
-              });
+          // if (days.length > 0) {
+          schedule.forEach((s, indexs) => {
+            days.forEach((d, indexd) => {
+              if (d.day.toLowerCase() == s.day.toLowerCase()) {
+                uncovered.push([d.date, s.id, absence.id, s.ins_id, s.cus_id]);
+              }
             });
-          } else {
-            uncovered.push([
-              absence.from_date,
-              schedule[0].id,
-              absence.id,
-              schedule[0].ins_id,
-              schedule[0].cus_id,
-            ]);
-          }
+          });
+          // } else {
+          //   uncovered.push([
+          //     absence.from_date,
+          //     schedule[0].id,
+          //     absence.id,
+          //     schedule[0].ins_id,
+          //     schedule[0].cus_id,
+          //   ]);
+          // }
 
           CreateUncoverSchedule(uncovered, (err, uncovered) => {
             if (err) {
@@ -637,8 +637,6 @@ module.exports = {
       });
     });
   },
-
-
 
   create_customer: (req, res) => {
     const data = req.body;
@@ -689,15 +687,13 @@ module.exports = {
 
       const match = data.email_id.match(/([^@]*)@/);
       const emailhash = match[1];
-      
+      let salt = genSaltSync(10);
       data.unique_id =
-              data.title.substring(0, 2) +
-              emailhash+
-              data.telephone_number.toString().substring(3, 4);
-              console.log(data.unique_id);
+        data.title.substring(0, 2) +
+        emailhash +
+        data.telephone_number.toString().substring(3, 4);
+      console.log(data.unique_id);
       data.password = hashSync(data.password, salt);
-
-
 
       CreateCustomer(data, (err, results) => {
         if (err) {
@@ -710,12 +706,14 @@ module.exports = {
         var payload = {
           id: results.insertId,
           email_id: data.email_id,
-          password: pass
+          password: pass,
         };
-        var token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '60m' });
+        var token = jwt.sign(payload, process.env.JWT_KEY, {
+          expiresIn: "60m",
+        });
         console.log(token);
-        var fullUrl = req.protocol + '://' + req.get('host') + '/verfiy/' + token;
-
+        var fullUrl =
+          req.protocol + "://" + req.get("host") + "/verfiy/" + token;
 
         //${fullUrl}.
 
@@ -738,7 +736,7 @@ module.exports = {
 
 <p>Greetings,</p>
 
-<p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) mobile app, you're one step closer to connecting with our top team of Substitutes.</p>
+<p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) web app, you're one step closer to connecting with our top team of Substitutes.</p>
 
 <p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
 
@@ -763,8 +761,6 @@ module.exports = {
         });
       });
     });
-
-
   },
 
   add_my_consultant: (req, res) => {
@@ -796,7 +792,6 @@ module.exports = {
 
   deny_Absence: (req, res) => {
     const data = req.body;
-
 
     if (!data.id || !data.email_id || !data.reason) {
       return res.status(500).json({
@@ -942,6 +937,7 @@ module.exports = {
   create_uncovered_vacancy_external: (req, res) => {
     const data = req.body;
     var schedulecheck = [];
+    console.log(data);
     if (data.externalVacancy.length == 0) {
       return res.status(500).json({
         success: false,
@@ -956,8 +952,8 @@ module.exports = {
       data.externalVacancy[0].position_id,
       data.externalVacancy[0].v_date,
       data.externalVacancy[0].day,
-      data.fromtime,
-      data.totime,
+      data.externalVacancy[0].from_time,
+      data.externalVacancy[0].to_time,
       "",
       "",
       data.externalVacancy[0].ins_id,
@@ -969,15 +965,15 @@ module.exports = {
       0,
       false,
       true,
-      data.isdraft,
-      data.location,
-      JSON.stringify(data.description),
+      data.externalVacancy[0].isdraft,
+      data.externalVacancy[0].location,
+      JSON.stringify(data.externalVacancy[0].description),
       data.externalVacancy[0].assigned_from,
       data.externalVacancy[0].created_by,
-      data.publish_to,
-      data.publish_to_id,
+      data.externalVacancy[0].publish_to,
+      data.externalVacancy[0].publish_to_id,
     ]);
-    data.externalVacancy.forEach((Data) => { });
+    data.externalVacancy.forEach((Data) => {});
     var insert_data = {
       a: insert,
       b: data,
@@ -1051,7 +1047,7 @@ module.exports = {
             false,
             false,
             Data.assigned_from,
-            Data.created_by
+            Data.created_by,
           ]);
         });
 
@@ -1082,7 +1078,6 @@ module.exports = {
     const data = req.body;
     // three types==> publish_to_All //internal_staff //my_consultant
 
-    
     // if (
     //   !data.position||
     //   !data.position_id||
@@ -1123,62 +1118,47 @@ module.exports = {
       }
 
       GetALLConsultant((error, cons) => {
-
         var notificationIds = [];
         if (data.publish_to_id == 1) {
-
           cons.forEach((X) => {
             notificationIds.push(X.notification_id);
           });
 
-          if (notificationIds.length != 0 && data.is_draft==0) {
+          if (notificationIds.length != 0 && data.is_draft == 0) {
             var message = {
-              "notification": {
-                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                "title": "A New Message"
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
               },
-              "registration_ids": notificationIds
-            }
-
-
+              registration_ids: notificationIds,
+            };
 
             fun.FCM_MESSAGE(message);
           }
         }
-
 
         if (data.publish_to_id == 2) {
           cons.forEach((X) => {
             if (X.iam_student == 1) {
               notificationIds.push(X.notification_id);
             }
-
           });
           console.log("heree");
           console.log(notificationIds);
 
-
-          if (notificationIds.length != 0 && data.is_draft==0) {
+          if (notificationIds.length != 0 && data.is_draft == 0) {
             var message = {
-              "notification": {
-                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                "title": "A New Message"
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
               },
-              "registration_ids": notificationIds
-            }
-
-
+              registration_ids: notificationIds,
+            };
 
             fun.FCM_MESSAGE(message);
           }
         }
-
-
-
-
-
       });
-
 
       GetMyConsultantNotification(data, (error2, mycons) => {
         var notificationIds = [];
@@ -1186,34 +1166,26 @@ module.exports = {
           mycons.forEach((X) => {
             console.log(data.my_consultant);
 
-
             data.my_consultant.forEach((Y) => {
               console.log(Y);
               if (Y == X.cons_id) {
                 console.log("in da ");
                 notificationIds.push(X.notification_id);
               }
-
             });
-
-
-
           });
           console.log(notificationIds);
-          if (notificationIds.length != 0 && data.is_draft==0) {
+          if (notificationIds.length != 0 && data.is_draft == 0) {
             var message = {
-              "notification": {
-                "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                "title": "A New Message"
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
               },
-              "registration_ids": notificationIds
-            }
-
-
+              registration_ids: notificationIds,
+            };
 
             fun.FCM_MESSAGE(message);
           }
-
         }
       });
 
@@ -1221,7 +1193,6 @@ module.exports = {
         success: true,
         message: "registered successfully",
       });
-
     });
   },
 
@@ -1365,7 +1336,6 @@ module.exports = {
         if (filter.is_denied == 0) {
           finalArray.push(filter);
         }
-
       });
       return res.status(200).json({
         success: true,
@@ -1441,50 +1411,53 @@ module.exports = {
           });
         }
 
-        var currentTime = new Date()
+        var currentTime = new Date();
         var month = currentTime.toISOString().slice(5, 7);
-        var year = currentTime.getFullYear()
+        var year = currentTime.getFullYear();
         var startdate = year + "-" + month + "-" + "01";
         var ongoingDate = currentTime.toISOString().slice(0, 10);
-        console.log(startdate, ongoingDate)
+        console.log(startdate, ongoingDate);
         var present_month_dates = fun.DateFinder(startdate, ongoingDate);
         console.log(present_month_dates);
         present_month_dates.forEach((P_Date) => {
           workedList.forEach((W_Date) => {
-
             if (W_Date.v_date === P_Date) {
               worked_List.push(W_Date);
             }
-
           });
         });
 
         worked_List.forEach((TimeCalculation) => {
-          var A_INDEX = calculated_Time.findIndex(x => x.id === TimeCalculation.assigned_to_internal);
+          var A_INDEX = calculated_Time.findIndex(
+            (x) => x.id === TimeCalculation.assigned_to_internal
+          );
           if (A_INDEX == -1) {
-            var startTime = moment(TimeCalculation.v_date + "T" + TimeCalculation.from_time);
-            var end = moment(TimeCalculation.v_date + "T" + TimeCalculation.to_time);
+            var startTime = moment(
+              TimeCalculation.v_date + "T" + TimeCalculation.from_time
+            );
+            var end = moment(
+              TimeCalculation.v_date + "T" + TimeCalculation.to_time
+            );
 
-            var duration = end.diff(startTime, 'hours');
+            var duration = end.diff(startTime, "hours");
             //console.log(duration);
 
-            calculated_Time.push(
-              {
-                "id": TimeCalculation.assigned_to_internal,
-                "hours": duration
-              }
-            );
+            calculated_Time.push({
+              id: TimeCalculation.assigned_to_internal,
+              hours: duration,
+            });
           } else {
-            var startTime = moment(TimeCalculation.v_date + "T" + TimeCalculation.from_time);
-            var end = moment(TimeCalculation.v_date + "T" + TimeCalculation.to_time);
+            var startTime = moment(
+              TimeCalculation.v_date + "T" + TimeCalculation.from_time
+            );
+            var end = moment(
+              TimeCalculation.v_date + "T" + TimeCalculation.to_time
+            );
 
-            var d = end.diff(startTime, 'hours');
+            var d = end.diff(startTime, "hours");
             var A = calculated_Time[A_INDEX].hours + d;
-            calculated_Time[A_INDEX].hours = Math.abs(A)
+            calculated_Time[A_INDEX].hours = Math.abs(A);
           }
-
-
-
         });
 
         allList.forEach((ALLData) => {
@@ -1493,23 +1466,38 @@ module.exports = {
             ALL_Data.push(ALLData);
           }
 
-
           calculated_Time.forEach((t_check) => {
-
             if (ALLData.id == t_check.id) {
               ALLData.assigned_work_time = t_check.hours;
             }
-
           });
         });
 
-        return res.status(200).json({
-          success: true,
-          message: ALL_Data,
+        GetAbsenceStaff(data, (errrr, abstaff) => {
+          if (err) {
+            console.log(errrr);
+            return res.status(500).json({
+              success: false,
+              message: errrr.sqlMessage,
+            });
+          }
+          console.log("findeme", abstaff);
+          abstaff.forEach((v, i) => {
+            let checkdate = `${v.to_date}T${v.to_time}Z`;
+            let checking = fun.CheckDateisPassed(checkdate);
+            if (checking == false) {
+              ALL_Data.splice(
+                ALL_Data.findIndex((a) => a.unique_id === v.unique_id),
+                1
+              );
+            }
+          });
+          return res.status(200).json({
+            success: true,
+            message: ALL_Data,
+          });
         });
       });
-
-
     });
   },
 
@@ -1613,13 +1601,10 @@ module.exports = {
       console.log(datetime.toISOString().slice(0, 10));
 
       results.forEach((res_data, index) => {
-
         finalArray.push({
           data: res_data,
           type: "Absent",
         });
-
-
       });
 
       return res.status(200).json({
@@ -1697,11 +1682,10 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      console.log('res');
+      console.log("res");
       console.log(results);
-      var currentTime = new Date()
-      var year = currentTime.getFullYear()
-
+      var currentTime = new Date();
+      var year = currentTime.getFullYear();
 
       var full_year = fun.DateFinder(year + "-01-01", year + "-12-31");
 
@@ -1709,139 +1693,133 @@ module.exports = {
 
       // fixed data validation by index of array(obj);
       var obj = [
-        {//0
+        {
+          //0
           name: `Leave with pay`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
-        {//1
+        {
+          //1
           name: `Sick`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
 
-
-
-        {//2
+        {
+          //2
           name: `VAB`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
 
-        {//3
+        {
+          //3
           name: `Vacation`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
 
-        {//4
+        {
+          //4
           name: `Leave without pay`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
 
-        {//5
+        {
+          //5
           name: `parental leave`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
-
       ];
+      if (results.length == 0) {
+        return res.status(200).json({
+          success: true,
+          count: obj,
+        });
+      }
 
       function _fun(index, leave_t) {
-
-        if (leave_t.replace(/^\s+/g, '').toLowerCase() == "leave with pay") {
-          finalArray.push(obj[0].data[index] += 1);
-        } else
-          if (leave_t.replace(/^\s+/g, '').toLowerCase() == "leave without pay") {
-            console.log("in")
-            finalArray.push(obj[4].data[index] += 1);
-          } else
-            if (leave_t.replace(/^\s+/g, '').toLowerCase() == "vab") {
-
-              finalArray.push(obj[2].data[index] += 1);
-            } else
-              if (leave_t.replace(/^\s+/g, '').toLowerCase() == "vacation") {
-                finalArray.push(obj[3].data[index] += 1);
-              } else
-                if (leave_t.replace(/^\s+/g, '').toLowerCase() == "parental leave") {
-                  finalArray.push(obj[5].data[index] += 1);
-                } else
-                  if (leave_t.replace(/^\s+/g, '').toLowerCase() == "sick") {
-
-                    finalArray.push(obj[1].data[index] += 1);
-                  }
-      };
-
-
+        if (leave_t.replace(/^\s+/g, "").toLowerCase() == "leave with pay") {
+          finalArray.push((obj[0].data[index] += 1));
+        } else if (
+          leave_t.replace(/^\s+/g, "").toLowerCase() == "leave without pay"
+        ) {
+          console.log("in");
+          finalArray.push((obj[4].data[index] += 1));
+        } else if (leave_t.replace(/^\s+/g, "").toLowerCase() == "vab") {
+          finalArray.push((obj[2].data[index] += 1));
+        } else if (leave_t.replace(/^\s+/g, "").toLowerCase() == "vacation") {
+          finalArray.push((obj[3].data[index] += 1));
+        } else if (
+          leave_t.replace(/^\s+/g, "").toLowerCase() == "parental leave"
+        ) {
+          finalArray.push((obj[5].data[index] += 1));
+        } else if (leave_t.replace(/^\s+/g, "").toLowerCase() == "sick") {
+          finalArray.push((obj[1].data[index] += 1));
+        }
+      }
 
       finalArray.push(obj);
       results.forEach((res_data, index) => {
         console.log(res_data.leave_type);
         if (data.date == "" || data.date == undefined || data.date == null) {
-
           var absence_dates = [];
           if (res_data.from_date == res_data.to_date) {
             absence_dates = [res_data.from_date];
           } else {
-            absence_dates = fun.DateFinder(res_data.from_date, res_data.to_date);
+            absence_dates = fun.DateFinder(
+              res_data.from_date,
+              res_data.to_date
+            );
           }
 
-
-
           absence_dates.forEach((AbDate) => {
-
             full_year.forEach((YearDates) => {
-
-
               if (AbDate === YearDates) {
                 //  console.log(AbDate,YearDates);
                 //  console.log(res_data.leave_type);
-                var the_month = AbDate.toString().substring(5, 7).replace("0", "");
+                var the_month = AbDate.toString()
+                  .substring(5, 7)
+                  .replace("0", "");
 
                 switch (the_month) {
                   case "1":
                     _fun(0, res_data.leave_type);
-                    break
+                    break;
                   case "2":
                     _fun(1, res_data.leave_type);
-                    break
+                    break;
                   case "3":
                     _fun(2, res_data.leave_type);
-                    break
+                    break;
                   case "4":
                     _fun(3, res_data.leave_type);
-                    break
+                    break;
                   case "5":
                     _fun(4, res_data.leave_type);
-                    break
+                    break;
                   case "6":
                     _fun(5, res_data.leave_type);
-                    break
+                    break;
                   case "7":
                     _fun(6, res_data.leave_type);
-                    break
+                    break;
                   case "8":
-
                     _fun(7, res_data.leave_type);
-                    break
+                    break;
                   case "9":
                     _fun(8, res_data.leave_type);
-                    break
+                    break;
                   case "10":
                     _fun(9, res_data.leave_type);
-                    break
+                    break;
                   case "11":
                     _fun(10, res_data.leave_type);
-                    break
+                    break;
                   case "12":
                     _fun(11, res_data.leave_type);
-                    break
+                    break;
                 }
               }
-
-
-
-
             });
-
-
           });
-
         } else {
           console.log("not here");
 
@@ -1849,64 +1827,56 @@ module.exports = {
           if (res_data.from_date == res_data.to_date) {
             absence_dates = [res_data.from_date];
           } else {
-            absence_dates = fun.DateFinder(res_data.from_date, res_data.to_date);
+            absence_dates = fun.DateFinder(
+              res_data.from_date,
+              res_data.to_date
+            );
           }
           absence_dates.forEach((AbDate) => {
-
-
-
-
             if (AbDate === data.date) {
-
-              var the_month = AbDate.toString().substring(5, 7).replace("0", "");
+              var the_month = AbDate.toString()
+                .substring(5, 7)
+                .replace("0", "");
 
               switch (the_month) {
                 case "1":
                   _fun(0, res_data.leave_type);
-                  break
+                  break;
                 case "2":
                   _fun(1, res_data.leave_type);
-                  break
+                  break;
                 case "3":
                   _fun(2, res_data.leave_type);
-                  break
+                  break;
                 case "4":
                   _fun(3, res_data.leave_type);
-                  break
+                  break;
                 case "5":
                   _fun(4, res_data.leave_type);
-                  break
+                  break;
                 case "6":
                   _fun(5, res_data.leave_type);
-                  break
+                  break;
                 case "7":
                   _fun(6, res_data.leave_type);
-                  break
+                  break;
                 case "8":
-
                   _fun(7, res_data.leave_type);
-                  break
+                  break;
                 case "9":
                   _fun(8, res_data.leave_type);
-                  break
+                  break;
                 case "10":
                   _fun(9, res_data.leave_type);
-                  break
+                  break;
                 case "11":
                   _fun(10, res_data.leave_type);
-                  break
+                  break;
                 case "12":
                   _fun(11, res_data.leave_type);
-                  break
+                  break;
               }
             }
-
-
-
-
-
-
-
           });
         }
         if (index + 1 == results.length) {
@@ -1916,8 +1886,6 @@ module.exports = {
           });
         }
       });
-
-
     });
   },
 
@@ -2008,8 +1976,8 @@ module.exports = {
       const salt = genSaltSync(10);
 
       const data = {
-        id: verfication.id
-      }
+        id: verfication.id,
+      };
       console.log(data);
       MakeCustomerVerfied(data, (err, results) => {
         if (err) {
@@ -2019,9 +1987,6 @@ module.exports = {
             message: err.sqlMessage,
           });
         }
-
-      
-
 
         res.render("user_verfication");
         fun.sendMail(
@@ -2069,19 +2034,11 @@ module.exports = {
         <br>
         <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
           `
-
         );
-
       });
-
     } catch (e) {
       console.log(e);
       res.render("invaild_link");
-
     }
   },
-
-
 };
-
-

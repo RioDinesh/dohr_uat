@@ -132,6 +132,10 @@ Router.post("/Get_Cover_Count", INSTITUTE_POST.get_coverOruncover_count);
 Router.post("/Get_Deny_List", INSTITUTE_POST.get_deny_list);
 Router.post("/Login", INSTITUTE_POST.login);
 Router.get("/verfiy/:token", INSTITUTE_POST.verify_customer);
+Router.post("/top_up", INSTITUTE_POST.top_up_my_hour);
+Router.post("/top_up_approve", INSTITUTE_POST.top_up_hours_admin);
+Router.get("/get_top_request", INSTITUTE_POST.get_request_hours);
+Router.post("/get_my_hours", INSTITUTE_POST.get_my_hours);
 
 //< POST//
 

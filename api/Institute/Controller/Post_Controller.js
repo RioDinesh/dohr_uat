@@ -33,6 +33,13 @@ const {
   CreateCustomerAPI,
   MakeCustomerVerfied,
   GetMyConsultantNotification,
+  GetMyHours,
+
+  TopUpMYHoursAdmin,
+  TopUpMYHoursAdminUpdate,
+  UpdateRequestMyhourState,
+  GetMyRequestHours,
+  TopUpMYHoursRequest,
 } = require("../Service/ins_post_services");
 const { GetInstitueRequirement } = require("../Service/ins__get_services");
 const { UpdateAbsenceStatus } = require("../Service/ins_edit_services");
@@ -2040,5 +2047,125 @@ module.exports = {
       console.log(e);
       res.render("invaild_link");
     }
+  },
+  get_my_hours: (req, res) => {
+    const data = req.body;
+    GetMyHours(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  get_request_hours: (req, res) => {
+    GetMyRequestHours((err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: results,
+      });
+    });
+  },
+
+  top_up_hours_admin: (req, res) => {
+    const data = req.body;
+    data.total_hours = data.total_hours + data.requesting_hours;
+    data.remaining_hours = data.remaining_hours + data.requesting_hours;
+    GetMyHours(data, (error, myhours) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).json({
+          success: false,
+          message: error.sqlMessage,
+        });
+      }
+      if (data.is_processed.toString() == "2") {
+        UpdateRequestMyhourState(data, (fail, output) => {
+          if (fail) {
+            console.log(fail);
+            return res.status(500).json({
+              success: false,
+              message: fail,
+            });
+          }
+          return res.status(200).json({
+            success: true,
+            message: "success",
+          });
+        });
+      } else {
+        //check if already present or not
+        if (myhours.length == 0) {
+          TopUpMYHoursAdmin(data, (err, results) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+
+            UpdateRequestMyhourState(data, (fail, output) => {
+              return res.status(200).json({
+                success: true,
+                message: "success",
+              });
+            });
+          });
+        } else {
+          TopUpMYHoursAdminUpdate(data, (err, results) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+
+            UpdateRequestMyhourState(data, (fail, output) => {
+              return res.status(200).json({
+                success: true,
+                message: "success",
+              });
+            });
+          });
+        }
+      }
+    });
+  },
+
+  top_up_my_hour: (req, res) => {
+    const data = req.body;
+
+    TopUpMYHoursRequest(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "request submitted",
+      });
+    });
   },
 };

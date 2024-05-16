@@ -995,4 +995,108 @@ module.exports = {
       }
     );
   },
+
+  GetMyHours: (data, callback) => {
+    pool.query(
+      `select * from dh_hour_balance where ins_id=? and is_active=1`,
+      [data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+  GetMyRequestHours: (callback) => {
+    pool.query(
+      `select * from dh_hour_balance_request where  is_active=1`,
+      [],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  TopUpMYHoursAdmin: (data, callback) => {
+    pool.query(
+      `insert into dh_hour_balance(
+      total_hours,
+      used_hours,
+      remaining_hours,
+      ins_id
+      )values(?,?,?,?)`,
+      [data.total_hours, data.used_hours, data.remaining_hours, data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+  TopUpMYHoursAdminUpdate: (data, callback) => {
+    pool.query(
+      `update  dh_hour_balance set
+      total_hours=?,
+      used_hours=?,
+      remaining_hours=?
+      where ins_id=?`,
+      [data.total_hours, data.used_hours, data.remaining_hours, data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+  UpdateRequestMyhourState: (data, callback) => {
+    pool.query(
+      `update  dh_hour_balance_request set
+    is_processed=?
+    where id=?`,
+      [data.is_processed, data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  TopUpMYHoursRequest: (data, callback) => {
+    pool.query(
+      `insert into dh_hour_balance_request(
+      total_hours,
+      used_hours,
+      remaining_hours,
+      requesting_hours,
+      ins_id
+      )values(?,?,?,?,?)`,
+      [
+        data.total_hours,
+        data.used_hours,
+        data.remaining_hours,
+        data.requesting_hours,
+        data.ins_id,
+      ],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
 };

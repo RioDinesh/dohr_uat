@@ -1114,91 +1114,128 @@ module.exports = {
     //     message: "fields are missing",
     //   });
     // }
-
-    CreateVacancy(data, (err, results) => {
-      if (err) {
-        console.log(err);
+    GetMyHours(data, (errors, hours) => {
+      if (errors) {
+        console.log(errors);
         return res.status(500).json({
           success: false,
-          message: err.sqlMessage,
+          message: errors.sqlMessage,
         });
       }
 
-      GetALLConsultant((error, cons) => {
-        var notificationIds = [];
-        if (data.publish_to_id == 1) {
-          cons.forEach((X) => {
-            notificationIds.push(X.notification_id);
+      let min = fun.FindMintuesBetweenTwoTimes(data.start_time, data.end_time);
+      if (hours.length != 0) {
+        if (min > hours[0].remaining_hours) {
+          return res.status(404).json({
+            success: false,
+            message: "please top up hours",
           });
+        }
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "hours not found please top up",
+        });
+      }
 
-          if (notificationIds.length != 0 && data.is_draft == 0) {
-            var message = {
-              notification: {
-                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                title: "A New Message",
-              },
-              registration_ids: notificationIds,
-            };
-
-            fun.FCM_MESSAGE(message);
-          }
+      CreateVacancy(data, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
         }
 
-        if (data.publish_to_id == 2) {
-          cons.forEach((X) => {
-            if (X.iam_student == 1) {
+        GetALLConsultant((error, cons) => {
+          var notificationIds = [];
+          if (data.publish_to_id == 1) {
+            cons.forEach((X) => {
               notificationIds.push(X.notification_id);
+            });
+
+            if (notificationIds.length != 0 && data.is_draft == 0) {
+              var message = {
+                notification: {
+                  body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                  title: "A New Message",
+                },
+                registration_ids: notificationIds,
+              };
+
+              fun.FCM_MESSAGE(message);
             }
-          });
-          console.log("heree");
-          console.log(notificationIds);
-
-          if (notificationIds.length != 0 && data.is_draft == 0) {
-            var message = {
-              notification: {
-                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                title: "A New Message",
-              },
-              registration_ids: notificationIds,
-            };
-
-            fun.FCM_MESSAGE(message);
           }
-        }
-      });
 
-      GetMyConsultantNotification(data, (error2, mycons) => {
-        var notificationIds = [];
-        if (data.publish_to_id == 3) {
-          mycons.forEach((X) => {
-            console.log(data.my_consultant);
-
-            data.my_consultant.forEach((Y) => {
-              console.log(Y);
-              if (Y == X.cons_id) {
-                console.log("in da ");
+          if (data.publish_to_id == 2) {
+            cons.forEach((X) => {
+              if (X.iam_student == 1) {
                 notificationIds.push(X.notification_id);
               }
             });
-          });
-          console.log(notificationIds);
-          if (notificationIds.length != 0 && data.is_draft == 0) {
-            var message = {
-              notification: {
-                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                title: "A New Message",
-              },
-              registration_ids: notificationIds,
-            };
 
-            fun.FCM_MESSAGE(message);
+            if (notificationIds.length != 0 && data.is_draft == 0) {
+              var message = {
+                notification: {
+                  body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                  title: "A New Message",
+                },
+                registration_ids: notificationIds,
+              };
+
+              fun.FCM_MESSAGE(message);
+            }
           }
-        }
-      });
+        });
 
-      return res.status(200).json({
-        success: true,
-        message: "registered successfully",
+        GetMyConsultantNotification(data, (error2, mycons) => {
+          var notificationIds = [];
+          if (data.publish_to_id == 3) {
+            mycons.forEach((X) => {
+              console.log(data.my_consultant);
+
+              data.my_consultant.forEach((Y) => {
+                console.log(Y);
+                if (Y == X.cons_id) {
+                  console.log("in da ");
+                  notificationIds.push(X.notification_id);
+                }
+              });
+            });
+            console.log(notificationIds);
+            if (notificationIds.length != 0 && data.is_draft == 0) {
+              var message = {
+                notification: {
+                  body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                  title: "A New Message",
+                },
+                registration_ids: notificationIds,
+              };
+
+              fun.FCM_MESSAGE(message);
+            }
+          }
+        });
+        let newdata = {
+          ins_id: data.ins_id,
+          used_hours: hours.used_hours + min,
+          remaining_hours: hours.total_hours - min,
+          total_hours: hours.total_hours,
+        };
+        TopUpMYHoursAdminUpdate(newdata, (fail, success) => {
+          if (fail) {
+            console.log(fail);
+            return res.status(500).json({
+              success: false,
+              message: errors.sqlMessage,
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "registered successfully",
+          });
+        });
       });
     });
   },
@@ -2050,6 +2087,7 @@ module.exports = {
   },
   get_my_hours: (req, res) => {
     const data = req.body;
+    let finalArray = [];
     GetMyHours(data, (err, results) => {
       if (err) {
         console.log(err);
@@ -2058,10 +2096,21 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
+      results.forEach((x) => {
+        finalArray.push({
+          id: x.id,
+          total_hours: fun.convertMinutesToHours(x.total_hours),
+          used_hours: fun.convertMinutesToHours(x.used_hours),
+          remaining_hours: fun.convertMinutesToHours(x.remaining_hours),
+          ins_id: x.ins_id,
+          is_active: x.is_active,
+          created_at: x.created_at,
+          updated_at: x.updated_at,
+        });
+      });
       return res.status(200).json({
         success: true,
-        message: results,
+        message: finalArray,
       });
     });
   },
@@ -2087,6 +2136,11 @@ module.exports = {
     const data = req.body;
     data.total_hours = data.total_hours + data.requesting_hours;
     data.remaining_hours = data.remaining_hours + data.requesting_hours;
+
+    data.total_hours = fun.convertHoursInToMinutes(data.total_hours);
+    data.remaining_hours = fun.convertHoursInToMinutes(data.remaining_hours);
+    data.used_hours = fun.convertHoursInToMinutes(data.used_hours);
+
     GetMyHours(data, (error, myhours) => {
       if (error) {
         console.log(error);

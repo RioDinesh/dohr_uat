@@ -1058,6 +1058,7 @@ module.exports = {
       }
     );
   },
+
   UpdateRequestMyhourState: (data, callback) => {
     pool.query(
       `update  dh_hour_balance_request set

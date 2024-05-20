@@ -8,6 +8,7 @@ const {
   Approved_vacancy_req,
   getcons_by_id,
   Logout,
+  EditMySchedule,
 } = require("../Service/cus_edit_services");
 var fun = require("../../functions/Basic_methods");
 const path = require("path");
@@ -68,31 +69,31 @@ module.exports = {
   Edit_Customer_Profile: (req, res) => {
     const data = req.body;
     console.log("dataa");
-    if (
-      !data.id ||
-      !data.first_name ||
-      !data.last_name ||
-      !data.telephone_number ||
-      !data.company_name ||
-      !data.organization_no ||
-      !data.organization_type ||
-      !data.organization_type_id ||
-      !data.email_id ||
-      !data.address ||
-      !data.postal_code ||
-      !data.area_name ||
-      !data.invoice_address ||
-      !data.invoice_postal_code ||
-      !data.invoice_area_name ||
-      !data.invoice_email_id ||
-      !data.invoice_reference
-    ) {
-      return res.status(500).json({
-        success: false,
-        message: "fields are missing",
-      });
-    }
-    if (data.image != "") {
+    // if (
+    //   !data.id ||
+    //   !data.first_name ||
+    //   !data.last_name ||
+    //   !data.telephone_number ||
+    //   !data.company_name ||
+    //   !data.organization_no ||
+    //   !data.organization_type ||
+    //   !data.organization_type_id ||
+    //   !data.email_id ||
+    //   !data.address ||
+    //   !data.postal_code ||
+    //   !data.area_name ||
+    //   !data.invoice_address ||
+    //   !data.invoice_postal_code ||
+    //   !data.invoice_area_name ||
+    //   !data.invoice_email_id ||
+    //   !data.invoice_reference
+    // ) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "fields are missing",
+    //   });
+    // }
+    if (data.image != "" && data.image != null && data.image != undefined) {
       const currentDate = new Date();
       var formatfilename = currentDate.toISOString();
       var filename = formatfilename.replace(/[- : .]/g, "");
@@ -104,6 +105,38 @@ module.exports = {
     }
 
     EditMyProfileCustomer(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Updated",
+      });
+    });
+  },
+  Edit_My_Schedule: (req, res) => {
+    const data = req.body;
+
+    if (
+      (!data.day,
+      !data.start_time,
+      !data.end_time,
+      !data.year_group,
+      !data.classroom,
+      !data.subject)
+    ) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    EditMySchedule(data, (err, results) => {
       if (err) {
         console.log(err);
         return res.status(500).json({

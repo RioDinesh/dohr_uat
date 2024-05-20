@@ -252,5 +252,29 @@ module.exports = {
     }
     return false;
   },
+
+  convertHoursInToMinutes: function convertHoursToMinutes(hours) {
+    return hours * 60;
+  },
+
+  convertMinutesToHours: function convertMinutesToHours(minutes) {
+    let hours = Math.floor(minutes / 60); // Calculate whole hours
+    let remainingMinutes = minutes % 60; // Calculate remaining minutes
+    return remainingMinutes;
+  },
+
+  FindMintuesBetweenTwoTimes: function FindMinBetweenTimes(startTime, endTime) {
+    // Parse the times into Date objects
+    const start = new Date(`1970-01-01T${startTime}Z`);
+    const end = new Date(`1970-01-01T${endTime}Z`);
+
+    // Calculate the difference in milliseconds
+    const differenceInMilliseconds = end - start;
+
+    // Convert the difference from milliseconds to minutes
+    const differenceInMinutes = differenceInMilliseconds / (1000 * 60);
+
+    return differenceInMinutes;
+  },
 };
 ////

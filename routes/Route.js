@@ -153,6 +153,8 @@ Router.post(
   "/Get_vacancy_dates_customer",
   INSTITUTE_GET.get_vacancy_dates_Customer
 );
+
+Router.post("/EditMyInstitute", INSTITUTE_EDIT.EditMyInstitute);
 //< GET//
 
 //<=====================================================================================Institute==================================================================================================
@@ -243,6 +245,7 @@ Router.post("/Delete_Vacancy_Customer", CUSTOMER_POST.Cancel_Vacnacy_4pm);
 Router.post("/Approve_My_Vacancy", CUSTOMER_EDIT.my_vacancy_status_cus);
 Router.post("/Deny_My_Vacancy", CUSTOMER_EDIT.deny_my_vacancys_cus);
 Router.post("/Edit_Profile_Customer", CUSTOMER_EDIT.Edit_Customer_Profile);
+Router.post("/Edit_My_Schedule", CUSTOMER_EDIT.Edit_My_Schedule);
 Router.post("/Approve_Vacancy_request", CUSTOMER_EDIT.Approve_Vacancy_request);
 Router.post("/logout", CUSTOMER_EDIT.logout);
 //EDIT
@@ -336,6 +339,7 @@ Router.post(
   "/delete_ad_application_form",
   COMMON_DELETE.delete_advertisment_applications
 );
+Router.post("/delete_sub_email", COMMON_DELETE.delete_sub_email);
 Router.post("/delete_sub_email", COMMON_DELETE.delete_sub_email);
 
 //========================================================================================DELETE=====================================================================================================

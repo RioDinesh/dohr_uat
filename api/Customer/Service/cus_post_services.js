@@ -3,7 +3,7 @@ const pool = require("../../../config/connection");
 module.exports = {
   GetMySchedule: (data, callback) => {
     pool.query(
-      "select * from dh_my_schedule where cus_id=?",
+      "select * from dh_my_schedule where cus_id=? and is_active=1",
       [data.unique_id],
       (error, result, fields) => {
         if (error) {

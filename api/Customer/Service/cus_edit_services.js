@@ -49,7 +49,27 @@ module.exports = {
       }
     );
   },
-
+  EditMySchedule: (data, callback) => {
+    pool.query(
+      "update dh_my_schedule set day=?,start_time=?,end_time=?,year_group=?,classroom=?,subject=? where id=?",
+      [
+        data.day,
+        data.start_time,
+        data.end_time,
+        data.year_group,
+        data.classroom,
+        data.subject,
+        data.id,
+      ],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
   Approved_vacancy_req: (data, callback) => {
     if (data.save_cons == true) {
       pool.query(

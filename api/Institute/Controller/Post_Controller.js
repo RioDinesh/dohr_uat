@@ -2097,7 +2097,9 @@ module.exports = {
         });
       }
       results.forEach((x) => {
-        finalArray.push({
+        let X = fun.convertMinutesToHours(x.total_hours);
+
+        var objx = {
           id: x.id,
           total_hours: fun.convertMinutesToHours(x.total_hours),
           used_hours: fun.convertMinutesToHours(x.used_hours),
@@ -2106,7 +2108,8 @@ module.exports = {
           is_active: x.is_active,
           created_at: x.created_at,
           updated_at: x.updated_at,
-        });
+        };
+        finalArray.push(objx);
       });
       return res.status(200).json({
         success: true,

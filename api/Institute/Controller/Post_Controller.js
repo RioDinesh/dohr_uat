@@ -2097,8 +2097,6 @@ module.exports = {
         });
       }
       results.forEach((x) => {
-        let X = fun.convertMinutesToHours(x.total_hours);
-
         var objx = {
           id: x.id,
           total_hours: fun.convertMinutesToHours(x.total_hours),

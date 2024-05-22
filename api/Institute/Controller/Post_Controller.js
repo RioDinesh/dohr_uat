@@ -1114,6 +1114,126 @@ module.exports = {
     //     message: "fields are missing",
     //   });
     // }
+
+    CreateVacancy(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      GetALLConsultant((error, cons) => {
+        var notificationIds = [];
+        if (data.publish_to_id == 1) {
+          cons.forEach((X) => {
+            notificationIds.push(X.notification_id);
+          });
+
+          if (notificationIds.length != 0 && data.is_draft == 0) {
+            var message = {
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
+              },
+              registration_ids: notificationIds,
+            };
+
+            fun.FCM_MESSAGE(message);
+          }
+        }
+
+        if (data.publish_to_id == 2) {
+          cons.forEach((X) => {
+            if (X.iam_student == 1) {
+              notificationIds.push(X.notification_id);
+            }
+          });
+
+          if (notificationIds.length != 0 && data.is_draft == 0) {
+            var message = {
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
+              },
+              registration_ids: notificationIds,
+            };
+
+            fun.FCM_MESSAGE(message);
+          }
+        }
+      });
+
+      GetMyConsultantNotification(data, (error2, mycons) => {
+        var notificationIds = [];
+        if (data.publish_to_id == 3) {
+          mycons.forEach((X) => {
+            console.log(data.my_consultant);
+
+            data.my_consultant.forEach((Y) => {
+              console.log(Y);
+              if (Y == X.cons_id) {
+                console.log("in da ");
+                notificationIds.push(X.notification_id);
+              }
+            });
+          });
+          console.log(notificationIds);
+          if (notificationIds.length != 0 && data.is_draft == 0) {
+            var message = {
+              notification: {
+                body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                title: "A New Message",
+              },
+              registration_ids: notificationIds,
+            };
+
+            fun.FCM_MESSAGE(message);
+          }
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "registered successfully",
+      });
+    });
+  },
+
+  create_vacancy_web: (req, res) => {
+    const data = req.body;
+    // three types==> publish_to_All //internal_staff //my_consultant
+
+    // if (
+    //   !data.position||
+    //   !data.position_id||
+    //   !data.v_date||
+    //   !data.day||
+    //   !data.start_time||
+    //   !data.end_time||
+    //   !data.break_time||
+    //   !data.total_whrs||
+    //   !data.ins_id||
+    //   !data.uncovered_id||
+    //   !data.other_info||
+    //   !data.assigned_to_internal||
+    //   !data.assigned_to_external||
+    //   !data.absence_id||
+    //   !data.vacancy_status||
+    //   !data.report_start_time||
+    //   !data.report_end_time||
+    //   !data.report_break_time||
+    //   !data.report_total_whours||
+    //   !data.report_reason||
+    //   !data.external_type
+
+    // ) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: "fields are missing",
+    //   });
+    // }
     GetMyHours(data, (errors, hours) => {
       if (errors) {
         console.log(errors);
@@ -1218,9 +1338,9 @@ module.exports = {
         });
         let newdata = {
           ins_id: data.ins_id,
-          used_hours: hours.used_hours + min,
-          remaining_hours: hours.total_hours - min,
-          total_hours: hours.total_hours,
+          used_hours: parseInt(hours.used_hours) + min,
+          remaining_hours: parseInt(hours.total_hours) - min,
+          total_hours: parseInt(hours.total_hours),
         };
         TopUpMYHoursAdminUpdate(newdata, (fail, success) => {
           if (fail) {
@@ -2135,13 +2255,15 @@ module.exports = {
 
   top_up_hours_admin: (req, res) => {
     const data = req.body;
-    data.total_hours = data.total_hours + data.requesting_hours;
-    data.remaining_hours = data.remaining_hours + data.requesting_hours;
+    data.total_hours =
+      parseInt(data.total_hours) + parseInt(data.requesting_hours);
+    data.remaining_hours =
+      parseInt(data.remaining_hours) + parseInt(data.requesting_hours);
 
     data.total_hours = fun.convertHoursInToMinutes(data.total_hours);
     data.remaining_hours = fun.convertHoursInToMinutes(data.remaining_hours);
     data.used_hours = fun.convertHoursInToMinutes(data.used_hours);
-
+    console.log("tt", data.total_hours);
     GetMyHours(data, (error, myhours) => {
       if (error) {
         console.log(error);
@@ -2166,6 +2288,7 @@ module.exports = {
         });
       } else {
         //check if already present or not
+        console.log("=>>>>>>>>>>>>>>>>>>>", myhours.length);
         if (myhours.length == 0) {
           TopUpMYHoursAdmin(data, (err, results) => {
             if (err) {

@@ -1024,6 +1024,7 @@ module.exports = {
   },
 
   TopUpMYHoursAdmin: (data, callback) => {
+    console.log("ttf", data.total_hours);
     pool.query(
       `insert into dh_hour_balance(
       total_hours,

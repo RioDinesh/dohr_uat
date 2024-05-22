@@ -100,6 +100,7 @@ Router.post("/CreateCustomer", INSTITUTE_POST.create_customer_api);
 Router.post("/Add_My_Consultant", INSTITUTE_POST.add_my_consultant);
 Router.post("/Get_Ins_My_Consultant", INSTITUTE_POST.get_ins_my_consultant);
 Router.post("/Create_vacancy", INSTITUTE_POST.create_vacancy);
+Router.post("/Create_vacancy_web", INSTITUTE_POST.create_vacancy_web);
 Router.post(
   "/Create_Uncovered_vacancy",
   INSTITUTE_POST.create_uncovered_vacancy

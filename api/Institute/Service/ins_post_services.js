@@ -5,7 +5,7 @@ module.exports = {
     //pool.query("select * from dh_my_schedule where (date between ? and ?) AND unique_id=?",[date])
 
     pool.query(
-      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,additional_comment,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,additional_comment,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id,others) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
       [
         data.unique_id,
         data.first_name,
@@ -26,6 +26,7 @@ module.exports = {
         data.from_time,
         data.to_time,
         data.ins_id,
+        data.others,
       ],
       (error, result, fields) => {
         if (error) {
@@ -801,8 +802,9 @@ module.exports = {
   },
 
   GetUncoveredSchedule: (data, callback) => {
+    //AND U.v_date >=  CURDATE()
     pool.query(
-      "select U.*,U.id as uncovered_id ,A.*,S.*,I.*,C.*,C.id as assigned_from,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=0 AND U.v_date >=  CURDATE()  AND U.ins_id=?",
+      "select U.*,U.id as uncovered_id ,A.*,S.*,I.*,C.*,C.id as assigned_from,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=0   AND U.ins_id=?",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -816,7 +818,7 @@ module.exports = {
 
   GetAbsenceStaff: (data, callback) => {
     pool.query(
-      "Select A.ins_id,A.unique_id,A.is_approved,A.to_date,A.from_date,A.from_time,A.to_time,A.leave_type,C.* from dh_absence_management A join dh_customer C on C.unique_id=A.unique_id where A.ins_id=? AND A.is_approved=1 ",
+      "Select A.ins_id,A.unique_id,A.is_approved,A.to_date,A.from_date,A.from_time,A.to_time,A.leave_type,A.substitute_required,C.* from dh_absence_management A join dh_customer C on C.unique_id=A.unique_id where A.ins_id=? AND A.is_approved=1 ",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -956,7 +958,7 @@ module.exports = {
 
   GetFilledAndUnfilled: (data, callback) => {
     pool.query(
-      "select * from dh_vacancy_new where ins_id=? AND vacancy_status=? AND v_date=?",
+      "select * from dh_vacancy_new where ins_id=? AND vacancy_status=? AND v_date=? AND is_active=1",
       [data.ins_id, data.status, data.date],
       (error, result, fields) => {
         if (error) {
@@ -970,8 +972,8 @@ module.exports = {
 
   GetCoveredAndUnCovered: (data, callback) => {
     pool.query(
-      "select * from dh_uncovered_management where ins_id=? AND is_covered=? AND v_date=?",
-      [data.ins_id, data.status, data.date],
+      "select U.*,U.id as uncovered_id ,A.*,S.*,I.*,C.*,C.id as assigned_from,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where A.is_active AND I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=?  AND U.ins_id=?",
+      [data.status, data.ins_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);

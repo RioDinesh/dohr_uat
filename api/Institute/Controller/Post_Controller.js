@@ -944,60 +944,109 @@ module.exports = {
   create_uncovered_vacancy_external: (req, res) => {
     const data = req.body;
     var schedulecheck = [];
-    console.log(data);
-    if (data.externalVacancy.length == 0) {
-      return res.status(500).json({
-        success: false,
-        message: "fields are missing",
-      });
-    }
 
-    console.log(data);
-    var insert = [];
-    insert.push([
-      data.externalVacancy[0].position,
-      data.externalVacancy[0].position_id,
-      data.externalVacancy[0].v_date,
-      data.externalVacancy[0].day,
-      data.externalVacancy[0].from_time,
-      data.externalVacancy[0].to_time,
-      "",
-      "",
-      data.externalVacancy[0].ins_id,
-      0o0,
-      data.externalVacancy[0].other_info,
-      0o0,
-      data.externalVacancy[0].assigned_to_external,
-      0o0,
-      0,
-      false,
-      true,
-      data.externalVacancy[0].isdraft,
-      data.externalVacancy[0].location,
-      JSON.stringify(data.externalVacancy[0].description),
-      data.externalVacancy[0].assigned_from,
-      data.externalVacancy[0].created_by,
-      data.externalVacancy[0].publish_to,
-      data.externalVacancy[0].publish_to_id,
-    ]);
-    data.externalVacancy.forEach((Data) => {});
-    var insert_data = {
-      a: insert,
-      b: data,
-    };
-
-    CreateUncoveredVacancyExternal(insert_data, (err, results) => {
-      if (err) {
-        console.log(err);
+    GetMyHours(data.externalVacancy[0], (errors, hours) => {
+      if (errors) {
+        console.log(errors);
         return res.status(500).json({
           success: false,
-          message: err.sqlMessage,
+          message: errors.sqlMessage,
         });
       }
 
-      return res.status(200).json({
-        success: true,
-        message: "registered successfully",
+      let min = fun.FindMintuesBetweenTwoTimes(
+        data.externalVacancy[0].from_time,
+        data.externalVacancy[0].to_time
+      );
+      if (hours.length != 0) {
+        if (min > hours[0].remaining_hours) {
+          return res.status(404).json({
+            success: false,
+            message: "please top up hours",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "hours not found please top up",
+        });
+      }
+
+      if (data.externalVacancy.length == 0) {
+        return res.status(500).json({
+          success: false,
+          message: "fields are missing",
+        });
+      }
+
+      console.log(data);
+      var insert = [];
+      insert.push([
+        data.externalVacancy[0].position,
+        data.externalVacancy[0].position_id,
+        data.externalVacancy[0].v_date,
+        data.externalVacancy[0].day,
+        data.externalVacancy[0].from_time,
+        data.externalVacancy[0].to_time,
+        "",
+        "",
+        data.externalVacancy[0].ins_id,
+        0o0,
+        data.externalVacancy[0].other_info,
+        0o0,
+        data.externalVacancy[0].assigned_to_external,
+        0o0,
+        0,
+        false,
+        true,
+        data.externalVacancy[0].isdraft,
+        data.externalVacancy[0].location,
+        JSON.stringify(data.externalVacancy[0].description),
+        data.externalVacancy[0].assigned_from,
+        data.externalVacancy[0].created_by,
+        data.externalVacancy[0].publish_to,
+        data.externalVacancy[0].publish_to_id,
+      ]);
+      data.externalVacancy.forEach((Data) => {});
+      var insert_data = {
+        a: insert,
+        b: data,
+      };
+
+      CreateUncoveredVacancyExternal(insert_data, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+        console.log(hours[0].used_hours);
+        let newdata = {
+          ins_id: data.externalVacancy[0].ins_id,
+          used_hours: parseInt(hours[0].used_hours) + min,
+          remaining_hours: parseInt(hours[0].total_hours) - min,
+          total_hours: parseInt(hours[0].total_hours),
+        };
+        console.log(newdata);
+        TopUpMYHoursAdminUpdate(newdata, (fail, success) => {
+          if (fail) {
+            console.log(fail);
+            return res.status(500).json({
+              success: false,
+              message: errors.sqlMessage,
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "registered successfully",
+          });
+        });
+        // return res.status(200).json({
+        //   success: true,
+        //   message: "registered successfully",
+        // });
       });
     });
   },
@@ -1011,74 +1060,119 @@ module.exports = {
         message: "fields are missing",
       });
     }
-
-    GetMyScheduleIns(data.assigned_to, (errr, ress) => {
-      if (errr) {
-        console.log(errr);
+    GetMyHours(data.Vacancy[0], (errors, hours) => {
+      if (errors) {
+        console.log(errors);
         return res.status(500).json({
           success: false,
-          message: errr.sqlMessage,
+          message: errors.sqlMessage,
         });
       }
 
-      ress.forEach((schedule, index) => {
-        data.Vacancy.forEach((vac) => {
-          if (
-            schedule.day.toLowerCase() == vac.day.toLowerCase() &&
-            schedule.start_time == vac.start_time
-          ) {
-            schedulecheck.push(schedule);
-          }
+      let min = fun.FindMintuesBetweenTwoTimes(
+        data.Vacancy[0].start_time,
+        data.Vacancy[0].end_time
+      );
+      if (hours.length != 0) {
+        if (min > hours[0].remaining_hours) {
+          return res.status(404).json({
+            success: false,
+            message: "please top up hours",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "hours not found please top up",
         });
-      });
+      }
+      GetMyScheduleIns(data.assigned_to, (errr, ress) => {
+        if (errr) {
+          console.log(errr);
+          return res.status(500).json({
+            success: false,
+            message: errr.sqlMessage,
+          });
+        }
 
-      if (schedulecheck.length == 0) {
-        var insert = [];
-        data.Vacancy.forEach((Data) => {
-          insert.push([
-            Data.position,
-            Data.position_id,
-            Data.v_date,
-            Data.day,
-            Data.start_time,
-            Data.end_time,
-            Data.break_time,
-            Data.total_whrs,
-            Data.ins_id,
-            Data.uncovered_id,
-            Data.other_info,
-            Data.assigned_to_internal,
-            0o0,
-            0,
-            Data.publish_to_internal,
-            false,
-            false,
-            Data.assigned_from,
-            Data.created_by,
-          ]);
-        });
-
-        CreateUncoveredVacancyInternal(insert, (err, results) => {
-          if (err) {
-            console.log(err);
-            return res.status(500).json({
-              success: false,
-              message: err.sqlMessage,
-            });
-          }
-
-          return res.status(200).json({
-            success: true,
-            message: "registered successfully",
+        ress.forEach((schedule, index) => {
+          data.Vacancy.forEach((vac) => {
+            if (
+              schedule.day.toLowerCase() == vac.day.toLowerCase() &&
+              schedule.start_time == vac.start_time
+            ) {
+              schedulecheck.push(schedule);
+            }
           });
         });
-      } else {
-        return res.status(500).json({
-          success: true,
-          message: "the teacher already have a schedule",
-          schedules: schedulecheck,
-        });
-      }
+
+        if (schedulecheck.length == 0) {
+          var insert = [];
+          data.Vacancy.forEach((Data) => {
+            insert.push([
+              Data.position,
+              Data.position_id,
+              Data.v_date,
+              Data.day,
+              Data.start_time,
+              Data.end_time,
+              Data.break_time,
+              Data.total_whrs,
+              Data.ins_id,
+              Data.uncovered_id,
+              Data.other_info,
+              Data.assigned_to_internal,
+              0o0,
+              0,
+              Data.publish_to_internal,
+              false,
+              false,
+              Data.assigned_from,
+              Data.created_by,
+            ]);
+          });
+
+          CreateUncoveredVacancyInternal(insert, (err, results) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: err.sqlMessage,
+              });
+            }
+            let newdata = {
+              ins_id: data.Vacancy[0].ins_id,
+              used_hours: parseInt(hours[0].used_hours) + min,
+              remaining_hours: parseInt(hours[0].total_hours) - min,
+              total_hours: parseInt(hours[0].total_hours),
+            };
+            TopUpMYHoursAdminUpdate(newdata, (fail, success) => {
+              if (fail) {
+                console.log(fail);
+                return res.status(500).json({
+                  success: false,
+                  message: errors.sqlMessage,
+                });
+              }
+
+              return res.status(200).json({
+                success: true,
+                message: "registered successfully",
+              });
+            });
+            // return res.status(200).json({
+            //   success: true,
+            //   message: "registered successfully",
+            // });
+          });
+        } else {
+          return res.status(500).json({
+            success: true,
+            message: "the teacher already have a schedule",
+            schedules: schedulecheck,
+          });
+        }
+      });
     });
   },
   create_vacancy: (req, res) => {
@@ -1799,24 +1893,21 @@ module.exports = {
       console.log(datetime.toISOString().slice(0, 10));
 
       results.forEach((res_data, index) => {
-        if (
-          Date.parse(res_data.to_date) >=
-          Date.parse(datetime.toISOString().slice(0, 10))
-        ) {
-          var dateFrom = res_data.from_date;
-          var dateTo = res_data.to_date;
-          var dateCheck = data.date;
+        // if (
+        //   Date.parse(res_data.to_date) >=
+        //   Date.parse(datetime.toISOString().slice(0, 10))
+        // ) {
 
-          var d1 = dateFrom.split("/");
-          var d2 = dateTo.split("/");
-          var c = dateCheck.split("/");
-
-          var from = new Date(d1[2], parseInt(d1[1]) - 1, d1[0]); // -1 because months are from 0 to 11
-          var to = new Date(d2[2], parseInt(d2[1]) - 1, d2[0]);
-          var check = new Date(c[2], parseInt(c[1]) - 1, c[0]);
-          if (check > from && check < to) {
-            finalArray.push(res_data);
-          }
+        // }
+        var dateFrom = res_data.from_date;
+        var dateTo = res_data.to_date;
+        var dateCheck = data.date;
+        console.log(dateFrom, dateTo);
+        console.log(dateCheck);
+        let notpassed = fun.checkdateisPassed(dateFrom, dateTo, dateCheck);
+        console.log(notpassed);
+        if (notpassed) {
+          finalArray.push(res_data);
         }
       });
 
@@ -2096,10 +2187,18 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
+      let finalArray = [];
+
+      results.forEach((x) => {
+        let notpassed = fun.checkdateisPassed(x.v_date, x.v_date, data.date);
+        if (notpassed) {
+          finalArray.push(x);
+        }
+      });
 
       return res.status(200).json({
         success: true,
-        count: results.length,
+        count: finalArray.length,
       });
     });
   },

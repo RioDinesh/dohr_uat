@@ -276,5 +276,15 @@ module.exports = {
 
     return differenceInMinutes;
   },
+
+  checkdateisPassed: function isDateInRange(fromDate, toDate, targetDate) {
+    // Convert the input dates to Date objects
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    const target = new Date(targetDate);
+
+    // Check if the target date is within the range
+    return target >= from && target <= to;
+  },
 };
 ////

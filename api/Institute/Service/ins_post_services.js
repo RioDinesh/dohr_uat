@@ -269,8 +269,8 @@ module.exports = {
 
   DenyAbsence: (data, callback) => {
     pool.query(
-      "update dh_absence_management set is_denied=1 where id=?",
-      [data.id],
+      "update dh_absence_management set is_denied=1 ,deny_reason=? where id=?",
+      [data.reason, data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);

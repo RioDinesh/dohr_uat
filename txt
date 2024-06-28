@@ -1,3 +1,14 @@
-for dk 
-1 . domain api for mob chnage due ti institute
-2. avoid web/mob cons to login
+// for dk
+// 1 . domain api for mob chnage due ti institute
+// 2. avoid web/mob cons to login
+
+//120-->Get_my_covered {id:""},
+//142--> fixed flag,
+//161-->same as 142,
+//184-->discuss,
+//185-->discuss,
+//198--> fixed
+//217--> talk with fe,
+//221-->delete_vacancy {"id":""},
+//236-->fe talk,
+//239--> delete_consultant {"id":""},

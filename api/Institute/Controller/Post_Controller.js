@@ -1336,6 +1336,8 @@ module.exports = {
           message: errors.sqlMessage,
         });
       }
+      console.log(">>>>>>>>.........>>>>>>>>>>>>>>>>.");
+      console.log(hours);
 
       let min = fun.FindMintuesBetweenTwoTimes(data.start_time, data.end_time);
       if (hours.length != 0) {
@@ -1432,11 +1434,14 @@ module.exports = {
         });
         let newdata = {
           ins_id: data.ins_id,
-          used_hours: parseInt(hours.used_hours) + min,
-          remaining_hours: parseInt(hours.total_hours) - min,
-          total_hours: parseInt(hours.total_hours),
+          used_hours: parseInt(hours[0].used_hours) + min,
+          remaining_hours: parseInt(hours[0].total_hours) - min,
+          total_hours: parseInt(hours[0].total_hours),
         };
+        console.log("-----------------------");
+        console.log(newdata);
         TopUpMYHoursAdminUpdate(newdata, (fail, success) => {
+          console.log(fail);
           if (fail) {
             console.log(fail);
             return res.status(500).json({

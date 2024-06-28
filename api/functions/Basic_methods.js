@@ -260,7 +260,9 @@ module.exports = {
   convertMinutesToHours: function convertMinutesToHours(minutes) {
     let hours = Math.floor(minutes / 60); // Calculate whole hours
     let remainingMinutes = minutes % 60; // Calculate remaining minutes
-    return hours;
+    // Ensure that minutes are always two digits
+    let formattedMinutes = remainingMinutes.toString().padStart(2, "0");
+    return `${hours}:${formattedMinutes}`;
   },
 
   FindMintuesBetweenTwoTimes: function FindMinBetweenTimes(startTime, endTime) {

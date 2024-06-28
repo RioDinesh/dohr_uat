@@ -524,7 +524,7 @@ module.exports = {
           data.total_whrs,
           data.ins_id,
           data.uncovered_id,
-          data.discription,
+          JSON.stringify(data.discription),
           data.assigned_to_internal,
           data.assigned_to_external,
           data.absence_id,
@@ -789,7 +789,7 @@ module.exports = {
 
   GetAllAbsence: (data, callback) => {
     pool.query(
-      "select C.email_id,C.unique_id,A.* from dh_absence_management A join dh_customer C on A.unique_id=C.unique_id where A.ins_id=? AND A.is_approved=?",
+      "select C.email_id,C.unique_id,A.* from dh_absence_management A join dh_customer C on A.unique_id=C.unique_id where A.ins_id=? AND A.is_approved=? AND A.is_active=1",
       [data.ins_id, data.status],
       (error, result, fields) => {
         if (error) {

@@ -2359,15 +2359,18 @@ module.exports = {
 
   top_up_hours_admin: (req, res) => {
     const data = req.body;
-    data.total_hours =
-      parseInt(data.total_hours) + parseInt(data.requesting_hours);
-    data.remaining_hours =
-      parseInt(data.remaining_hours) + parseInt(data.requesting_hours);
 
-    data.total_hours = fun.convertHoursInToMinutes(data.total_hours);
-    data.remaining_hours = fun.convertHoursInToMinutes(data.remaining_hours);
-    data.used_hours = fun.convertHoursInToMinutes(data.used_hours);
-    console.log("tt", data.total_hours);
+    data.total_hours =
+      fun.ConverTimeString(data.total_hours) +
+      fun.ConverTimeString(data.requesting_hours);
+    data.remaining_hours =
+      fun.ConverTimeString(data.remaining_hours) +
+      fun.ConverTimeString(data.requesting_hours);
+
+    // data.total_hours = fun.convertHoursInToMinutes(data.total_hours);
+    // data.remaining_hours = fun.convertHoursInToMinutes(data.remaining_hours);
+    data.used_hours = fun.ConverTimeString(data.used_hours);
+
     GetMyHours(data, (error, myhours) => {
       if (error) {
         console.log(error);

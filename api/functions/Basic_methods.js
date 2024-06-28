@@ -265,6 +265,14 @@ module.exports = {
     return `${hours}:${formattedMinutes}`;
   },
 
+  ConverTimeString: function convertTimeToMinutes(time) {
+    // Split the time string into hours and minutes
+    let [hours, minutes] = time.split(":").map(Number);
+
+    // Convert hours to minutes and add the minutes
+    return hours * 60 + minutes;
+  },
+
   FindMintuesBetweenTwoTimes: function FindMinBetweenTimes(startTime, endTime) {
     // Parse the times into Date objects
     const start = new Date(`1970-01-01T${startTime}Z`);

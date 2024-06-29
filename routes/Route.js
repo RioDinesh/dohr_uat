@@ -149,6 +149,7 @@ Router.get("/GET_TIMEZONE", INSTITUTE_GET.get_TimeZone);
 
 Router.post("/Get_All_Vacancy", INSTITUTE_GET.get_All_vacancy);
 Router.post("/Get_All_Vacancy_Customer", INSTITUTE_GET.get_All_vacancy_cus);
+Router.post("/Get_createdBy_Vacancy", INSTITUTE_GET.get_createdBy_vacancy);
 Router.post("/Get_vacancy_dates", INSTITUTE_GET.get_vacancy_dates);
 Router.post(
   "/Get_vacancy_dates_customer",

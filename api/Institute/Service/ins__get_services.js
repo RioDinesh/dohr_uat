@@ -2,13 +2,17 @@ const pool = require("../../../config/connection");
 
 module.exports = {
   GetInstitue: (callback) => {
-    pool.query("select * from dh_institutes where is_active=1", [], (error, result, fields) => {
-      if (error) {
-        return callback(error);
-      } else {
-        return callback(null, result);
+    pool.query(
+      "select * from dh_institutes where is_active=1",
+      [],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
       }
-    });
+    );
   },
 
   GetInstitueRequirement: (callback) => {
@@ -24,7 +28,6 @@ module.exports = {
       }
     );
   },
-
 
   GetCompletedVacancy: (callback) => {
     pool.query(
@@ -72,6 +75,20 @@ module.exports = {
     pool.query(
       "select * from dh_vacancy_new where is_draft=0 AND is_active=1 And publish_to_id=2 And ins_id=?",
       [data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  GetCreatedByVacancyCustomer: (data, callback) => {
+    pool.query(
+      "select * from dh_vacancy_new where is_draft=0 AND is_active=1 And created_by=?",
+      [data.created_by],
       (error, result, fields) => {
         if (error) {
           return callback(error);

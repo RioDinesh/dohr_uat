@@ -818,7 +818,7 @@ module.exports = {
 
   GetAbsenceStaff: (data, callback) => {
     pool.query(
-      "Select A.ins_id,A.unique_id,A.is_approved,A.to_date,A.from_date,A.from_time,A.to_time,A.leave_type,A.substitute_required,C.* from dh_absence_management A join dh_customer C on C.unique_id=A.unique_id where A.ins_id=? AND A.is_approved=1 ",
+      "Select A.ins_id,A.unique_id,A.is_approved,A.to_date,A.from_date,A.from_time,A.to_time,A.leave_type,A.substitute_required,C.* from dh_absence_management A join dh_customer C on C.unique_id=A.unique_id where A.ins_id=? AND A.is_approved=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {

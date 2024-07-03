@@ -1747,6 +1747,7 @@ module.exports = {
           console.log("findeme", abstaff);
           abstaff.forEach((v, i) => {
             let checkdate = `${v.to_date}T${v.to_time}Z`;
+            console.log("......................", checkdate);
             let checking = fun.CheckDateisPassed(checkdate);
             if (checking == false) {
               ALL_Data.splice(
@@ -2359,7 +2360,7 @@ module.exports = {
 
   top_up_hours_admin: (req, res) => {
     const data = req.body;
-
+    console.log(data);
     data.total_hours =
       fun.ConverTimeString(data.total_hours) +
       fun.ConverTimeString(data.requesting_hours);

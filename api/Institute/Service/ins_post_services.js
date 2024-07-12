@@ -1,4 +1,5 @@
 const pool = require("../../../config/connection");
+const { GetVacancy } = require("../../Consultant/Service/con_post_services");
 
 module.exports = {
   CreateAbsence: (data, callback) => {
@@ -719,7 +720,7 @@ module.exports = {
       console.log(day);
 
       pool.query(
-        "select * from dh_my_schedule where unique_id=? AND day=?",
+        "select * from dh_my_schedule where unique_id=? AND day=? AND is_active=1",
         [data.unique_id, day],
         (error, result, fields) => {
           if (error) {
@@ -731,7 +732,7 @@ module.exports = {
       );
     } else {
       pool.query(
-        "select * from dh_my_schedule where unique_id=?",
+        "select * from dh_my_schedule where unique_id=? AND is_active=1",
         [data.unique_id],
         (error, result, fields) => {
           if (error) {
@@ -761,7 +762,33 @@ module.exports = {
 
   GetInstituteCoveredSchedule: (data, callback) => {
     pool.query(
-      "select U.*,A.*,S.*,I.*,C.*,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=?",
+      "select U.*,U.id as uncoveredId ,A.*,S.*,I.*,C.*,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=?",
+      [data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+  GetVacancyScheduleInternal: (data, callback) => {
+    pool.query(
+      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_customer C where V.ins_id=? And V.is_active=1",
+      [data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+  GetVacancySchedulExternal: (data, callback) => {
+    pool.query(
+      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_substitute_consultant C on C.id=V.assigned_to_external where V.ins_id=? And V.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {

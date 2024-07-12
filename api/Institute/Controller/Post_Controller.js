@@ -40,9 +40,14 @@ const {
   UpdateRequestMyhourState,
   GetMyRequestHours,
   TopUpMYHoursRequest,
+  GetVacancySchedulExternal,
+  GetVacancyScheduleInternal,
 } = require("../Service/ins_post_services");
 const { GetInstitueRequirement } = require("../Service/ins__get_services");
-const { UpdateAbsenceStatus } = require("../Service/ins_edit_services");
+const {
+  UpdateAbsenceStatus,
+  UpdateAbsenceStatus2,
+} = require("../Service/ins_edit_services");
 const jwt = require("jsonwebtoken");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
@@ -403,6 +408,7 @@ module.exports = {
           var multicheck = [];
           schedule.forEach((schedata) => {
             days.forEach((datedata) => {
+              console.log(schedata);
               if (schedata.day.toLowerCase() == datedata.day.toLowerCase()) {
                 multicheck.push(schedata);
               }
@@ -580,9 +586,14 @@ module.exports = {
           }
         });
         console.log(multicheck.length);
-
+        let datapayload = {
+          id: absence.id,
+          approved_by: data.approved_by,
+          approved_by_id: data.approved_by_id,
+          approved_or_denied_on: data.approved_or_denied_on,
+        };
         if (multicheck.length == 0) {
-          UpdateAbsenceStatus(absence.id, (err, uncovered) => {
+          UpdateAbsenceStatus2(datapayload, (err, uncovered) => {
             if (err) {
               console.log(err);
               return res.status(500).json({
@@ -624,8 +635,14 @@ module.exports = {
                 message: err.sqlMessage,
               });
             }
+            let datapayload2 = {
+              id: absence.id,
+              approved_by: data.approved_by,
+              approved_by_id: data.approved_by_id,
+              approved_or_denied_on: data.approved_or_denied_on,
+            };
 
-            UpdateAbsenceStatus(absence.id, (err, uncovered) => {
+            UpdateAbsenceStatus2(datapayload2, (err, uncovered) => {
               if (err) {
                 console.log(err);
                 return res.status(500).json({
@@ -996,7 +1013,7 @@ module.exports = {
         0o0,
         data.externalVacancy[0].assigned_to_external,
         0o0,
-        0,
+        data.externalVacancy[0].uncovered_id,
         false,
         true,
         data.externalVacancy[0].isdraft,
@@ -1477,11 +1494,51 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      // console.log(results);
+      GetVacancySchedulExternal(data, (err1, external) => {
+        if (err1) {
+          console.log(err1);
+          return res.status(500).json({
+            success: false,
+            message: err1.sqlMessage,
+          });
+        }
+        GetVacancyScheduleInternal(data, (err2, internal) => {
+          if (err2) {
+            console.log(err2);
+            return res.status(500).json({
+              success: false,
+              message: err2.sqlMessage,
+            });
+          }
+          results.forEach((x) => {
+            x.coveredByName = null;
+            x.coveredById = null;
+            x.coveredByEmail = null;
+            x.coveredByExternal = false;
+            x.coveredByInternal = false;
+            external.forEach((e) => {
+              if (x.uncoveredId == e.uncovered_id) {
+                x.coveredByName = `${e.first_name} ${e.last_name}`;
+                x.coveredById = e.covered_person_id;
+                x.coveredByEmail = e.email_id;
+                x.coveredByExternal = true;
+              }
+            });
+            internal.forEach((i) => {
+              if (x.uncoveredId == i.uncovered_id) {
+                x.coveredByName = `${i.first_name} ${i.last_name}`;
+                x.coveredById = i.covered_person_id;
+                x.coveredByEmail = i.email_id;
+                x.coveredByInternal = true;
+              }
+            });
+          });
 
-      return res.status(200).json({
-        success: true,
-        message: results,
+          return res.status(200).json({
+            success: true,
+            message: results,
+          });
+        });
       });
     });
   },

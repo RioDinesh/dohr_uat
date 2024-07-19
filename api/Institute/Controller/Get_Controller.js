@@ -323,6 +323,7 @@ module.exports = {
                 });
               }
 
+              console.log(Vacancy);
               fav.forEach((c1) => {
                 Vacancy.forEach((c2) => {
                   if (c1.ins_id == c2.created_by) {

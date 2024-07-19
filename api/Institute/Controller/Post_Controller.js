@@ -1005,15 +1005,15 @@ module.exports = {
         data.externalVacancy[0].day,
         data.externalVacancy[0].from_time,
         data.externalVacancy[0].to_time,
-        "",
-        "",
+        data.externalVacancy[0].break_time,
+        data.externalVacancy[0].total_whrs,
         data.externalVacancy[0].ins_id,
-        0o0,
-        data.externalVacancy[0].other_info,
-        0o0,
-        data.externalVacancy[0].assigned_to_external,
-        0o0,
         data.externalVacancy[0].uncovered_id,
+        data.externalVacancy[0].other_info,
+        0,
+        data.externalVacancy[0].assigned_to_external,
+        data.externalVacancy[0].absence_id,
+        0,
         false,
         true,
         data.externalVacancy[0].isdraft,
@@ -1024,6 +1024,7 @@ module.exports = {
         data.externalVacancy[0].publish_to,
         data.externalVacancy[0].publish_to_id,
       ]);
+
       data.externalVacancy.forEach((Data) => {});
       var insert_data = {
         a: insert,

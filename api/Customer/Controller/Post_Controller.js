@@ -197,6 +197,7 @@ module.exports = {
           last_name: Adata.last_name,
           leave_type_id: Adata.leave_type_id,
           leave_type: Adata.leave_type,
+          additional_comment: Adata.additional_comment,
           from_date: Adata.from_date,
           from_time: Adata.from_time,
           to_time: Adata.to_time,

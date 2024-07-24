@@ -610,7 +610,7 @@ module.exports = {
           data.total_whrs,
           data.ins_id,
           data.uncovered_id,
-          data.discription,
+          JSON.stringify(data.discription),
           data.assigned_to_internal,
           data.assigned_to_external,
           data.absence_id,

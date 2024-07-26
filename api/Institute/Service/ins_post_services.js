@@ -6,7 +6,7 @@ module.exports = {
     //pool.query("select * from dh_my_schedule where (date between ? and ?) AND unique_id=?",[date])
 
     pool.query(
-      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,additional_comment,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id,others) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "insert into dh_absence_management(unique_id,first_name,last_name,leave_type_id,leave_type,additional_comment,Parental_leave_percentage,child_first_name,child_last_name,appro_due_date,with_pay,without_pay,reason,substitute_required,from_date,to_date,from_time,to_time,ins_id,others,parental_additional_comment,parental_birth_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
       [
         data.unique_id,
         data.first_name,
@@ -28,6 +28,8 @@ module.exports = {
         data.to_time,
         data.ins_id,
         data.others,
+        data.comment,
+        data.child_personal_number,
       ],
       (error, result, fields) => {
         if (error) {
@@ -270,8 +272,8 @@ module.exports = {
 
   DenyAbsence: (data, callback) => {
     pool.query(
-      "update dh_absence_management set is_denied=1 ,deny_reason=? where id=?",
-      [data.reason, data.id],
+      "update dh_absence_management set is_denied=1 ,deny_reason=?,who_denied=? where id=?",
+      [data.reason, data.who_denied, data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -816,8 +818,8 @@ module.exports = {
 
   GetAllAbsence: (data, callback) => {
     pool.query(
-      "select C.email_id,C.unique_id,A.* from dh_absence_management A join dh_customer C on A.unique_id=C.unique_id where A.ins_id=? AND A.is_approved=? AND A.is_active=1",
-      [data.ins_id, data.status],
+      "select C.email_id,C.unique_id,A.* from dh_absence_management A join dh_customer C on A.unique_id=C.unique_id where A.ins_id=?  AND A.is_active=1",
+      [data.ins_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);

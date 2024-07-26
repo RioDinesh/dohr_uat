@@ -970,11 +970,14 @@ module.exports = {
           message: errors.sqlMessage,
         });
       }
+      var min = 0;
+      data.externalVacancy.forEach((X) => {
+        console.log(fun.FindMintuesBetweenTwoTimes(X.from_time, X.to_time));
+        min = min + fun.FindMintuesBetweenTwoTimes(X.from_time, X.to_time);
+      });
 
-      let min = fun.FindMintuesBetweenTwoTimes(
-        data.externalVacancy[0].from_time,
-        data.externalVacancy[0].to_time
-      );
+      // let min
+      console.log(min);
       if (hours.length != 0) {
         if (min > hours[0].remaining_hours) {
           return res.status(404).json({
@@ -998,32 +1001,34 @@ module.exports = {
 
       console.log(data);
       var insert = [];
-      insert.push([
-        data.externalVacancy[0].position,
-        data.externalVacancy[0].position_id,
-        data.externalVacancy[0].v_date,
-        data.externalVacancy[0].day,
-        data.externalVacancy[0].from_time,
-        data.externalVacancy[0].to_time,
-        data.externalVacancy[0].break_time,
-        data.externalVacancy[0].total_whrs,
-        data.externalVacancy[0].ins_id,
-        data.externalVacancy[0].uncovered_id,
-        data.externalVacancy[0].other_info,
-        0,
-        data.externalVacancy[0].assigned_to_external,
-        data.externalVacancy[0].absence_id,
-        0,
-        false,
-        true,
-        data.externalVacancy[0].isdraft,
-        data.externalVacancy[0].location,
-        JSON.stringify(data.externalVacancy[0].description),
-        data.externalVacancy[0].assigned_from,
-        data.externalVacancy[0].created_by,
-        data.externalVacancy[0].publish_to,
-        data.externalVacancy[0].publish_to_id,
-      ]);
+      data.externalVacancy.forEach((X) => {
+        insert.push([
+          X.position,
+          X.position_id,
+          X.v_date,
+          X.day,
+          X.from_time,
+          X.to_time,
+          X.break_time,
+          X.total_whrs,
+          X.ins_id,
+          X.uncovered_id,
+          X.other_info,
+          0,
+          X.assigned_to_external,
+          X.absence_id,
+          0,
+          false,
+          true,
+          X.isdraft,
+          X.location,
+          JSON.stringify(X.description),
+          X.assigned_from,
+          X.created_by,
+          X.publish_to,
+          X.publish_to_id,
+        ]);
+      });
 
       data.externalVacancy.forEach((Data) => {});
       var insert_data = {
@@ -1646,6 +1651,7 @@ module.exports = {
 
     GetAllAbsence(data, (err, results) => {
       var finalArray = [];
+
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -1653,9 +1659,18 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
+      // data.status
+      console.log(results.length);
       results.forEach((filter) => {
-        if (filter.is_denied == 0) {
-          finalArray.push(filter);
+        console.log(filter.is_denied);
+        if (data.is_denied == 0) {
+          if (filter.is_approved == data.status) {
+            finalArray.push(filter);
+          }
+        } else {
+          if (filter.is_denied == 1) {
+            finalArray.push(filter);
+          }
         }
       });
       return res.status(200).json({

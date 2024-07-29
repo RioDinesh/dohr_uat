@@ -214,6 +214,9 @@ module.exports = {
           is_active: Adata.is_active,
           is_denied: Adata.is_denied == 1 ? true : false,
           deny_reason: Adata.deny_reason,
+          parental_additional_comment: Adata.parental_additional_comment,
+          parental_birth_date: Adata.parental_birth_date,
+          who_denied: Adata.who_denied,
           created_at: Adata.created_at,
           updated_at: Adata.updated_at,
         };

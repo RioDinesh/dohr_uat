@@ -217,6 +217,7 @@ module.exports = {
           parental_additional_comment: Adata.parental_additional_comment,
           parental_birth_date: Adata.parental_birth_date,
           who_denied: Adata.who_denied,
+          approved_by: Adata.approved_by,
           created_at: Adata.created_at,
           updated_at: Adata.updated_at,
         };

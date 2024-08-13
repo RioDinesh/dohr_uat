@@ -1524,7 +1524,11 @@ module.exports = {
             x.coveredByExternal = false;
             x.coveredByInternal = false;
             external.forEach((e) => {
-              if (x.uncoveredId == e.uncovered_id && x.vacancy_status != 0) {
+              if (
+                x.uncoveredId == e.uncovered_id &&
+                x.vacancy_status != 0 &&
+                x.publish_to_external == 1
+              ) {
                 x.coveredByName = `${e.first_name} ${e.last_name}`;
                 x.coveredById = e.covered_person_id;
                 x.coveredByEmail = e.email_id;
@@ -1532,7 +1536,11 @@ module.exports = {
               }
             });
             internal.forEach((i) => {
-              if (x.uncoveredId == i.uncovered_id && x.vacancy_status != 0) {
+              if (
+                x.uncoveredId == i.uncovered_id &&
+                x.vacancy_status != 0 &&
+                x.publish_to_internal == 1
+              ) {
                 x.coveredByName = `${i.first_name} ${i.last_name}`;
                 x.coveredById = i.covered_person_id;
                 x.coveredByEmail = i.email_id;

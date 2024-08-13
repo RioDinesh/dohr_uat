@@ -1517,13 +1517,14 @@ module.exports = {
             });
           }
           results.forEach((x) => {
+            console.log(x.vacancy_status);
             x.coveredByName = null;
             x.coveredById = null;
             x.coveredByEmail = null;
             x.coveredByExternal = false;
             x.coveredByInternal = false;
             external.forEach((e) => {
-              if (x.uncoveredId == e.uncovered_id) {
+              if (x.uncoveredId == e.uncovered_id && x.vacancy_status != 0) {
                 x.coveredByName = `${e.first_name} ${e.last_name}`;
                 x.coveredById = e.covered_person_id;
                 x.coveredByEmail = e.email_id;
@@ -1531,7 +1532,7 @@ module.exports = {
               }
             });
             internal.forEach((i) => {
-              if (x.uncoveredId == i.uncovered_id) {
+              if (x.uncoveredId == i.uncovered_id && x.vacancy_status != 0) {
                 x.coveredByName = `${i.first_name} ${i.last_name}`;
                 x.coveredById = i.covered_person_id;
                 x.coveredByEmail = i.email_id;

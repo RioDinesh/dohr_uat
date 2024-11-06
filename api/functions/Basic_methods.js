@@ -116,11 +116,15 @@ module.exports = {
       headers: {
         "Content-Type": "application/json",
         Authorization:
-          "key=AAAAHq4_tgs:APA91bHZFGIfqiA5H7uRmYOnlMWcelZ8Gp-atLxhGj1NMLT6nYVg1CCO77fb_19cULtdT0XSM3zfnIqTTY7JfF2iOIfKT3biaB0rYzxZU0E0Hyc4by-XjBWIaRQKfC_nMdorpyIN3z4g",
+          "Bearer AAAAHq4_tgs:APA91bHZFGIfqiA5H7uRmYOnlMWcelZ8Gp-atLxhGj1NMLT6nYVg1CCO77fb_19cULtdT0XSM3zfnIqTTY7JfF2iOIfKT3biaB0rYzxZU0E0Hyc4by-XjBWIaRQKfC_nMdorpyIN3z4g",
       },
     };
     axios
-      .post("https://fcm.googleapis.com/fcm/send", message, options)
+      .post(
+        "https://fcm.googleapis.com/v1/projects/dohrab-6e764/messages:send",
+        message,
+        options
+      )
       .then((response) => {
         //receive response
         //     console.log(response);

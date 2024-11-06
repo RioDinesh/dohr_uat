@@ -390,7 +390,8 @@ module.exports = {
             assigned_from,
             created_by,
             publish_to,
-            publish_to_id
+            publish_to_id,
+            routine_information
             ) values ?`,
       [data.a],
       (error, result, fields) => {

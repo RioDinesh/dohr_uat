@@ -1027,6 +1027,7 @@ module.exports = {
           X.created_by,
           X.publish_to,
           X.publish_to_id,
+          X.routine_information,
         ]);
       });
 

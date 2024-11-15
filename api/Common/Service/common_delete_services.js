@@ -15,6 +15,21 @@ module.exports = {
       }
     );
   },
+
+  DeleteUnCoveredVacancy(data, callback) {
+    pool.query(
+      "Update dh_uncovered_management set is_active=0 where id=?",
+      [data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          console.log(result);
+          return callback(null, result);
+        }
+      }
+    );
+  },
   DeleteConsultant(data, callback) {
     pool.query(
       "Update dh_substitute_consultant set is_active=0 where id=?",

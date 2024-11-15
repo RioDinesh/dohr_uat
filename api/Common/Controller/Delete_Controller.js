@@ -32,6 +32,7 @@ const {
   Delete_ad_Advertisment,
   Delete_subEmail,
   InactiveCustomer,
+  DeleteUnCoveredVacancy,
 } = require("../Service/common_delete_services");
 
 module.exports = {
@@ -46,6 +47,31 @@ module.exports = {
     }
 
     DeleteVacancy(data, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Deleted",
+      });
+    });
+  },
+
+  delete_uncovered_vacancy: (req, res) => {
+    const data = req.body;
+    if (!data.id) {
+      return res.status(500).json({
+        success: false,
+        message: "fields are missing",
+      });
+    }
+
+    DeleteUnCoveredVacancy(data, (err, results) => {
       if (err) {
         console.log(err);
         return res.status(500).json({

@@ -297,6 +297,10 @@ Router.post(
 
 //========================================================================================DELETE=====================================================================================================
 Router.post("/delete_vacancy", COMMON_DELETE.delete_vacancy);
+Router.post(
+  "/delete_uncovered_vacancy",
+  COMMON_DELETE.delete_uncovered_vacancy
+);
 Router.post("/delete_consultant", COMMON_DELETE.delete_consultant);
 Router.post(
   "/delete_inactive_consultant",

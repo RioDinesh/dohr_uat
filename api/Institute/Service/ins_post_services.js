@@ -834,7 +834,7 @@ module.exports = {
   GetUncoveredSchedule: (data, callback) => {
     //AND U.v_date >=  CURDATE()
     pool.query(
-      "select U.*,U.id as uncovered_id ,A.*,S.*,I.*,C.*,C.id as assigned_from,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=0   AND U.ins_id=?",
+      "select U.*,U.id as uncovered_id ,A.*,S.*,I.*,C.*,C.id as assigned_from,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=0   AND U.ins_id=? AND U.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {

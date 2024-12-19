@@ -227,6 +227,10 @@ Router.get("/Send_Message", COMMON_GET.Fcm_Message);
 
 //> POST//
 Router.post("/Create_Schedule", CUSTOMER_POST.create_schedule);
+Router.post(
+  "/Update_Schedule_pdf",
+  CUSTOMER_POST.add_Lessonplan_instruction_schedule_pdf
+);
 Router.post("/Get_my_schedule", CUSTOMER_POST.get_myschedule);
 Router.post("/Get_my_absence", CUSTOMER_POST.get_my_absence);
 Router.post("/Get_my_covered", CUSTOMER_POST.get_my_covered);

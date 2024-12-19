@@ -28,6 +28,20 @@ module.exports = {
     );
   },
 
+  UpadteSchedulePdf: (data, callback) => {
+    pool.query(
+      "update dh_my_schedule set schedule_pdf=? where id=?",
+      [data.pdfname, data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
   GetMyAbsence: (data, callback) => {
     pool.query(
       "select * from dh_absence_management where unique_id=? and is_active=1",

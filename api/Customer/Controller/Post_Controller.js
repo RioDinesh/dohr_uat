@@ -16,11 +16,13 @@ const {
   VacancyCancel,
   GetConsultant,
   GetCons,
+  UpadteSchedulePdf,
 } = require("../Service/cus_post_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-
+const path = require("path");
+const fs = require("fs");
 var fun = require("../../functions/Basic_methods");
 module.exports = {
   create_schedule: (req, res) => {
@@ -42,6 +44,70 @@ module.exports = {
     });
 
     CreateSchedule(arr, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Schedule Created",
+      });
+    });
+  },
+
+  add_Lessonplan_instruction_schedule_pdf: (req, res) => {
+    let data = req.body;
+
+    if (data.pdf) {
+      // Extract file extension
+      const matches = data.pdf.match(/^data:([A-Za-z-+/]+);base64,/);
+      if (matches) {
+        const mimeType = matches[1];
+        const extension = mimeType.split("/")[1];
+
+        // Check if the file is a PDF
+        if (extension === "pdf") {
+          const currentDate = new Date();
+          const formatFilename = currentDate.toISOString();
+          const filename = formatFilename.replace(/[-:.]/g, "");
+          const desPath = path.join(
+            __dirname,
+            "../../attachments/" + `${filename}.pdf`
+          );
+
+          const base64Data = data.pdf.replace(
+            /^data:([A-Za-z-+/]+);base64,/,
+            ""
+          );
+          fs.writeFileSync(desPath, base64Data, { encoding: "base64" });
+          data.pdfname = `${filename}.pdf`;
+        } else {
+          console.error("The provided file is not a PDF.");
+
+          return res.status(404).json({
+            success: false,
+            message: "The provided file is not a PDF.",
+          });
+        }
+      } else {
+        console.error("Invalid file format.");
+        return res.status(404).json({
+          success: false,
+          message: "Invalid file format.",
+        });
+      }
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "File is Missing",
+      });
+    }
+
+    UpadteSchedulePdf(data, (err, results) => {
       if (err) {
         console.log(err);
         return res.status(500).json({

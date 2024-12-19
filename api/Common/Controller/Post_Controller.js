@@ -39,6 +39,7 @@ const {
   GetAllVacancyByDateAndSatus,
   GetAllConsultant,
   GetMyVacancyFeedBack,
+  GetAbsenceStaffInfo,
 } = require("../Service/common_post_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -251,6 +252,33 @@ module.exports = {
             message: err.sqlMessage,
           });
         }
+
+        // cons.forEach((x) => {
+        //   console.log(x);
+
+        //   GetAbsenceStaffInfo(x, (err, abs) => {
+        //     console.log("----------------------");
+        //     console.log(abs);
+        //     if (abs.length != 0) {
+        //       x.absentstaffname = abs[0].first_name + abs[0].last_name;
+        //     } else {
+        //       x.absentstaffname = "NA";
+        //     }
+        //   });
+
+        // });
+        // cus.forEach((x) => {
+        //   console.log(x);
+        //   GetAbsenceStaffInfo(x, (err, abs) => {
+        //     console.log("----------------------");
+        //     console.log(abs);
+        //     if (abs.length != 0) {
+        //       x.absentstaffname = abs[0].first_name + abs[0].last_name;
+        //     } else {
+        //       x.absentstaffname = "NA";
+        //     }
+        //   });
+        // });
 
         return res.status(200).json({
           success: true,

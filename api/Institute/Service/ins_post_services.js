@@ -128,7 +128,7 @@ module.exports = {
   },
   CreateCustomer: (data, callback) => {
     pool.query(
-      "insert into dh_customer(first_name,last_name,title,title_id,company_name,organization_no,organization_type,organization_type_id,email_id,telephone_number,address,postal_code,area_name,invoice_address,invoice_postal_code,invoice_area_name,invoice_email_id,password,unique_id,ins_id,invoice_reference,Routine_instructions_for_the_substitutedh_customer,from_web) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      "insert into dh_customer(first_name,last_name,title,title_id,company_name,organization_no,organization_type,organization_type_id,email_id,telephone_number,address,postal_code,area_name,invoice_address,invoice_postal_code,invoice_area_name,invoice_email_id,password,unique_id,ins_id,invoice_reference,Routine_instructions_for_the_substitutedh_customer,from_web,job_title,Location) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
       [
         data.first_name,
         data.last_name,
@@ -153,6 +153,8 @@ module.exports = {
         data.invoice_reference,
         data.instructions,
         true,
+        data.job_title,
+        data.Location,
       ],
       (error, result, fields) => {
         if (error) {
@@ -315,24 +317,28 @@ module.exports = {
     pool.query(
       `insert into dh_vacancy_new(
             position,  
-            position_id , 
+            position_id, 
             v_date,  
             day,
-            from_time , 
-            to_time , 
+            from_time, 
+            to_time, 
             break_time,  
-            total_whrs , 
-            ins_id ,
-            uncovered_id ,
-            other_info  ,
-            assigned_to_internal , 
-            absence_id , 
-            vacancy_status , 
+            total_whrs, 
+            ins_id,
+            uncovered_id,
+            other_info,
+            assigned_to_internal, 
+            absence_id, 
+            vacancy_status, 
             publish_to_internal, 
             publish_to_external,
             is_draft,
             assigned_from,
-            created_by
+            created_by,
+            lesson_plan_pdf,
+            absence_stafName,
+            my_consultant,
+            location
             ) values ?`,
       [data],
       (error, result, fields) => {
@@ -391,7 +397,11 @@ module.exports = {
             created_by,
             publish_to,
             publish_to_id,
-            routine_information
+            routine_information,
+            lesson_plan_pdf,
+            absence_stafName,
+            my_consultant,
+            location
             ) values ?`,
       [data.a],
       (error, result, fields) => {
@@ -447,6 +457,10 @@ module.exports = {
             report_reason  ,
             publish_to_internal , 
             publish_to_external,
+            lesson_plan_pdf,
+            absence_stafName,
+            my_consultant,
+            location,
             is_draft
             ) values ?`,
       [data],

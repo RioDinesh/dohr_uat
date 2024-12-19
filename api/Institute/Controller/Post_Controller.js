@@ -930,6 +930,10 @@ module.exports = {
             Data.report_reason,
             Data.publish_to_internal,
             Data.publish_to_external,
+            Data.lesson_plan_pdf,
+            Data.absence_stafName,
+            Data.my_consultant,
+            Data.location,
             Data.is_draft,
           ]);
         });
@@ -1028,6 +1032,10 @@ module.exports = {
           X.publish_to,
           X.publish_to_id,
           X.routine_information,
+          X.lesson_plan_pdf,
+          X.absence_stafName,
+          X.my_consultant,
+          X.location,
         ]);
       });
 
@@ -1153,6 +1161,10 @@ module.exports = {
               false,
               Data.assigned_from,
               Data.created_by,
+              Data.lesson_plan_pdf,
+              Data.absence_stafName,
+              Data.my_consultant,
+              Data.location,
             ]);
           });
 
@@ -1762,9 +1774,9 @@ module.exports = {
         var year = currentTime.getFullYear();
         var startdate = year + "-" + month + "-" + "01";
         var ongoingDate = currentTime.toISOString().slice(0, 10);
-        console.log(startdate, ongoingDate);
+
         var present_month_dates = fun.DateFinder(startdate, ongoingDate);
-        console.log(present_month_dates);
+
         present_month_dates.forEach((P_Date) => {
           workedList.forEach((W_Date) => {
             if (W_Date.v_date === P_Date) {
@@ -1827,10 +1839,10 @@ module.exports = {
               message: errrr.sqlMessage,
             });
           }
-          console.log("findeme", abstaff);
+
           abstaff.forEach((v, i) => {
             let checkdate = `${v.to_date}T${v.to_time}Z`;
-            console.log("......................", checkdate);
+
             let checking = fun.CheckDateisPassed(checkdate);
             if (checking == false) {
               ALL_Data.splice(

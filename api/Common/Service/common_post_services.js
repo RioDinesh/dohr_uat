@@ -1,4 +1,5 @@
 const pool = require("../../../config/connection");
+const { GetAbsence } = require("../../Institute/Service/ins_post_services");
 
 module.exports = {
   AddTitle: (data, callback) => {
@@ -100,6 +101,20 @@ module.exports = {
     pool.query(
       "select V.*,V.id as vid,I.* ,I.id as in_id from dh_vacancy_new V join dh_customer I  on V.assigned_to_internal=I.id where V.ins_id=? AND V.vacancy_status=2",
       [data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  GetAbsenceStaffInfo: (data, callback) => {
+    pool.query(
+      "select * from dh_absence_management where id=? and is_active=1",
+      [data.absence_id],
       (error, result, fields) => {
         if (error) {
           return callback(error);

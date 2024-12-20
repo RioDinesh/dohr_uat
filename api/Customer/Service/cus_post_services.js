@@ -72,7 +72,7 @@ module.exports = {
 
   GetICovered: (data, callback) => {
     pool.query(
-      "select * from dh_vacancy_new join dh_customer on dh_vacancy_new.assigned_to_internal=dh_customer.id join dh_uncovered_management on dh_uncovered_management.id=dh_vacancy_new.uncovered_id join dh_my_schedule on dh_uncovered_management.schedule_id= dh_my_schedule.id  where dh_vacancy_new.assigned_to_internal=? AND dh_vacancy_new.vacancy_status=2",
+      "select  *,dh_vacancy_new.id as vid  from dh_vacancy_new join dh_customer on dh_vacancy_new.assigned_to_internal=dh_customer.id join dh_uncovered_management on dh_uncovered_management.id=dh_vacancy_new.uncovered_id join dh_my_schedule on dh_uncovered_management.schedule_id= dh_my_schedule.id  where dh_vacancy_new.assigned_to_internal=17 AND dh_vacancy_new.vacancy_status=2",
       [data.id],
       (error, result, fields) => {
         if (error) {

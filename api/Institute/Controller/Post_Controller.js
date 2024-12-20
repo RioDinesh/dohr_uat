@@ -1191,6 +1191,36 @@ module.exports = {
                 });
               }
 
+              fun.sendMail(
+                data.assigned_email,
+                "New internal vacancy assigned",
+
+                `<html>
+
+        <head>
+           
+        </head>
+        
+        <body>
+        
+            <div>
+                
+                <p>Greetings!</p>
+                
+                <p>A new internal vacancy has been assigned to you. Please check it and take action..</p>
+                <br>
+                <p>Med vänliga hälsningar / Best wishes,</p>
+                <p>DoHR (/ˈdɔr/) team</p>
+                <br>
+                <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
+            </div>
+        
+        </body>
+        
+        </html>
+        `
+              );
+
               return res.status(200).json({
                 success: true,
                 message: "registered successfully",

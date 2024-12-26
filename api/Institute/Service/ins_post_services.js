@@ -400,8 +400,7 @@ module.exports = {
             routine_information,
             lesson_plan_pdf,
             absence_stafName,
-            my_consultant,
-            location
+            my_consultant
             ) values ?`,
       [data.a],
       (error, result, fields) => {

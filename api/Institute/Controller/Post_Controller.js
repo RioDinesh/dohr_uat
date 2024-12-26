@@ -1035,7 +1035,6 @@ module.exports = {
           X.lesson_plan_pdf,
           X.absence_stafName,
           X.my_consultant,
-          X.location,
         ]);
       });
 

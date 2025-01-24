@@ -17,7 +17,7 @@ module.exports = {
 
   EditMyProfileCustomer: (data, callback) => {
     pool.query(
-      "update dh_customer set first_name=?,last_name=?,telephone_number=?,Routine_instructions_for_the_substitutedh_customer=?,profile_img=?,company_name=?,organization_no=?,organization_type=?,organization_type_id=?,email_id=?,address=?,postal_code=?,area_name=?,invoice_address=?,invoice_postal_code=?,invoice_area_name=?,invoice_email_id=?,invoice_reference=? where id=?",
+      "update dh_customer set first_name=?,last_name=?,telephone_number=?,Routine_instructions_for_the_substitutedh_customer=?,profile_img=?,company_name=?,organization_no=?,organization_type=?,organization_type_id=?,email_id=?,address=?,postal_code=?,area_name=?,invoice_address=?,invoice_postal_code=?,invoice_area_name=?,invoice_email_id=?,invoice_reference=?,sublocations1=?,sublocations2=?,sublocations3=?,sublocations4=?,sublocations5=? where id=?",
       [
         data.first_name,
         data.last_name,
@@ -37,7 +37,11 @@ module.exports = {
         data.invoice_area_name,
         data.invoice_email_id,
         data.invoice_reference,
-
+        data.sublocations1,
+        data.sublocations2,
+        data.sublocations3,
+        data.sublocations4,
+        data.sublocations5,
         data.id,
       ],
       (error, result, fields) => {

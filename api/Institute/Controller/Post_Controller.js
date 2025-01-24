@@ -42,6 +42,8 @@ const {
   TopUpMYHoursRequest,
   GetVacancySchedulExternal,
   GetVacancyScheduleInternal,
+  GetInternalTeacherScheduleData,
+  GetInternalTeacherVacancyData,
 } = require("../Service/ins_post_services");
 const { GetInstitueRequirement } = require("../Service/ins__get_services");
 const {
@@ -1003,7 +1005,6 @@ module.exports = {
         });
       }
 
-      console.log(data);
       var insert = [];
       data.externalVacancy.forEach((X) => {
         insert.push([
@@ -1880,6 +1881,69 @@ module.exports = {
               );
             }
           });
+
+          var finalflagData = [];
+
+          // ALL_Data.forEach((x) => {
+          //   GetInternalTeacherScheduleData(x, (errrr, schedata) => {
+          //     if (err) {
+          //       console.log(errrr);
+          //       return res.status(500).json({
+          //         success: false,
+          //         message: errrr.sqlMessage,
+          //       });
+          //     }
+
+          //     GetInternalTeacherVacancyData(x, (errrr, vacancyData) => {
+          //       if (err) {
+          //         console.log(errrr);
+          //         return res.status(500).json({
+          //           success: false,
+          //           message: errrr.sqlMessage,
+          //         });
+          //       }
+
+          //       if (vacancyData.length == 0) {
+          //         schedata.forEach((a) => {
+          //           const date = new Date("2025-01-13");
+
+          //           // Get the day of the week as a number (0 = Sunday, 1 = Monday, etc.)
+          //           const dayNumber = date.getDay(data.date);
+
+          //           // Array of days for mapping the number to the name
+          //           const daysOfWeek = [
+          //             "Sunday",
+          //             "Monday",
+          //             "Tuesday",
+          //             "Wednesday",
+          //             "Thursday",
+          //             "Friday",
+          //             "Saturday",
+          //           ];
+
+          //           // Return the name of the day
+
+          //           if (data.daysOfWeek[dayNumber] == a.day) {
+          //             if (
+          //               fun.isTimeWithinRange(
+          //                 data.from_time,
+          //                 data.to_time,
+          //                 a.start_time,
+          //                 b.end_time
+          //               )
+          //             ) {
+          //             } else {
+          //               finalflagData.push(x);
+          //             }
+          //           } else {
+          //             finalflagData.push(x);
+          //           }
+          //         });
+          //       }
+          //     });
+          //   });
+          // });
+
           return res.status(200).json({
             success: true,
             message: ALL_Data,

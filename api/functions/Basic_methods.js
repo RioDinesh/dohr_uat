@@ -300,5 +300,22 @@ module.exports = {
     // Check if the target date is within the range
     return target >= from && target <= to;
   },
+
+  isTimeWithinRange: (a, d, c, b) => {
+    // Convert "HH:mm:ss" to total seconds since midnight
+    const timeToSeconds = (time) => {
+      const [hours, minutes, seconds] = time.split(":").map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+    };
+
+    // Convert all times to seconds
+    const timeA = timeToSeconds(a);
+    const timeD = timeToSeconds(d);
+    const timeC = timeToSeconds(c);
+    const timeB = timeToSeconds(b);
+
+    // Check if (a, d) is within (c, b)
+    return timeA >= timeC && timeD <= timeB;
+  },
 };
 ////

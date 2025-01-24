@@ -32,6 +32,7 @@ const {
   Add_Advertisment,
   Get_Advertisment,
   Add_sub_email,
+  EditIamConsultantDetails,
 } = require("../Service/admin_post_services");
 
 const {
@@ -855,6 +856,24 @@ module.exports = {
     });
   },
 
+  edit_iam_consultant: (req, res) => {
+    const data = req.body;
+    EditIamConsultantDetails(data, (err, results) => {
+      var finalarray = [];
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: finalarray,
+      });
+    });
+  },
   consultant_analytics: (req, res) => {
     const data = req.body;
     GetConsultantDetails(data, (err, results) => {

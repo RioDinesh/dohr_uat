@@ -53,6 +53,7 @@ Router.post("/Add_contactUs_Message", ADMIN_POST.add_contactUs_message);
 Router.post("/Get_contact_us_data", ADMIN_POST.Get_ContactUsAll);
 Router.post("/Get_All_Customer", ADMIN_POST.customer_analytics);
 Router.post("/Get_All_Consultant", ADMIN_POST.consultant_analytics);
+Router.post("/Edit_iam_Consultant", ADMIN_POST.edit_iam_consultant);
 Router.post("/Get_ExpressPass_UserDetails", ADMIN_POST.ExpressPassUserDetails);
 Router.post(
   "/Get_Vacancy_Cancel_UserDetails",

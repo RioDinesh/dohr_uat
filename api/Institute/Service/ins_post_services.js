@@ -408,11 +408,14 @@ module.exports = {
           return callback(error);
         } else {
           var ids = [];
+          if (data.mergevacancy == true) {
+            ids = data.ids;
+          } else {
+            data.b.externalVacancy.forEach((id) => {
+              ids.push(id.uncovered_id);
+            });
+          }
 
-          data.b.externalVacancy.forEach((id) => {
-            ids.push(id.uncovered_id);
-          });
-          console.log(ids);
           pool.query(
             "update dh_uncovered_management set is_covered=true where id In(?)",
             [ids],
@@ -528,8 +531,9 @@ module.exports = {
               totalhrs,
               preparationTime,
               handoverTime,
-              institute_type
-              ) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+              institute_type,
+              sub_location
+              ) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           data.position,
           data.position_id,
@@ -567,6 +571,7 @@ module.exports = {
           data.preparationTime,
           data.handoverTime,
           data.institute_type,
+          data.sub_location,
         ],
         (error, result, fields) => {
           if (error) {
@@ -613,8 +618,9 @@ module.exports = {
                my_consultant = ?,
                totalhrs = ?,
                preparationTime = ?,
-               handoverTime = ?
-              where id=?`,
+               handoverTime = ?,
+               sub_location=?,
+               where id=?`,
         [
           data.position,
           data.position_id,
@@ -651,6 +657,7 @@ module.exports = {
           data.totalhrs,
           data.preparationTime,
           data.handoverTime,
+          data.sub_location,
           data.id,
         ],
         (error, result, fields) => {
@@ -891,6 +898,34 @@ module.exports = {
     pool.query(
       "select * from dh_customer where ins_id=?",
       [data.ins_id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  GetInternalTeacherVacancyData: (data, callback) => {
+    pool.query(
+      "select * from dh_vacancy_new where assigned_to_internal=? AND vacancy_status=1 AND is_active=1",
+      [data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
+
+  GetInternalTeacherScheduleData: (data, callback) => {
+    pool.query(
+      "select * from dh_my_schedule where cus_id=? AND is_active=1",
+      [data.id],
       (error, result, fields) => {
         if (error) {
           return callback(error);

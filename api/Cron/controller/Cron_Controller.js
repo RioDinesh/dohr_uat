@@ -13,25 +13,24 @@ const {
   updatevacancyisExpried,
   getfilledExpressPass,
   getVacancyfilled,
-  getUnfilledpooldata
+  getUnfilledpooldata,
 } = require("../services/Cron_Services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-var moment = require('moment'); // require
+var moment = require("moment"); // require
 moment().toISOString();
 function float2int(value) {
   return value | 0;
 }
 
 var fun = require("../../functions/Basic_methods");
-const { GetMyConsultantNotification } = require("../../Institute/Service/ins_post_services");
+const {
+  GetMyConsultantNotification,
+} = require("../../Institute/Service/ins_post_services");
 module.exports = {
-
   publish_to_all30: (req, res) => {
-
     getvacancydata((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -39,9 +38,6 @@ module.exports = {
           message: err.sqlMessage,
         };
       }
-
-
-
 
       if (results.length == 0) {
         return {
@@ -56,19 +52,16 @@ module.exports = {
         const CT = moment().format();
         const cdt = CT.substring(0, 19);
         const currentTime = new Date(cdt + "Z");
-        const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
+        const diffInMinutes = Math.floor(
+          (currentTime - startTime) / (1000 * 60)
+        );
         console.log(`Minutes passed since ${startTime}: ${diffInMinutes}`);
-
-
 
         if (diffInMinutes >= 30) {
           ids.push(X.id);
           cus_ids.push(X.created_by);
         }
-
-
       });
-
 
       GetCustomer(cus_ids.toString(), (errorcus, rescus) => {
         if (errorcus) {
@@ -80,31 +73,25 @@ module.exports = {
         }
         var notificationIds = [];
         rescus.forEach((X) => {
-          if (X.notification_id != null && X.notification_id != '') {
+          if (X.notification_id != null && X.notification_id != "") {
             if (notificationIds.indexOf(X.notification_id) == -1) {
               notificationIds.push(X.notification_id);
             }
-
           }
         });
-       
 
         if (notificationIds.length != 0) {
           var message = {
-            "notification": {
-              "body": `Jobbet du har publicerat för "lärarstudenter" är nu öppet för alla vikarier.`,
-              "title": "A New Message"
+            notification: {
+              body: `Jobbet du har publicerat för "lärarstudenter" är nu öppet för alla vikarier.`,
+              title: "A New Message",
             },
 
-
-            "registration_ids": notificationIds
-          }
+            registration_ids: notificationIds,
+          };
 
           fun.FCM_MESSAGE(message);
         }
-
-
-
 
         if (ids.length != 0) {
           updatevacancy(ids, (error, response) => {
@@ -116,10 +103,7 @@ module.exports = {
               };
             }
 
-
-
             GetALLConsultant((errror, conss) => {
-
               var NIds = [];
 
               conss.forEach((X) => {
@@ -127,26 +111,22 @@ module.exports = {
               });
               if (NIds.length != 0) {
                 var message = {
-                  "notification": {
-                    "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                    "title": "A New Message"
+                  notification: {
+                    body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                    title: "A New Message",
                   },
 
-
-                  "registration_ids": NIds
-                }
+                  registration_ids: NIds,
+                };
 
                 fun.FCM_MESSAGE(message);
               }
-
-
             });
 
             return {
               success: true,
               message: "Updated",
             };
-
           });
         } else {
           return {
@@ -154,24 +134,12 @@ module.exports = {
             message: "NONE",
           };
         }
-
-
-
-
       });
-
-
-
-
-
-
     });
   },
 
   publish_to_all_20min: (req, res) => {
-
     getvacancydata20((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -179,9 +147,8 @@ module.exports = {
           message: err.sqlMessage,
         };
       }
-      
-      if (results.length == 0) {
 
+      if (results.length == 0) {
         return {
           success: true,
           message: "No Schedule",
@@ -192,12 +159,13 @@ module.exports = {
       var cus_ids = [];
 
       results.forEach((X) => {
-        
         const startTime = new Date(X.created_at);
         const CT = moment().format();
         const cdt = CT.substring(0, 19);
         const currentTime = new Date(cdt + "Z");
-        const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
+        const diffInMinutes = Math.floor(
+          (currentTime - startTime) / (1000 * 60)
+        );
 
         if (diffInMinutes >= 20) {
           ids.push(X.id);
@@ -205,10 +173,7 @@ module.exports = {
 
           cus_ids.push(X.created_by);
         }
-
-
       });
-
 
       GetCustomer(cus_ids.toString(), (errorcus, rescus) => {
         if (errorcus) {
@@ -220,30 +185,25 @@ module.exports = {
         }
         var notificationIds = [];
         rescus.forEach((X) => {
-          if (X.notification_id != null && X.notification_id != '') {
+          if (X.notification_id != null && X.notification_id != "") {
             if (notificationIds.indexOf(X.notification_id) == -1) {
               notificationIds.push(X.notification_id);
             }
           }
         });
-        
 
         if (notificationIds.length != 0) {
           var message = {
-            "notification": {
-              "body": `Jobbet du har publicerat för "Mina vikarier" är nu öppet för alla vikarier.`,
-              "title": "A New Message"
+            notification: {
+              body: `Jobbet du har publicerat för "Mina vikarier" är nu öppet för alla vikarier.`,
+              title: "A New Message",
             },
 
-
-            "registration_ids": notificationIds
-          }
+            registration_ids: notificationIds,
+          };
 
           fun.FCM_MESSAGE(message);
         }
-
-
-
 
         if (ids.length != 0) {
           updatevacancy20(ids, (error, response) => {
@@ -255,7 +215,6 @@ module.exports = {
               };
             }
             GetALLConsultant((errror, conss) => {
-
               var NIds = [];
 
               conss.forEach((X) => {
@@ -263,51 +222,34 @@ module.exports = {
               });
               if (NIds.length != 0) {
                 var message = {
-                  "notification": {
-                    "body": `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
-                    "title": "A New Message"
+                  notification: {
+                    body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
+                    title: "A New Message",
                   },
 
-
-                  "registration_ids": NIds
-                }
+                  registration_ids: NIds,
+                };
 
                 fun.FCM_MESSAGE(message);
               }
-
-
             });
             return {
               success: true,
               message: "Updated",
             };
-
           });
         } else {
-
           return {
             success: true,
             message: "NONE",
           };
         }
-
-
-
       });
-
-
-
-
-
-
-
     });
   },
 
   hr_48_rule: (req, res) => {
-
     not_approved((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -315,7 +257,7 @@ module.exports = {
           message: err.sqlMessage,
         };
       }
-      
+
       if (results.length == 0) {
         return {
           success: true,
@@ -327,23 +269,22 @@ module.exports = {
       var cus_ids = [];
       results.forEach((X) => {
         const startTime = new Date(X.updated_at);
-        const CT = moment().add(0, 'hours').format();
+        const CT = moment().add(0, "hours").format();
         const cdt = CT.substring(0, 19);
         console.log(startTime);
         const currentTime = new Date(cdt + "Z");
         console.log(currentTime);
-        const diffInHours = Math.floor((currentTime - startTime) / (1000 * 60 * 60));
+        const diffInHours = Math.floor(
+          (currentTime - startTime) / (1000 * 60 * 60)
+        );
         console.log("the 48 hr", diffInHours);
         if (diffInHours >= 48) {
           ids.push(X.id);
           cus_ids.push(X.created_by);
         }
-
       });
 
       if (ids.length != 0) {
-
-
         GetCustomer(cus_ids, (error, rescus) => {
           if (error) {
             console.log(error);
@@ -352,8 +293,6 @@ module.exports = {
               message: error.sqlMessage,
             };
           }
-
-
 
           MakeApprove(ids, (error, response) => {
             if (error) {
@@ -365,24 +304,22 @@ module.exports = {
             }
             var notificationIds = [];
             rescus.forEach((X) => {
-              if (X.notification_id != null && X.notification_id != '') {
+              if (X.notification_id != null && X.notification_id != "") {
                 if (notificationIds.indexOf(X.notification_id) == -1) {
                   notificationIds.push(X.notification_id);
                 }
               }
             });
 
-
             if (notificationIds.length != 0) {
               var message = {
-                "notification": {
-                  "body": "De timmar som rapporterats för ett slutfört jobb godkänns nu automatiskt.",
-                  "title": "A New Message"
+                notification: {
+                  body: "De timmar som rapporterats för ett slutfört jobb godkänns nu automatiskt.",
+                  title: "A New Message",
                 },
 
-
-                "registration_ids": notificationIds
-              }
+                registration_ids: notificationIds,
+              };
 
               fun.FCM_MESSAGE(message);
             }
@@ -391,29 +328,19 @@ module.exports = {
               success: true,
               message: "Updated",
             };
-
           });
-
         });
-
-
-
       } else {
         return {
           success: true,
           message: "NONE",
         };
       }
-
-
-
     });
   },
 
   notification_10min: (req, res) => {
-
     getUnfilledvacancydata((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -422,18 +349,12 @@ module.exports = {
         };
       }
 
-
-
-
       if (results.length == 0) {
         return {
           success: true,
           message: "No Schedule",
         };
       } else {
-
-
-
         GetALLConsultant((errorcus, cons) => {
           if (errorcus) {
             console.log(errorcus);
@@ -445,41 +366,26 @@ module.exports = {
           const notificationIds = [];
           results.forEach((V) => {
             if (V.publish_to_id == 1) {
-
               cons.forEach((X) => {
                 if (notificationIds.indexOf(X.notification_id) == -1) {
                   notificationIds.push(X.notification_id);
                 }
-
               });
-
-
             }
 
-
             if (V.publish_to_id == 2) {
-
               cons.forEach((X) => {
                 if (X.iam_student == 1) {
                   if (notificationIds.indexOf(X.notification_id) == -1) {
                     notificationIds.push(X.notification_id);
                   }
                 }
-
               });
-
-
-
-
             }
 
             if (V.publish_to_id == 3) {
-              
-
-
               cons.forEach((X) => {
                 if (V.my_consultant.length != 0) {
-
                   for (let i = 0; i < V.my_consultant; i++) {
                     if (V.my_consultant[i] == X.cons_id) {
                       if (notificationIds.indexOf(X.notification_id) == -1) {
@@ -487,46 +393,29 @@ module.exports = {
                       }
                     }
                   }
-
                 }
               });
             }
-
-
-
-
-
           });
-
 
           if (notificationIds.length != 0) {
             var message = {
-              "notification": {
-                "body": "Våra jobb väntar på dig! Var först att acceptera!",
-                "title": "A New Message"
+              notification: {
+                body: "Våra jobb väntar på dig! Var först att acceptera!",
+                title: "A New Message",
               },
-              "registration_ids": notificationIds
-            }
-
-
+              registration_ids: notificationIds,
+            };
 
             fun.FCM_MESSAGE(message);
           }
-
-
-
         });
-
-
-
       }
     });
   },
 
   notification_24hr_vacancy: (req, res) => {
-
     getfilledvacancydata((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -534,8 +423,6 @@ module.exports = {
           message: err.sqlMessage,
         };
       }
-
-
 
       if (results.length == 0) {
         return {
@@ -546,37 +433,35 @@ module.exports = {
         var notificationIds = [];
         results.forEach((X) => {
           const startTime = new Date(X.v_date + "T" + X.from_time + ".000Z");
-          const CT = moment().add(0, 'hours').format();
+          const CT = moment().add(0, "hours").format();
           const cdt = CT.substring(0, 19);
           const currentTime = new Date(cdt + "Z");
 
-          const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
+          const diffInMinutes = Math.floor(
+            (currentTime - startTime) / (1000 * 60)
+          );
           console.log(currentTime);
-          console.log('timeof the 24 is', diffInMinutes)
-
-
+          console.log("timeof the 24 is", diffInMinutes);
 
           if (diffInMinutes == -1440) {
-            if (X.notification_id != null && X.notification_id != '') {
-              if (notificationIds.indexOf(X.notification_id) != -1) { }
-              else {
+            if (X.notification_id != null && X.notification_id != "") {
+              if (notificationIds.indexOf(X.notification_id) != -1) {
+              } else {
                 notificationIds.push(X.notification_id);
               }
-
             }
           }
         });
 
         if (notificationIds.length != 0) {
           var message = {
-            "notification": {
-              "body": "Hej, kom ihåg att du har ett jobb planerat imorgon! För att vara mer förberedd, se våra tips under vanliga frågor.",
-              "title": "A New Message"
+            notification: {
+              body: "Hej, kom ihåg att du har ett jobb planerat imorgon! För att vara mer förberedd, se våra tips under vanliga frågor.",
+              title: "A New Message",
             },
 
-
-            "registration_ids": notificationIds
-          }
+            registration_ids: notificationIds,
+          };
 
           fun.FCM_MESSAGE(message);
         }
@@ -585,16 +470,12 @@ module.exports = {
           success: true,
           message: "done",
         };
-
       }
     });
   },
 
-
   notification_24hr_UnfilledReservePool: (req, res) => {
-
     GetALLConsultant((err, cons) => {
-
       if (err) {
         console.log(err);
         return {
@@ -604,7 +485,6 @@ module.exports = {
       }
 
       getUnfilledpooldata((err, results) => {
-
         if (err) {
           console.log(err);
           return {
@@ -612,9 +492,6 @@ module.exports = {
             message: err.sqlMessage,
           };
         }
-
-
-
 
         if (results.length == 0) {
           return {
@@ -628,41 +505,33 @@ module.exports = {
             notificationIds.push(X.notification_id);
           });
 
-
-
           results.forEach((X) => {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-
 
             const targetDate = new Date(X.date);
 
             // Compare the dates
             if (tomorrow.toDateString() === targetDate.toDateString()) {
               const now = new Date();
-             
 
               const hour = now.getHours();
               const minutes = now.getMinutes();
               if (hour == 16 && minutes == 1) {
                 have_pools.push(1);
               }
-
-
-
             }
           });
 
           if (have_pools.length != 0) {
             var message = {
-              "notification": {
-                "body": "Reservpoolen är fortfarande öppen! För mer information, se Reservpoolen.",
-                "title": "A New Message"
+              notification: {
+                body: "Reservpoolen är fortfarande öppen för DoHR-anställda! För mer information, se Reservpoolen.",
+                title: "A New Message",
               },
 
-
-              "registration_ids": notificationIds
-            }
+              registration_ids: notificationIds,
+            };
 
             fun.FCM_MESSAGE(message);
           }
@@ -671,20 +540,13 @@ module.exports = {
             success: true,
             message: "done",
           };
-
         }
       });
-
-
-
     });
-
   },
 
   notification_24hr_ExpressPass: (req, res) => {
-
     getfilledExpressPass((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -692,9 +554,6 @@ module.exports = {
           message: err.sqlMessage,
         };
       }
-
-
-
 
       if (results.length == 0) {
         return {
@@ -714,7 +573,6 @@ module.exports = {
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
 
-
           const targetDate = new Date(X.date);
           console.log(targetDate);
           // Compare the dates
@@ -722,43 +580,32 @@ module.exports = {
           console.log(targetDate.toDateString());
           if (tomorrow.toDateString() === targetDate.toDateString()) {
             const now = new Date();
-            
 
             const hour = now.getHours();
             const minutes = now.getMinutes();
-            console.log("minnn",hour);
-            console.log("minnn",minutes);
+            console.log("minnn", hour);
+            console.log("minnn", minutes);
             if (hour == 14 && minutes == 1) {
-              if (X.notification_id != null && X.notification_id != '') {
-                if (notificationIds.indexOf(X.notification_id) != -1) { }
-                else {
+              if (X.notification_id != null && X.notification_id != "") {
+                if (notificationIds.indexOf(X.notification_id) != -1) {
+                } else {
                   notificationIds.push(X.notification_id);
                 }
-
               }
             }
-
           } else {
-
           }
-
-
-
-
-
-
         });
-console.log(notificationIds);;
+        console.log(notificationIds);
         if (notificationIds.length != 0) {
           var message = {
-            "notification": {
-              "body": `Kom ihåg! Imorgon är du "reservvikarie".`,
-              "title": "A New Message"
+            notification: {
+              body: `Kom ihåg! Imorgon är du "reservvikarie".`,
+              title: "A New Message",
             },
 
-
-            "registration_ids": notificationIds
-          }
+            registration_ids: notificationIds,
+          };
 
           fun.FCM_MESSAGE(message);
         }
@@ -767,15 +614,12 @@ console.log(notificationIds);;
           success: true,
           message: "done",
         };
-
       }
     });
   },
 
   Expire_Vacancy_after_60min: (req, res) => {
-
     getvacancynotfilled((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -784,9 +628,6 @@ console.log(notificationIds);;
         };
       }
 
-
-
-
       if (results.length == 0) {
         return {
           success: true,
@@ -794,51 +635,42 @@ console.log(notificationIds);;
         };
       }
 
-
       // check the vacancy is today
       var ids = [];
       var notificationIds = [];
-      const arrayUsersMail = []
+      const arrayUsersMail = [];
       results.forEach((X) => {
-
         const startTime = new Date(X.v_date + "T" + X.from_time + ".000Z");
-        const CT = moment().add(0, 'hours').format();
+        const CT = moment().add(0, "hours").format();
         const cdt = CT.substring(0, 19);
         const currentTime = new Date(cdt + "Z");
-        const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
-
-
-
+        const diffInMinutes = Math.floor(
+          (currentTime - startTime) / (1000 * 60)
+        );
 
         if (diffInMinutes >= 60) {
           ids.push(X.id);
-          if (notificationIds.indexOf(X.notification_id) != -1) { }
-          else {
+          if (notificationIds.indexOf(X.notification_id) != -1) {
+          } else {
             notificationIds.push(X.notification_id);
           }
-
 
           if (arrayUsersMail.indexOf(X.email_id) == -1) {
             arrayUsersMail.push(X.email_id);
           }
-
         }
-
-
       });
-
 
       //send notification
       if (notificationIds.length != 0) {
         var message = {
-          "notification": {
-            "body": "Ditt otillsatta jobb har tagits bort.",
-            "title": "A New Message"
+          notification: {
+            body: "Ditt otillsatta jobb har tagits bort.",
+            title: "A New Message",
           },
 
-
-          "registration_ids": notificationIds
-        }
+          registration_ids: notificationIds,
+        };
 
         fun.FCM_MESSAGE(message);
       }
@@ -868,8 +700,6 @@ console.log(notificationIds);;
       //   www.dohr.io`)
       //  }
 
-
-
       if (ids.length != 0) {
         updatevacancyisExpried(ids, (error, response) => {
           if (error) {
@@ -884,7 +714,6 @@ console.log(notificationIds);;
             success: true,
             message: "Updated",
           };
-
         });
       } else {
         return {
@@ -892,25 +721,11 @@ console.log(notificationIds);;
           message: "NONE",
         };
       }
-
-
-
-
-
-
-
-
-
-
-
     });
   },
 
-
   Notify_Vacancy_before_60min: (req, res) => {
-
     getvacancynotfilled((err, results) => {
-
       if (err) {
         console.log(err);
         return {
@@ -919,9 +734,6 @@ console.log(notificationIds);;
         };
       }
 
-
-
-      
       if (results.length == 0) {
         return {
           success: true,
@@ -929,157 +741,114 @@ console.log(notificationIds);;
         };
       }
 
-
       // check the vacancy is today
       var ids = [];
       var notificationIds = [];
       const arrayUsersMail = [];
 
-       
       results.forEach((X) => {
-
         const date = new Date();
         var today = date.toISOString().substring(0, 10);
         const startTime = new Date(X.v_date + "T" + X.from_time + ".000Z");
-       
-        const CT = moment().add(0, 'hours').format();
-       
+
+        const CT = moment().add(0, "hours").format();
+
         const cdt = CT.substring(0, 19);
         const currentTime = new Date(cdt + "Z");
-       
-        const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
 
-
+        const diffInMinutes = Math.floor(
+          (currentTime - startTime) / (1000 * 60)
+        );
 
         if (X.v_date == today) {
-       
           if (diffInMinutes == -60) {
-
             if (notificationIds.indexOf(X.notification_id) != -1) {
               console.log(notificationIds);
-             }
-            else {
-
+            } else {
               notificationIds.push(X.notification_id);
             }
 
-       
             if (arrayUsersMail.indexOf(X.email_id) == -1) {
-       
               arrayUsersMail.push(X.email_id);
             }
           }
         }
-
       });
 
-
-
-
-       
       if (notificationIds.length != 0) {
-
         //   fun.sendMail("riodinesh7@gmail.com","Text")
 
         var message = {
-          "notification": {
-            "body": "Vi vill informera dig om att vi fortfarande söker en vikarie för att fylla ditt publicerade jobb. Tack för ditt tålamod.",
-            "title": "A New Message"
+          notification: {
+            body: "Ditt publicerade jobb är fortfarande otillsatt. Vi aktivt skickar ut push-notiser till vikarier.",
+            title: "A New Message",
           },
 
-
-          "registration_ids": notificationIds
-        }
+          registration_ids: notificationIds,
+        };
 
         fun.FCM_MESSAGE(message);
       }
-      
 
       if (arrayUsersMail.length != 0) {
+        arrayUsersMail.forEach((mail) => {
+          fun.sendMail(
+            mail,
+            "Ditt publicerade jobb är ej tillsatt! / Published vacancy remains unfilled!",
+            `
+         
+<P>Detta är en uppdatering av ditt otillsatta publicerade jobb, som börjar om 60 minuter från att du har fått detta meddelande.</p>
 
-        arrayUsersMail.forEach((mail)=>{
-          fun.sendMail(mail, "Ditt publicerade jobb är ej tillsatt! / Published vacancy remains unfilled!",
-          `
-          Hej!
-          
-          <p>Detta är en uppdatering av ditt otillsatta publicerade jobb, som börjar om 60 minuter från att du har fått detta meddelande.</p>
-          
-          <p>Vi arbetar aktivt med att hitta en vikarie för dig. Om mot all förmodan ditt publicerade jobb förblir otillsatt efter angiven starttid, kommer det att vara fortsatt publicerad i ytterligare 60 minuter. Under denna 60-minutersperiod har du möjlighet att utföra något av följande:</p>
-          
-          <ul>1) Du kan ta bort det otillsatta jobbet när som helst under denna period.</ul>
-          <ul>2) Du kan välja hur länge du vill fortsätta att publicera jobbet, beroende på hur stor flexibilitet tidsmässigt du kan ge en vikarie att acceptera och komma till jobbet.</ul> 
-          <ul>3) Du kan välja att inte göra något, och jobbet kommer att tas bort automatiskt 60 minuter efter den angivna starttiden. Kom ihåg att under denna förlängda perioden har en vikarie fortfarande möjlighet att acceptera jobbet.</ul>
-          
-          <p>Vänligen mejla oss om jobbet fortfarande var otillsatt vid borttagningen och du är berättigad att få en timmes rabatt i enlighet med Villkoren. Vi ser till att en timmes rabatt kommer med på din nästa faktura.</p>
-          
-          <p>Vi ber om ursäkt för eventuella besvär och tackar för förståelsen. Tveka inte att kontakta oss vid frågor.</p>
-          
-          <p>Dear Customer,</p>
-          
-          <p>This is an update on the status of your unfilled vacancy, which begins in 60 minutes from the time you receive this email. </p>
-          
-          <p>Please know that we are committed to fill this vacancy and we are actively working on finding a substitute for you.  If your vacancy remains unfilled after the stated start time, it will be kept open for an additional 60 minutes. During this 60 minutes period, you can make any of the following changes:</p>
-          
-          <ul>1) You can delete the unfilled vacancy anytime during this period.</ul>
-          <ul>2) You can choose how long the vacancy will remain published before you decide to delete it based on how much flexibility you can give for the substitute to accept and show up for the job.</ul>
-          <ul>3) You can choose to take no action, and the unfilled vacancy will be automatically removed 60 minutes after the stated start time. Remember that a substitute can still fill the vacancy througout this extended period.</ul>
-          
-          <p>Please email us if the vacancy remains unfilled at the time of the removal and you are eligible to receive a one-hour discount in accordance with the terms. We will make sure that the one-hour discount will be included on your next invoice.</p>
-          
-          <p>We apologise for any inconvenience and thank you for your understanding. Please don't hesitate to contact us if you have any questions.</p>
-          
+<p>Om mot all förmodan ditt publicerade jobb förblir otillsatt efter angiven starttid, kommer det att vara fortsatt publicerad i ytterligare 60 minuter. Under denna 60-minutersperiod har du möjlighet att utföra något av följande:</p>
+
+<p>1) Du kan ta bort det otillsatta jobbet när som helst under denna period.<br>
+2) Du kan välja hur länge du vill fortsätta att publicera jobbet, beroende på hur stor flexibilitet tidsmässigt du kan ge en vikarie att acceptera och komma till jobbet.<br> 
+3) Du kan välja att inte göra något, och jobbet kommer att tas bort automatiskt 60 minuter efter den angivna starttiden. Observera att under denna förlängda perioden har en vikarie fortfarande möjlighet att acceptera jobbet.</p>
+
+<p>Tveka inte att kontakta oss vid frågor.</p>
+
+<p>Dear Customer,</p>
+
+<p>This is an update on the status of your unfilled vacancy, which begins in 60 minutes from the time you receive this email.</p>
+
+<p>If your vacancy remains unfilled after the stated start time, it will be kept open for an additional 60 minutes. During this 60 minutes period, you can make any of the following changes:</p> 
+<p>
+1) You can delete the unfilled vacancy anytime during this period.<br>
+2) You can choose how long the vacancy will remain published before you decide to delete it based on how much flexibility you can give for the substitute to accept and show up for the job.<br>
+3) You can choose to take no action, and the unfilled vacancy will be automatically removed 60 minutes after the stated start time. Note that a substitute can still fill the vacancy througout this extended period.</p>
+
+<p>Please don't hesitate to contact us if you have any questions.<p>
+          <br>
           
           <p>Med vänliga hälsningar / Best wishes,</p>
           <p>DoHR (/ˈdɔr/) team</p>
           <br>
           <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
           `
-                                                                                                                                                                                                               
-        );
+          );
         });
-        const stringUsersMail = arrayUsersMail.join(', ')
+        const stringUsersMail = arrayUsersMail.join(", ");
         console.log(stringUsersMail);
-        
+
         //console.log(f);
       }
-
 
       return {
         success: true,
         message: "done",
       };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     });
   },
 
   Notify_Vacancy_endtime: (req, res) => {
-
     getVacancyfilled((err, results) => {
-
       if (err) {
-
         console.log(err);
         return {
           success: false,
           message: err.sqlMessage,
         };
       }
-
-
 
       console.log(results.length);
       if (results.length == 0) {
@@ -1089,76 +858,50 @@ console.log(notificationIds);;
         };
       }
 
-
       // check the vacancy is today
       var ids = [];
       var notificationIds = [];
       results.forEach((X) => {
-
         const date = new Date();
         var today = date.toISOString().substring(0, 10);
         const startTime = new Date(X.v_date + "T" + X.to_time + ".000Z");
         console.log("the time start", startTime);
-        const CT = moment().add(0, 'hours').format();
+        const CT = moment().add(0, "hours").format();
         const cdt = CT.substring(0, 19);
         const currentTime = new Date(cdt + "Z");
-        const diffInMinutes = Math.floor((currentTime - startTime) / (1000 * 60));
-
-
+        const diffInMinutes = Math.floor(
+          (currentTime - startTime) / (1000 * 60)
+        );
 
         console.log("kk");
         console.log(diffInMinutes);
         if (X.v_date == today) {
-
           if (diffInMinutes == 0) {
-
-            if (notificationIds.indexOf(X.notification_id) != -1) { }
-            else {
+            if (notificationIds.indexOf(X.notification_id) != -1) {
+            } else {
               notificationIds.push(X.notification_id);
             }
-
           }
         }
-
       });
-
-
 
       if (notificationIds.length != 0) {
         var message = {
-          "notification": {
-            "body": "Vi vill tacka dig för ditt arbete! Kom ihåg att rapportera dina timmar inom de närmaste 24 timmarna!",
-            "title": "A New Message"
+          notification: {
+            body: "Vi vill tacka dig för ditt arbete! Kom ihåg att rapportera dina timmar inom de närmaste 24 timmarna!",
+            title: "A New Message",
           },
 
-
-          "registration_ids": notificationIds
-        }
+          registration_ids: notificationIds,
+        };
 
         fun.FCM_MESSAGE(message);
       }
-
 
       return {
         success: true,
         message: "done",
       };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     });
   },
-
 };

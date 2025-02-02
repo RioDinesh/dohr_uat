@@ -14,29 +14,31 @@ const {
   CreateOpenApplication,
   GetOpenApplication,
   CreateAdvertismentApplication,
-  GetadApplication
+  GetadApplication,
 } = require("../Service/con_post_services");
 const {
-  Get_contactus_master
+  Get_contactus_master,
 } = require("../../Admin/Service/admin_post_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 var fun = require("../../functions/Basic_methods");
 const moment = require("moment");
-const path = require('path');
+const path = require("path");
 const fs = require("fs");
-const { GetCustomerNotificationId } = require("../../Common/Service/common_edit_services");
+const {
+  GetCustomerNotificationId,
+} = require("../../Common/Service/common_edit_services");
 //
 // var data={
 //  data:data1,
 //  password:pass
 // }
 
-moment.updateLocale('en', {
+moment.updateLocale("en", {
   week: {
-    dow: 1 // Monday is the first day of the week
-  }
+    dow: 1, // Monday is the first day of the week
+  },
 });
 module.exports = {
   create_substitute: async (req, res) => {
@@ -93,19 +95,18 @@ module.exports = {
       data.password = hashSync(pass, salt);
 
       if (data.reg_iam_teacher_student == true) {
-        const file = data.proof_of_studies.split(';base64,').pop();
-        const fileType = data.proof_of_studies.split(';')[0].split('/')[1];
-        const filename = 'pos' + data.phone_number + '.' + fileType;
-        var des_path = path.join(__dirname, '../../attachments/' + filename);
+        const file = data.proof_of_studies.split(";base64,").pop();
+        const fileType = data.proof_of_studies.split(";")[0].split("/")[1];
+        const filename = "pos" + data.phone_number + "." + fileType;
+        var des_path = path.join(__dirname, "../../attachments/" + filename);
 
-        fs.writeFile(des_path, file, { encoding: 'base64' }, err => {
+        fs.writeFile(des_path, file, { encoding: "base64" }, (err) => {
           if (err) {
             console.error(err);
-            res.status(500).send('Error uploading file.');
+            res.status(500).send("Error uploading file.");
           }
         });
         data.proof_of_studies = filename;
-
       }
       console.log(data.proof_of_studies);
 
@@ -133,7 +134,6 @@ module.exports = {
         //     console.error(err);
         //     res.status(500).send('Error uploading file.');
         //   }
-
         // });
         // data.right_to_work_in_Sweden_attachment = filename;
       }
@@ -141,8 +141,6 @@ module.exports = {
       // console.log(data.right_to_work_in_Sweden_attachment);
       // console.log(data.police_report);
       // console.log(data.proof_of_studies);
-
-
 
       CreateSubstitute(data, (err, results) => {
         if (err) {
@@ -195,43 +193,35 @@ module.exports = {
         });
       });
     });
-
   },
-
 
   open_application_form: (req, res) => {
     const data = req.body;
 
     if (data.right_to_work_in_Sweden == true) {
-
       // const file = data.right_to_work_in_Sweden_attachment.split(';base64,').pop();
       // const fileType = data.right_to_work_in_Sweden_attachment.split(';')[0].split('/')[1];
       // const filename = 'opa_rws' + data.phone_number + '.' + fileType;
       // var des_path = path.join(__dirname, '../../attachments/' + filename);
       // fs.writeFile(des_path, file, { encoding: 'base64' }, err => {
-
       //   if (err) {
       //     console.error(err);
       //     res.status(500).send('Error uploading file.');
       //   }
-
       // });
       // data.right_to_work_in_Sweden_attachment = filename;
-
     }
 
-
     if (data.swedishLara == true) {
-      const file = data.fileswedishlara.split(';base64,').pop();
-      const fileType = data.fileswedishlara.split(';')[0].split('/')[1];
-      const filename = 'opa_fsl' + data.phone_number + '.' + fileType;
-      var des_path = path.join(__dirname, '../../attachments/' + filename);
-      fs.writeFile(des_path, file, { encoding: 'base64' }, err => {
+      const file = data.fileswedishlara.split(";base64,").pop();
+      const fileType = data.fileswedishlara.split(";")[0].split("/")[1];
+      const filename = "opa_fsl" + data.phone_number + "." + fileType;
+      var des_path = path.join(__dirname, "../../attachments/" + filename);
+      fs.writeFile(des_path, file, { encoding: "base64" }, (err) => {
         if (err) {
           console.error(err);
-          res.status(500).send('Error uploading file.');
+          res.status(500).send("Error uploading file.");
         }
-
       });
       data.fileswedishlara = filename;
     }
@@ -244,7 +234,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       fun.sendMail(
         data.email_id,
@@ -286,9 +275,7 @@ module.exports = {
         success: true,
         message: "registered successfully",
       });
-
     });
-
   },
 
   advertisement_application_form: (req, res) => {
@@ -304,23 +291,20 @@ module.exports = {
       //     console.error(err);
       //     res.status(500).send('Error uploading file.');
       //   }
-
       // });
       // data.right_to_work_in_Sweden_attachment = filename;
     }
 
-
     if (data.swedishLara == true) {
-      const file = data.fileswedishlara.split(';base64,').pop();
-      const fileType = data.fileswedishlara.split(';')[0].split('/')[1];
-      const filename = 'adf_fsl' + data.phone_number + '.' + fileType;
-      var des_path = path.join(__dirname, '../../attachments/' + filename);
-      fs.writeFile(des_path, file, { encoding: 'base64' }, err => {
+      const file = data.fileswedishlara.split(";base64,").pop();
+      const fileType = data.fileswedishlara.split(";")[0].split("/")[1];
+      const filename = "adf_fsl" + data.phone_number + "." + fileType;
+      var des_path = path.join(__dirname, "../../attachments/" + filename);
+      fs.writeFile(des_path, file, { encoding: "base64" }, (err) => {
         if (err) {
           console.error(err);
-          res.status(500).send('Error uploading file.');
+          res.status(500).send("Error uploading file.");
         }
-
       });
       data.fileswedishlara = filename;
     }
@@ -338,11 +322,8 @@ module.exports = {
         success: true,
         message: "registered successfully",
       });
-
     });
-
   },
-
 
   create_teaching: (req, res) => {
     const data = req.body;
@@ -445,9 +426,7 @@ module.exports = {
 
     console.log(data);
 
-    if (
-      !data.cons_id
-    ) {
+    if (!data.cons_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -473,8 +452,6 @@ module.exports = {
       };
       var dates = fun.GetDatesOfMonth(data.current_month, current_year);
 
-
-
       GetReservedPoolCount(data, (errr, pool) => {
         if (errr) {
           console.log(errr);
@@ -490,7 +467,6 @@ module.exports = {
           results.forEach((Y) => {
             console.log(Y.v_date);
             if (X.toISOString().slice(0, 10).toString() == Y.v_date) {
-
               if (Y.vacancy_status == "2") {
                 obj.completed = obj.completed + 1;
               }
@@ -498,65 +474,53 @@ module.exports = {
               if (Y.vacancy_status == "1") {
                 obj.scheduled = obj.scheduled + 1;
               }
-
             }
           });
-
-
-
-
-
-
-
         });
-
 
         pool.forEach((Z) => {
           var m = data.current_month + 1;
           var month;
-          if (m == 1 || m == 2 || m == 3 || m == 4 || m == 5 || m == 6 || m == 7 || m == 8 || m == 9) {
+          if (
+            m == 1 ||
+            m == 2 ||
+            m == 3 ||
+            m == 4 ||
+            m == 5 ||
+            m == 6 ||
+            m == 7 ||
+            m == 8 ||
+            m == 9
+          ) {
             month = "0" + m.toString();
           } else {
             month = m.toString();
           }
-          console
-          var this_m_y = current_year + '-' + month;
+          console;
+          var this_m_y = current_year + "-" + month;
           console.log(this_m_y, Z.date.slice(0, 7));
           if (this_m_y.toString() == Z.date.slice(0, 7)) {
             obj.reserved_pool = obj.reserved_pool + 1;
           }
-
         });
-
-
 
         return res.status(200).json({
           success: true,
           message: obj,
         });
-
       });
-
-
-
     });
   },
 
   Get_Reserved_Pool: (req, res) => {
     const data = req.body;
 
-
-
-    if (
-      !data.cons_id
-    ) {
+    if (!data.cons_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
       });
     }
-
-
 
     var date = new Date();
     var current_year = date.getFullYear();
@@ -571,16 +535,12 @@ module.exports = {
       }
       var arr = [];
       pool.forEach((Z) => {
-
-        var this_m_y = current_year + '-' + m;
+        var this_m_y = current_year + "-" + m;
 
         if (this_m_y.toString() == Z.date.slice(0, 7)) {
           arr.push(Z);
         }
-
       });
-
-
 
       return res.status(200).json({
         success: true,
@@ -589,22 +549,14 @@ module.exports = {
     });
   },
 
-
   Cancel_Vacancy: (req, res) => {
     const data = req.body;
-    if (
-      !data.vid,
-      !data.cons_id,
-      !data.date
-
-    ) {
+    if ((!data.vid, !data.cons_id, !data.date)) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
       });
     }
-
-
 
     CancelVacancy(data, (err, pool) => {
       if (err) {
@@ -615,20 +567,19 @@ module.exports = {
         });
       }
 
-
-
       if (data.before_90min == true) {
         Get_contactus_master((err, result) => {
           if (err) {
             console.log(err);
           }
           var master = result;
-          fun.sendMail(master.email_id, "DoHR Cancellation Alert", `A consultant has cancelled a vacancy 90 minutes or less prior to its start time. An immediate action is needed. Go to the DoHR Admin panel /Published vacancy, to learn more.`);
+          fun.sendMail(
+            master.email_id,
+            "DoHR Cancellation Alert",
+            `A consultant has cancelled a vacancy 90 minutes or less prior to its start time. An immediate action is needed. Go to the DoHR Admin panel /Published vacancy, to learn more.`
+          );
         });
-
       }
-
-
 
       GetCustomerNotificationId(data, (error, n_res) => {
         if (error) {
@@ -637,39 +588,27 @@ module.exports = {
 
         if (n_res.length != 0) {
           var message = {
-            "to": n_res[0].notification_id,
-            "notification": {
-              "body": "På grund av oförutsedda omständigheter har den tidigare vikarien avbokat jobbet. Vi söker nu en vikarie som kan tacka ja till detta jobb igen. Tack för ditt tålamod!",
-              "title": "A New Message"
+            to: n_res[0].notification_id,
+            notification: {
+              body: "Tyvärr har vikarien avbokat jobbet. Om jobbet publicerades till endast en vikarie måste du publicera ett nytt jobb igen. Annars kommer jobbet automatiskt att vara tillgänglig för andra vikarier.",
+              title: "A New Message",
             },
-
-          }
+          };
 
           fun.FCM_MESSAGE(message);
         }
-
-
-
-
-
 
         return res.status(200).json({
           success: true,
           message: "Cancelled",
         });
-
       });
-
-
     });
   },
 
-
   consultant_overview: (req, res) => {
     const data = req.body;
-    if (
-      !data.cons_id
-    ) {
+    if (!data.cons_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -685,46 +624,43 @@ module.exports = {
         });
       }
 
-      var arr =
-      {
+      var arr = {
         today: [],
         pastweek: [],
-        currentmonth: []
+        currentmonth: [],
       };
       console.log(results);
       results.forEach((X) => {
         var date = new Date();
         var previousweek = new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const startOfMonth = moment().startOf('month').format('YYYY-MM-DD hh:mm');
-        const endOfMonth = moment().endOf('month').format('YYYY-MM-DD hh:mm');
+        const startOfMonth = moment()
+          .startOf("month")
+          .format("YYYY-MM-DD hh:mm");
+        const endOfMonth = moment().endOf("month").format("YYYY-MM-DD hh:mm");
         console.log(previousweek.getDay());
-        const startOfWeek = moment().subtract(1, 'weeks').startOf('week');
-        const endOfWeek = moment().subtract(1, 'weeks').endOf('week');
+        const startOfWeek = moment().subtract(1, "weeks").startOf("week");
+        const endOfWeek = moment().subtract(1, "weeks").endOf("week");
 
         var V = new Date(X.v_date);
 
-
-
-
-        if (moment(X.v_date).isSame(startOfWeek, endOfWeek, undefined, '(]') || moment(X.v_date).isBetween(startOfWeek, endOfWeek, undefined, '(]')) {
-
+        if (
+          moment(X.v_date).isSame(startOfWeek, endOfWeek, undefined, "(]") ||
+          moment(X.v_date).isBetween(startOfWeek, endOfWeek, undefined, "(]")
+        ) {
           console.log(moment(X.v_date));
           arr.pastweek.push(X);
-
-
         }
 
         if (date.toDateString() === V.toDateString()) {
           arr.today.push(X);
         }
 
-        if (moment(X.v_date).isBetween(startOfMonth, endOfMonth, undefined, '(]')) {
-
+        if (
+          moment(X.v_date).isBetween(startOfMonth, endOfMonth, undefined, "(]")
+        ) {
           arr.currentmonth.push(X);
         }
-
       });
-
 
       return res.status(200).json({
         success: true,
@@ -733,15 +669,10 @@ module.exports = {
     });
   },
 
-
   consultant_available_jobs: (req, res) => {
     const data = req.body;
     var arr = [];
-    if (
-      !data.id ||
-      !data.location ||
-      !data.date
-    ) {
+    if (!data.id || !data.location || !data.date) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -766,7 +697,6 @@ module.exports = {
           });
         }
 
-
         GetCustomer((error, cus) => {
           if (error) {
             console.log(error);
@@ -778,19 +708,17 @@ module.exports = {
           console.log(cus);
 
           vacancy.forEach((X) => {
-
             cus.forEach((Y) => {
               console.log(Y.first_name, Y.last_name);
               if (X.created_by == Y.unique_id) {
                 X.customer_fname = Y.first_name;
                 X.customer_lname = Y.last_name;
                 X.telephone_number = Y.telephone_number;
-                X.institute_name=Y.company_name;
-                X.institute_type=Y.organization_type;
-                X.org_id=Y.organization_type_id
+                X.institute_name = Y.company_name;
+                X.institute_type = Y.organization_type;
+                X.org_id = Y.organization_type_id;
               }
             });
-
           });
           console.log(vacancy);
           vacancy.forEach((X) => {
@@ -804,59 +732,93 @@ module.exports = {
 
             if (X.publish_to_id == 3) {
               var cons_id = JSON.parse(X.my_consultant);
-              var found = cons_id.findIndex(element => element == data.id);
+              var found = cons_id.findIndex((element) => element == data.id);
               if (found != -1) {
                 arr.push(X);
               }
             }
-
           });
           var location_sort = [];
 
-          if (cons.preferred_location_1 == null && cons.preferred_location_2 == null && cons.preferred_location_3 == null && cons.preferred_location_4 == null && cons.preferred_location_5 == null) {
+          if (
+            cons.preferred_location_1 == null &&
+            cons.preferred_location_2 == null &&
+            cons.preferred_location_3 == null &&
+            cons.preferred_location_4 == null &&
+            cons.preferred_location_5 == null
+          ) {
             location_sort = arr;
           } else {
             arr.forEach((A) => {
-
-              if (cons.preferred_location_1 != null && cons.preferred_location_1 != undefined && cons.preferred_location_1 != "") {
-                if (A.area_name.toLowerCase() == cons.preferred_location_1.toLowerCase()) {
+              if (
+                cons.preferred_location_1 != null &&
+                cons.preferred_location_1 != undefined &&
+                cons.preferred_location_1 != ""
+              ) {
+                if (
+                  A.area_name.toLowerCase() ==
+                  cons.preferred_location_1.toLowerCase()
+                ) {
                   location_sort.push(A);
                 }
               }
-              if (cons.preferred_location_2 != null && cons.preferred_location_2 != undefined && cons.preferred_location_2 != "") {
-                if (A.area_name.toLowerCase() == cons.preferred_location_2.toLowerCase()) {
+              if (
+                cons.preferred_location_2 != null &&
+                cons.preferred_location_2 != undefined &&
+                cons.preferred_location_2 != ""
+              ) {
+                if (
+                  A.area_name.toLowerCase() ==
+                  cons.preferred_location_2.toLowerCase()
+                ) {
                   location_sort.push(A);
                 }
               }
-              if (cons.preferred_location_3 != null && cons.preferred_location_3 != undefined && cons.preferred_location_3 != "") {
+              if (
+                cons.preferred_location_3 != null &&
+                cons.preferred_location_3 != undefined &&
+                cons.preferred_location_3 != ""
+              ) {
                 console.log(A.area_name, cons.preferred_location_3);
-                if (A.area_name.toLowerCase() == cons.preferred_location_3.toLowerCase()) {
+                if (
+                  A.area_name.toLowerCase() ==
+                  cons.preferred_location_3.toLowerCase()
+                ) {
                   location_sort.push(A);
                 }
               }
-              if (cons.preferred_location_4 != null && cons.preferred_location_4 != undefined && cons.preferred_location_4 != "") {
-                if (A.area_name.toLowerCase() == cons.preferred_location_4.toLowerCase()) {
+              if (
+                cons.preferred_location_4 != null &&
+                cons.preferred_location_4 != undefined &&
+                cons.preferred_location_4 != ""
+              ) {
+                if (
+                  A.area_name.toLowerCase() ==
+                  cons.preferred_location_4.toLowerCase()
+                ) {
                   location_sort.push(A);
                 }
               }
-              if (cons.preferred_location_5 != null && cons.preferred_location_5 != undefined && cons.preferred_location_5 != "") {
-                if (A.area_name.toLowerCase() == cons.preferred_location_5.toLowerCase()) {
+              if (
+                cons.preferred_location_5 != null &&
+                cons.preferred_location_5 != undefined &&
+                cons.preferred_location_5 != ""
+              ) {
+                if (
+                  A.area_name.toLowerCase() ==
+                  cons.preferred_location_5.toLowerCase()
+                ) {
                   location_sort.push(A);
                 }
               }
-
             });
           }
-
-
 
           return res.status(200).json({
             success: true,
             message: data.location == "1" ? location_sort : arr,
           });
-
         });
-
       });
 
       // return res.status(200).json({
@@ -869,10 +831,7 @@ module.exports = {
   consultant_My_Jobs: (req, res) => {
     const data = req.body;
     var arr = [];
-    if (
-      !data.id ||
-      !data.status
-    ) {
+    if (!data.id || !data.status) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -897,9 +856,7 @@ module.exports = {
           });
         }
 
-
         results.forEach((X) => {
-
           cus.forEach((Y) => {
             console.log(X.created_by === Y.unique_id);
             if (X.created_by === Y.unique_id) {
@@ -907,14 +864,16 @@ module.exports = {
               X.customer_lname = Y.last_name;
               X.telephone_number = Y.telephone_number;
               X.profile_img = Y.profile_img;
-              X.institute_name=Y.company_name;
-              X.institute_type=Y.organization_type;
+              X.institute_name = Y.company_name;
+              X.institute_type = Y.organization_type;
             }
           });
-
         });
 
-        results.sort((d1, d2) => new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime());
+        results.sort(
+          (d1, d2) =>
+            new Date(d1.v_date).getTime() - new Date(d2.v_date).getTime()
+        );
         var finalArray = [];
         var ResultArray = [];
         results.forEach((E) => {
@@ -925,12 +884,14 @@ module.exports = {
           }
         });
         results.forEach((E) => {
-
           if (fun.IsNOtPassed30Days(E.v_date)) {
             finalArray.push(E);
           }
 
-          if (fun.IsNOtPassed30Days(E.v_date) == true && E.vacancy_is_approved == 1) {
+          if (
+            fun.IsNOtPassed30Days(E.v_date) == true &&
+            E.vacancy_is_approved == 1
+          ) {
             var dataexist = finalArray.some(function (ele) {
               return ele.id === E.id;
             });
@@ -938,43 +899,36 @@ module.exports = {
             if (dataexist != true) {
               finalArray.push(E);
             }
-
-
           }
         });
         return res.status(200).json({
           success: true,
           message: data.status == "2" ? finalArray : ResultArray,
         });
-
       });
-
     });
   },
   get_open_application: (req, res) => {
     const data = req.body;
     GetOpenApplication((err, result) => {
-
-
       if (err) {
         console.log(err);
 
         return res.status(500).json({
           success: false,
           message: err,
-        })
+        });
       }
-
 
       if (result.length != 0) {
         if (data.type == 2) {
-          const filteredData = result.filter(item => item.is_approved === 1);
+          const filteredData = result.filter((item) => item.is_approved === 1);
           return res.status(200).json({
             success: true,
             message: filteredData,
           });
         } else if (data.type == 3) {
-          const filteredData = result.filter(item => item.is_denied === 1);
+          const filteredData = result.filter((item) => item.is_denied === 1);
           return res.status(200).json({
             success: true,
             message: filteredData,
@@ -985,67 +939,57 @@ module.exports = {
             message: result,
           });
         }
-
-
       } else {
         return res.status(200).json({
           success: true,
           message: result,
         });
       }
-
-
     });
   },
 
   get_ad_application: (req, res) => {
     const data = req.body;
     GetadApplication(data, (err, result) => {
-
-
       if (err) {
         console.log(err);
 
         return res.status(500).json({
           success: false,
           message: err,
-        })
+        });
       }
-
 
       if (result.length != 0) {
         if (data.type == 2) {
-          const filteredData = result.filter(item => item.is_approved === 1);
+          const filteredData = result.filter((item) => item.is_approved === 1);
           return res.status(200).json({
             success: true,
             message: filteredData,
           });
         } else if (data.type == 3) {
-          const filteredData = result.filter(item => item.is_denied === 1);
+          const filteredData = result.filter((item) => item.is_denied === 1);
           return res.status(200).json({
             success: true,
             message: filteredData,
           });
         } else {
           console.log(result.length);
-          const filteredData = result.filter(item => item.is_denied === 0 && item.is_approved === 0);
+          const filteredData = result.filter(
+            (item) => item.is_denied === 0 && item.is_approved === 0
+          );
           console.log(filteredData.length);
           return res.status(200).json({
             success: true,
             message: filteredData,
           });
         }
-  
-
       } else {
         return res.status(200).json({
           success: true,
           message: result,
         });
       }
-
-
     });
   },
-
 };

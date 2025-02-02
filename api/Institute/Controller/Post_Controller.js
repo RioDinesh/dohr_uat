@@ -202,28 +202,26 @@ module.exports = {
               `
             <p>Hej!</p>
 
-            <p>Nu när du har skapat ett företagskonto för att använda DoHR mobilappen är du ett steg närmare kontakten med våra vikarier.</p>
+            <p>Grattis till att du har skapat ett företagskonto för att använda DoHR-mobilappen! Detta möjliggör en smidig kontakt med era interna vikarier eller DoHR-vikarier.</p>
             
-            <p>Vänligen verifiera ditt konto innan du fortsätter. För att göra det, klicka på länken ${fullUrl} .</p>
+            <p>Nästa steg är att verifiera ditt företagskonto genom att klicka på länken ${fullUrl} .</p>
             
-            <p>Efter att ha följt dessa steg kommer du att kunna publicera ett jobb så snart du behöver en vikarie. Du loggar helt enkelt in, publicerar ett jobb och lämnar resten till vår vikarie.</p>
-            
-            <p>Som DoHR kund får du information om nya apprelease och erbjudanden i marknadsföringssyfte. Om du inte vill få dessa meddelanden, vänligen kontakta oss.</p>
+            <p>När ditt konto är verifierat kan du börja publicera lediga jobb när vikariebehov uppstår. Logga in, publicera jobb till antingen egna interna vikarier eller DoHR-vikarier.</p>
             
             <p>Vi ser fram emot att samarbeta med er!</p>
             
             
             <p>Greetings,</p>
             
-            <p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) mobile app, you're one step closer to connecting with our top team of Substitutes.</p>
+            <pCongratulations on successfully creating a company account to use the DoHR mobile app! This brings you closer to seamlessly connecting with your internal pool of substitutes or leveraging DoHR substitutes.</p>
             
             <p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
             
-            <p>Following this step, you will be able to post a job whenever a substitute is needed. You log in, create a vacancy, and leave the rest to our substitute.</p>
+            <p>Once verified, you'll gain access to post job vacancies whenever substitutes are needed. Simply log in, create a vacancy, and publish it to either your internal pool or DoHR substitutes.</p>
             
             <p>As a customer, you will receive information from DoHR about new app releases, offers, and other marketing communications. You can opt out of receiving these communications at any time by unsubscribing or contacting us.</p>
             
-            <p>We are eager to collaborate with you!</p>
+            <p>We're excited about the opportunity to work with you!</p>
             
             
             <br>
@@ -682,10 +680,6 @@ module.exports = {
       !data.address ||
       !data.postal_code ||
       !data.area_name ||
-      !data.invoice_address ||
-      !data.invoice_postal_code ||
-      !data.invoice_area_name ||
-      !data.invoice_email_id ||
       !data.password ||
       !data.ins_id
     ) {
@@ -747,38 +741,36 @@ module.exports = {
           data.email_id,
           "Verifiera ditt företagskonto / Verify your company account - DoHR",
           ` 
-          <p>Hej!</p>
+                      <p>Hej!</p>
 
-<p>Nu när du har skapat ett företagskonto för att använda DoHR mobilappen är du ett steg närmare kontakten med våra vikarier.</p>
-
-<p>Vänligen verifiera ditt konto innan du fortsätter. För att göra det, klicka på länken ${fullUrl} .</p>
-
-<p>Efter att ha följt dessa steg kommer du att kunna publicera ett jobb så snart du behöver en vikarie. Du loggar helt enkelt in, publicerar ett jobb och lämnar resten till vår vikarie.</p>
-
-<p>Som DoHR kund får du information om nya apprelease och erbjudanden i marknadsföringssyfte. Om du inte vill få dessa meddelanden, vänligen kontakta oss.</p>
-
-<p>Vi ser fram emot att samarbeta med er!</p>
-
-
-<p>Greetings,</p>
-
-<p>Now that you've successfully created a company account to use the DoHR (/ˈdɔr/) web app, you're one step closer to connecting with our top team of Substitutes.</p>
-
-<p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
-
-<p>Following this step, you will be able to post a job whenever a substitute is needed. You log in, create a vacancy, and leave the rest to our substitute.</p>
-
-<p>As a customer, you will receive information from DoHR about new app releases, offers, and other marketing communications. You can opt out of receiving these communications at any time by unsubscribing or contacting us.</p>
-
-<p>We are eager to collaborate with you!</p>
-
-
-<br>
+            <p>Grattis till att du har skapat ett företagskonto för att använda DoHR-mobilappen! Detta möjliggör en smidig kontakt med era interna vikarier eller DoHR-vikarier.</p>
+            
+            <p>Nästa steg är att verifiera ditt företagskonto genom att klicka på länken ${fullUrl} .</p>
+            
+            <p>När ditt konto är verifierat kan du börja publicera lediga jobb när vikariebehov uppstår. Logga in, publicera jobb till antingen egna interna vikarier eller DoHR-vikarier.</p>
+            
+            <p>Vi ser fram emot att samarbeta med er!</p>
+            
+            
+            <p>Greetings,</p>
+            
+            <pCongratulations on successfully creating a company account to use the DoHR mobile app! This brings you closer to seamlessly connecting with your internal pool of substitutes or leveraging DoHR substitutes.</p>
+            
+            <p>The next step is to verify your company account by clicking on the link above in the Swedish text. </p>
+            
+            <p>Once verified, you'll gain access to post job vacancies whenever substitutes are needed. Simply log in, create a vacancy, and publish it to either your internal pool or DoHR substitutes.</p>
+            
+            <p>As a customer, you will receive information from DoHR about new app releases, offers, and other marketing communications. You can opt out of receiving these communications at any time by unsubscribing or contacting us.</p>
+            
+            <p>We're excited about the opportunity to work with you!</p>
+            
+            
+            <br>
         <p>Med vänliga hälsningar / Best wishes,</p>
         <p>DoHR (/ˈdɔr/) team</p>
         <br>
-        <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>   
-          `
+        <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
+              `
         );
 
         return res.status(200).json({

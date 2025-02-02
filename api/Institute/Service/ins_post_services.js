@@ -619,7 +619,7 @@ module.exports = {
                totalhrs = ?,
                preparationTime = ?,
                handoverTime = ?,
-               sub_location=?,
+               sub_location=?
                where id=?`,
         [
           data.position,

@@ -269,7 +269,7 @@ module.exports = {
         });
         var message = {
           notification: {
-            body: "Reservpoolen är nu öppen! Bli först med att registrera dig.",
+            body: "Reservpoolen är nu öppen för DoHR-anställda!",
             title: "A New Message",
           },
 

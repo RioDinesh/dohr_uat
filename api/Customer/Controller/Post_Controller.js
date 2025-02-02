@@ -487,17 +487,27 @@ module.exports = {
           "Ditt planerade jobb är inställt/Your scheduled job is cancelled!",
           `<p>Hej!</p>
 
-          <p>Vi beklagar att informera dig om att kunden var tvungen att ställa in ett av dina planerade jobb på grund av oförutsedda omständigheter. För ytterligare information, se "Mina jobb/planerade" i DoHR-mobilappen.</p>
+          <p>Vi beklagar att informera dig om att ett av dina planerade jobb har ställts in på grund av oförutsedda omständigheter. </p>
           
-          <p>Om du fortfarande vill arbeta den dagen ber vi dig att kolla Lediga jobb och/eller anmäla dig som reserv via DoHR mobilapp (Reservpool). Om reservpoolen är otillgänglig eller stängd, vänligen mejla oss så att vi kan hjälpa dig att hitta ett annat jobb.</p>
+          <p>Viktig information för ENDAST DoHR-anställda:</p>
+          <p>Om du fortfarande vill arbeta den dagen, vänligen följ dessa steg:</p>
+              <p>
+       1. Acceptera andra lediga jobb.<br>
+2. Registrera dig som reservvikarie via DoHR-mobilappen (Reservpool - endast för DoHR-anställda). Om reservpoolen inte är tillgänglig eller stängd, vänligen mejla oss.
+     
+        </p>
+
           
           
           <p>Greetings,</p>
           
-          <p>We regret to inform you that the customer had to cancel one of your scheduled jobs due to unforeseen circumstances. For further details, please refer to "My jobs/scheduled" section of the DoHR mobile app.</p>
+          <p>We regret to inform you that one of your scheduled jobs has been canceled due to unforeseen circumstances. </p>
           
-          <p>If you still wish to work on that day, we kindly request that you check the vacancy board for any available jobs as well as register as a reserve substitute through DoHR mobile app (Reserve pool). In case the reserve pool is unavailable or closed, please email us so we can assist you in finding another job.</p>
-          
+          <p>Important information for DoHR-employees ONLY:</p>
+          <p>If you are still available to work on that day, we encourage you to follow these steps:</p>
+     <p>1. Accept any other available jobs.<br>
+2. Register as a reserve substitute through the DoHR mobile app (Reserve Pool - only for DoHR-employees). If the Reserve Pool is unavailable or closed, please contact us via email.
+</p>
           <br>
         <p>Med vänliga hälsningar / Best wishes,</p>
         <p>DoHR (/ˈdɔr/) team</p>

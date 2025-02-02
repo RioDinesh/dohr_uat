@@ -1,20 +1,22 @@
 const {
-  ApproveSub, ExpressPassUpdate, EditExpressPass, MakeCustomerActive, MakeConsultantActive, DenySub, EditAdvertisment
+  ApproveSub,
+  ExpressPassUpdate,
+  EditExpressPass,
+  MakeCustomerActive,
+  MakeConsultantActive,
+  DenySub,
+  EditAdvertisment,
 } = require("../Service/admin_edit_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const fun = require("../../functions/Basic_methods");
 module.exports = {
-
   approve_sub: (req, res) => {
     const data = req.body;
     var pass = req.password;
     console.log(data);
-    if (
-      !data.id,
-      !data.email_id
-    ) {
+    if ((!data.id, !data.email_id)) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -26,8 +28,8 @@ module.exports = {
 
     var body = {
       id: data.id,
-      password: password
-    }
+      password: password,
+    };
     ApproveSub(body, (err, results) => {
       if (err) {
         console.log(err);
@@ -36,7 +38,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       fun.sendMail(
         data.email_id,
@@ -54,14 +55,14 @@ module.exports = {
                 <p>Ladda ner DoHR mobilappen och logga in med inloggningsuppgifterna nedan.</p>
                 <p>Användarnamn/username: ${data.email_id}</p>
                 <p>Lösenord/password: ${pass}</p>
-                <p>DoHR-mobilappen är lätt att använda och du kan acceptera jobb när det passar dig. Alla otillsatta jobb finns under "Lediga jobb". Du kommer att få notiser när nya jobb publiceras. Detaljer om dina accepterade jobb hittar du under "Mina jobb/planerade".</p>
+                <p>DoHR-mobilappen är lätt att använda och du kan acceptera jobb när det passar dig.  Alla otillsatta jobb finns under "Lediga jobb". Du kommer att få notiser när nya jobb publiceras. Detaljer om dina accepterade jobb hittar du under "Mina jobb/planerade".</p>
                 <p>Vi vill också göra dig uppmärksam på Min profil. Det är viktigt att uppdatera din profil när du loggar in för första gången, särskilt dina föredragna arbetsområden, bankuppgifter och nödkontakter.</p>
                 <p>Vi har också en annan viktig funktion i appen, som är Reservpoolen. Syftet med Reservpoolen är att ge dig möjlighet att reservera dig i förväg så att vi kan möta kundernas önskemål om vikarier med kort varsel. Svar på dina frågor såsom hur man anmäler sig till Reservpoolen och annat, finns på sidan Vanliga frågor. Under Mer/Villkor och policyer hittar du villkoren för jobbet du tackar ja till.</p>
                 <p>Det finns nya lediga jobb som väntar på dig! Var först att tacka ja!</p>
                 <br>
                 <p>Greetings!</p>
                 <p>Congratulations and welcome to our top substitute team! We are looking forward to working with you!</p>
-                <p>Simply download the DoHR mobile app and sign in with the credentials listed in the Swedish text above. The DoHR mobile app is incredibly simple to use, you can view and accept any job whenever it is convenient for you. "Available jobs" lists all of the unfilled jobs. Additionally, you will be notified when jobs that fit your preferred location are published. Details about your accepted job can be found under "My jobs/scheduled".</p>
+                <p>Simply download the DoHR mobile app and sign in with the credentials listed in the Swedish text above.  The DoHR mobile app is incredibly simple to use, you can view and accept any job whenever it is convenient for you. "Available jobs" lists all of the unfilled jobs. Additionally, you will be notified when new jobs are published. Details about your accepted job can be found under "My jobs/scheduled"</p>
                 <p>We would also like to bring your attention to My profile. It is important to update your profile when you log in for the first time, especially your preferred location, bank details and emergency contact details.</p>
                 <p>Moreover, we have another important function in the app, which is the Reserve pool. The purpose of the Reserve Pool is to give you the opportunity to reserve yourself in advance so that we can meet the customers' requests for substitutes at short notice. Any questions you have, such as how to register for the Reserve pool, can be found in our FAQ section. Under More/Legal, you can find the terms and conditions for a job you accept.</p>
                 <p>New vacancies are calling you! Get ready to actively accept jobs on the Vacancy board.</p>
@@ -85,16 +86,9 @@ module.exports = {
     });
   },
 
-
-
-
   deny_sub: (req, res) => {
     const data = req.body;
-    if (
-      !data.id,
-      !data.email_id
-     
-    ) {
+    if ((!data.id, !data.email_id)) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -102,9 +96,10 @@ module.exports = {
     }
 
     fun.sendMail(
-      data.email_id,'DoHR - Tack för din ansökan / Thank you for your application',
-      
-    `<html>
+      data.email_id,
+      "DoHR - Tack för din ansökan / Thank you for your application",
+
+      `<html>
 
     <head>
     </head>
@@ -145,8 +140,6 @@ module.exports = {
         });
       }
 
-
-
       return res.status(200).json({
         success: true,
         message: "Success",
@@ -154,16 +147,10 @@ module.exports = {
     });
   },
 
-
-
   book_pass: (req, res) => {
     const data = req.body;
 
-    if (
-      !data.pass_id ||
-      !data.date ||
-      !data.cons_id
-    ) {
+    if (!data.pass_id || !data.date || !data.cons_id) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
@@ -178,8 +165,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
-
 
       return res.status(200).json({
         success: true,
@@ -200,11 +185,10 @@ module.exports = {
         });
       }
 
-       return res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Success",
       });
-
     });
   },
 
@@ -219,9 +203,10 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      if(data.data==true){
+      if (data.data == true) {
         fun.sendMail(
-          data.email_id,'DoHR - Ändringar i ditt konto / Changes to your account',
+          data.email_id,
+          "DoHR - Ändringar i ditt konto / Changes to your account",
           `<html>
 
           <head></head>
@@ -250,15 +235,14 @@ module.exports = {
           </body>
           
           </html>
-          `);
+          `
+        );
       }
-    
 
-       return res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Success",
       });
-
     });
   },
 
@@ -273,9 +257,10 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-      if(data.data==true){
+      if (data.data == true) {
         fun.sendMail(
-          data.email_id,'DoHR - Ändringar i ditt konto / Changes to your account',
+          data.email_id,
+          "DoHR - Ändringar i ditt konto / Changes to your account",
           `
           <html >
 
@@ -306,19 +291,16 @@ module.exports = {
           
           </html>
           
-          `);
-        
+          `
+        );
       }
 
       return res.status(200).json({
         success: true,
         message: "Success",
       });
-
-
     });
   },
-
 
   edit_advertisment: (req, res) => {
     const data = req.body;
@@ -332,11 +314,10 @@ module.exports = {
         });
       }
 
-       return res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Success",
       });
-
     });
   },
 };

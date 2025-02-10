@@ -150,8 +150,8 @@ module.exports = {
 
   AddLegal: (data, callback) => {
     pool.query(
-      `insert into dh_legal(title) values(?)`,
-      [data.title],
+      `insert into dh_legal(title,for_consultant,for_customer) values(?,?,?)`,
+      [data.title, data.for_consultant, data.for_customer],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -250,8 +250,8 @@ module.exports = {
 
   ADDFAQ: (data, callback) => {
     pool.query(
-      `insert into dh_faq(faq_title) values(?)`,
-      [data.title],
+      `insert into dh_faq(faq_title,for_consultant,for_customer) values(?,?,?)`,
+      [data.title, data.for_consultant, data.for_customer],
       (error, result, fields) => {
         if (error) {
           return callback(error);

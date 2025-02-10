@@ -1852,6 +1852,8 @@ module.exports = {
             }
           });
         });
+        console.log("________");
+        console.log(ALL_Data.length);
 
         GetAbsenceStaff(data, (errrr, abstaff) => {
           if (err) {
@@ -1864,15 +1866,18 @@ module.exports = {
 
           abstaff.forEach((v, i) => {
             let checkdate = `${v.to_date}T${v.to_time}Z`;
-
+            //console.log(checkdate);
             let checking = fun.CheckDateisPassed(checkdate);
+
             if (checking == false) {
+              console.log(v.unique_id);
               ALL_Data.splice(
                 ALL_Data.findIndex((a) => a.unique_id === v.unique_id),
                 1
               );
             }
           });
+          //console.log(ALL_Data.length);
 
           var finalflagData = [];
 
@@ -1935,7 +1940,7 @@ module.exports = {
           //     });
           //   });
           // });
-
+          console.log(ALL_Data.length);
           return res.status(200).json({
             success: true,
             message: ALL_Data,

@@ -798,7 +798,7 @@ module.exports = {
   },
   GetVacancyScheduleInternal: (data, callback) => {
     pool.query(
-      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_customer C where V.ins_id=? And V.is_active=1",
+      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_customer C on C.id=V.assigned_to_external where V.ins_id=? And V.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -1163,14 +1163,18 @@ module.exports = {
       used_hours,
       remaining_hours,
       requesting_hours,
-      ins_id
-      )values(?,?,?,?,?)`,
+      ins_id,
+      company_name,
+      requested_by
+      )values(?,?,?,?,?,?,?)`,
       [
         data.total_hours,
         data.used_hours,
         data.remaining_hours,
         data.requesting_hours,
         data.ins_id,
+        data.company_name,
+        data.requested_by,
       ],
       (error, result, fields) => {
         if (error) {

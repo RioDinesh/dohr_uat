@@ -533,7 +533,7 @@ module.exports = {
     }
   },
 
-  add_description: (req, res) => {
+  add_legal_description: (req, res) => {
     const data = req.body;
     if (!data.description || !data.title_id) {
       return res.status(500).json({

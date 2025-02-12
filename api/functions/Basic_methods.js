@@ -2,7 +2,12 @@ const nodemailer = require("nodemailer");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const admin = require("firebase-admin");
+const serviceAccount = require("../../config/dohrab-6e764-firebase-adminsdk-bdnn4-5fa1bb2cbb.json"); // Replace with your service account key file
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 module.exports = {
   sendMail: function sendMail(email, subject, text, callback) {
     var mailOptions = {
@@ -111,27 +116,33 @@ module.exports = {
     return listdays;
   },
 
-  FCM_MESSAGE: function Fcm_Messaging(message) {
-    const options = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization:
-          "Bearer AAAAHq4_tgs:APA91bHZFGIfqiA5H7uRmYOnlMWcelZ8Gp-atLxhGj1NMLT6nYVg1CCO77fb_19cULtdT0XSM3zfnIqTTY7JfF2iOIfKT3biaB0rYzxZU0E0Hyc4by-XjBWIaRQKfC_nMdorpyIN3z4g",
-      },
-    };
-    axios
-      .post(
-        "https://fcm.googleapis.com/v1/projects/dohrab-6e764/messages:send",
-        message,
-        options
-      )
-      .then((response) => {
-        //receive response
-        //     console.log(response);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  FCM_MESSAGE: async function Fcm_Messaging(message) {
+    try {
+      const response = await admin.messaging().send(message);
+      console.log("Successfully sent message:", response);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+    // const options = {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization:
+    //       "Bearer AAAAHq4_tgs:APA91bHZFGIfqiA5H7uRmYOnlMWcelZ8Gp-atLxhGj1NMLT6nYVg1CCO77fb_19cULtdT0XSM3zfnIqTTY7JfF2iOIfKT3biaB0rYzxZU0E0Hyc4by-XjBWIaRQKfC_nMdorpyIN3z4g",
+    //   },
+    // };
+    // axios
+    //   .post(
+    //     "https://fcm.googleapis.com/v1/projects/dohrab-6e764/messages:send",
+    //     message,
+    //     options
+    //   )
+    //   .then((response) => {
+    //     //receive response
+    //     //     console.log(response);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   },
 
   GetDatesOfMonth: function getDaysInMonthUTC(month, year) {

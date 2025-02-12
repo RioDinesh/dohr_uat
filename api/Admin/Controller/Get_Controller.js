@@ -9,7 +9,7 @@ const {
   FAQLIST,
   GetFeedBACKForDOHR,
   GetConsultantDenyList,
-  GetSubEmail
+  GetSubEmail,
 } = require("../Service/admin_get_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
@@ -26,14 +26,12 @@ module.exports = {
         });
       }
 
-      
       return res.status(200).json({
         success: true,
         message: results,
       });
     });
   },
-
 
   get_Deny_list: (req, res) => {
     GetConsultantDenyList((err, results) => {
@@ -45,7 +43,7 @@ module.exports = {
         });
       }
 
-          return res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: results,
       });
@@ -63,9 +61,15 @@ module.exports = {
       }
 
       for (i = 0; i < results.length; i++) {
-        results[i].info_work_exp_in_school = JSON.parse(results[i].info_work_exp_in_school);
-        results[i].info_work_exp_out_school = JSON.parse(results[i].info_work_exp_out_school);
-        results[i].info_other_occupations = JSON.parse(results[i].info_other_occupations);
+        results[i].info_work_exp_in_school = JSON.parse(
+          results[i].info_work_exp_in_school
+        );
+        results[i].info_work_exp_out_school = JSON.parse(
+          results[i].info_work_exp_out_school
+        );
+        results[i].info_other_occupations = JSON.parse(
+          results[i].info_other_occupations
+        );
         results[i].language_skills = JSON.parse(results[i].language_skills);
       }
 
@@ -86,7 +90,6 @@ module.exports = {
         });
       }
 
-
       return res.status(200).json({
         success: true,
         message: results,
@@ -103,7 +106,6 @@ module.exports = {
           message: err.sqlMessage,
         });
       }
-
 
       return res.status(200).json({
         success: true,
@@ -124,7 +126,6 @@ module.exports = {
       }
 
       results.forEach((data) => {
-
         Array.push({
           pass_id: data.id,
           date: data.date,
@@ -143,7 +144,6 @@ module.exports = {
 
   get_Legal: (req, res) => {
     GetTitle((err, results) => {
-      var Array = [];
       if (err) {
         console.log(err);
         return res.status(500).json({
@@ -152,42 +152,12 @@ module.exports = {
         });
       }
 
-      GetDescription((error,des)=>{
-        if (error) {
-          console.log(error);
-          return res.status(500).json({
-            success: false,
-            message: error.sqlMessage,
-          });
-        }
-
-        results.forEach((X)=>{
-          Array.push({
-            id:X.id,
-            title:X.title,
-            description:[]
-          });
-        });
-
-        Array.forEach((Y)=>{
-          des.forEach((A)=>{
-            if(Y.id==A.title_id){
-             Y.description.push(A);
-            }
-          });
-        });
-
-        return res.status(200).json({
-          success: true,
-          message: Array,
-        });
-
+      return res.status(200).json({
+        success: true,
+        message: results,
       });
-
-      
     });
   },
-
 
   get_faq: (req, res) => {
     GETFAQ((err, results) => {
@@ -200,7 +170,7 @@ module.exports = {
         });
       }
 
-      FAQLIST((error,des)=>{
+      FAQLIST((error, des) => {
         if (error) {
           console.log(error);
           return res.status(500).json({
@@ -209,18 +179,18 @@ module.exports = {
           });
         }
 
-        results.forEach((X)=>{
+        results.forEach((X) => {
           Array.push({
-            id:X.id,
-            faq_title:X.faq_title,
-            faq:[]
+            id: X.id,
+            faq_title: X.faq_title,
+            faq: [],
           });
         });
 
-        Array.forEach((Y)=>{
-          des.forEach((A)=>{
-            if(Y.id==A.faq_id){
-             Y.faq.push(A);
+        Array.forEach((Y) => {
+          des.forEach((A) => {
+            if (Y.id == A.faq_id) {
+              Y.faq.push(A);
             }
           });
         });
@@ -229,11 +199,7 @@ module.exports = {
           success: true,
           message: Array,
         });
-
       });
-
-      
     });
   },
-
 };

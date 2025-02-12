@@ -34,7 +34,8 @@ const {
   Add_sub_email,
   EditIamConsultantDetails,
 } = require("../Service/admin_post_services");
-
+const fs = require("fs");
+const path = require("path");
 const {
   GetExpressPass,
   GetConsultantVacancy,
@@ -288,12 +289,25 @@ module.exports = {
 
   add_Legal: (req, res) => {
     const data = req.body;
-    if (!data.title) {
+    if ((!data.title, !data.pdf)) {
       return res.status(500).json({
         success: false,
         message: "fields are missing",
       });
     }
+    //
+    const base64Data = data.pdf.replace(/^data:application\/pdf;base64,/, "");
+
+    // Generate unique filename
+    const filename = `legal_${Date.now()}.pdf`;
+    const uploadPath = path.join(__dirname, "../../uploads");
+
+    const filepath = path.join(uploadPath, filename);
+    fs.writeFileSync(filepath, base64Data, "base64");
+
+    // Add file path to data object
+    data.pdf = `${filename}`;
+
     AddLegal(data, (err, results) => {
       if (err) {
         console.log(err);

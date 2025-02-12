@@ -150,8 +150,8 @@ module.exports = {
 
   AddLegal: (data, callback) => {
     pool.query(
-      `insert into dh_legal(title,for_consultant,for_customer) values(?,?,?)`,
-      [data.title, data.for_consultant, data.for_customer],
+      `insert into dh_legal(legal_type,inEnglish,inSwedish,pdf) values(?,?,?,?)`,
+      [data.legal_type, data.inEnglish, data.inSwedish, data.pdf],
       (error, result, fields) => {
         if (error) {
           return callback(error);

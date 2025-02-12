@@ -8,6 +8,7 @@ var cron = require("node-cron");
 var moment = require("moment");
 var bodyParser = require("body-parser");
 const { CronJobs } = require("./api/Cron/routes/Cron_Route");
+const fun = require("./api/functions/Basic_methods");
 var server = express();
 
 server.use(express.json({ limit: "100mb" }));

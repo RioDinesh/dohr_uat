@@ -55,7 +55,7 @@ module.exports = {
       }
     );
   },
-
+  // newtablechange
   GetMyCovered: (data, callback) => {
     pool.query(
       "select * ,dh_vacancy_new.id as vid from dh_vacancy_new  join dh_customer on dh_vacancy_new.assigned_to_internal=dh_customer.id join dh_uncovered_management on dh_uncovered_management.id=dh_vacancy_new.uncovered_id join dh_my_schedule on dh_uncovered_management.schedule_id= dh_my_schedule.id  where dh_vacancy_new.assigned_from=? AND dh_vacancy_new.vacancy_status=2",
@@ -69,6 +69,7 @@ module.exports = {
       }
     );
   },
+  // newtable change
 
   GetICovered: (data, callback) => {
     pool.query(
@@ -96,7 +97,7 @@ module.exports = {
       }
     );
   },
-
+  // newtable change
   GetMyVacancyCustomer: (data, callback) => {
     pool.query(
       "select B.*,C.*,D.*, A.*, A.id as vid from dh_vacancy_new A   join dh_customer B on A.assigned_from=B.id join dh_uncovered_management C on C.id=A.uncovered_id join dh_my_schedule D on C.schedule_id= D.id  where A.assigned_to_internal=? AND A.vacancy_status=? AND A.is_active=1;",

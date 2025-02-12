@@ -1516,7 +1516,7 @@ module.exports = {
       });
     });
   },
-
+  // newtable change
   get_covered_schedule: (req, res) => {
     const data = req.body;
 

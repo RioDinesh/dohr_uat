@@ -997,41 +997,79 @@ module.exports = {
         });
       }
 
-      var insert = [];
-      data.externalVacancy.forEach((X) => {
-        insert.push([
-          X.position,
-          X.position_id,
-          X.v_date,
-          X.day,
-          X.from_time,
-          X.to_time,
-          X.break_time,
-          X.total_whrs,
-          X.ins_id,
-          X.uncovered_id,
-          X.other_info,
-          0,
-          X.assigned_to_external,
-          X.absence_id,
-          0,
-          false,
-          true,
-          X.isdraft,
-          X.location,
-          JSON.stringify(X.description),
-          X.assigned_from,
-          X.created_by,
-          X.publish_to,
-          X.publish_to_id,
-          X.routine_information,
-          X.lesson_plan_pdf,
-          X.absence_stafName,
-          X.my_consultant,
-        ]);
-      });
+      // var insert = [];
+      // data.externalVacancy.forEach((X) => {
+      //   insert.push(
+      //     X.position,
+      //     X.position_id,
+      //     X.v_date,
+      //     X.day,
+      //     X.from_time,
+      //     X.to_time,
+      //     X.break_time,
+      //     X.total_whrs,
+      //     X.ins_id,
+      //     X.uncovered_id,
+      //     X.other_info,
+      //     0,
+      //     X.assigned_to_external,
+      //     X.absence_id,
+      //     0,
+      //     false,
+      //     true,
+      //     X.isdraft,
+      //     X.location,
+      //     JSON.stringify(X.description),
+      //     X.assigned_from,
+      //     X.created_by,
+      //     X.publish_to,
+      //     X.publish_to_id,
+      //     X.routine_information,
+      //     X.lesson_plan_pdf,
+      //     X.absence_stafName,
+      //     X.my_consultant,
+      //   );
+      // });
+      let insert;
+      if (data.externalVacancy.length > 0) {
+        const firstObj = data.externalVacancy[0]; // Get first object
+        const lastToTime =
+          data.externalVacancy[data.externalVacancy.length - 1].to_time; // Get last to_time
 
-      data.externalVacancy.forEach((Data) => {});
+        insert = {
+          position: firstObj.position,
+          position_id: firstObj.position_id,
+          v_date: firstObj.v_date,
+          day: firstObj.day,
+          from_time: firstObj.from_time,
+          to_time: lastToTime, // Keep 'to_time' from the last object
+          break_time: firstObj.break_time,
+          total_whrs: firstObj.total_whrs,
+          ins_id: firstObj.ins_id,
+          uncovered_id: firstObj.uncovered_id,
+          other_info: firstObj.other_info,
+          assigned_to_internal: 0, // Hardcoded value
+          assigned_to_external: firstObj.assigned_to_external,
+          absence_id: firstObj.absence_id,
+          vacancy_status: 0, // Hardcoded value
+          publish_to_internal: false, // Hardcoded value
+          publish_to_external: true, // Hardcoded value
+          isdraft: firstObj.isdraft,
+          location: firstObj.location,
+          description: JSON.stringify(firstObj.description), // Ensure JSON formatting
+          assigned_from: firstObj.assigned_from,
+          created_by: firstObj.created_by,
+          publish_to: firstObj.publish_to,
+          publish_to_id: firstObj.publish_to_id,
+          routine_information: firstObj.routine_information,
+          lesson_plan_pdf: firstObj.lesson_plan_pdf,
+          absence_stafName: firstObj.absence_stafName,
+          my_consultant: firstObj.my_consultant,
+        };
+
+        console.log(insert);
+      }
+
       var insert_data = {
         a: insert,
         b: data,
@@ -1560,7 +1598,7 @@ module.exports = {
             x.coveredByInternal = false;
             external.forEach((e) => {
               if (
-                x.uncoveredId == e.uncovered_id &&
+                x.uncoveredId == e.uid &&
                 x.vacancy_status != 0 &&
                 x.publish_to_external == 1
               ) {

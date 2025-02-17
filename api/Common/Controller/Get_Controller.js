@@ -6,7 +6,7 @@ const {
   PublishToType,
   GetPostion,
   GetSubPass,
-  GetLink
+  GetLink,
 } = require("../Service/common_get_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
@@ -123,8 +123,6 @@ module.exports = {
     });
   },
 
-
-
   get_sub_pass: (req, res) => {
     GetSubPass((err, results) => {
       if (err) {
@@ -143,11 +141,12 @@ module.exports = {
 
   Fcm_Message: (req, res) => {
     var message = {
-      "notification": {
-        "body": "text",
-        "title": "text"
+      notification: {
+        body: "text",
+        title: "text",
       },
-      "to": "dRmMowPJS56MDp-Zg-p0Bt:APA91bE4RG20RvnvQgamYnlqFkWOIzfOoEf_7YKrzf18F8HgVaRdWs7WI0gGXJ99hvTZHFCyZD7Z-O155WD-SjQ4KnuCjFh_TlEs8_hnXmeJG28rgwve2Pm3DfSxwqLoVCBNnMob3TkW"
+      token:
+        "dRmMowPJS56MDp-Zg-p0Bt:APA91bE4RG20RvnvQgamYnlqFkWOIzfOoEf_7YKrzf18F8HgVaRdWs7WI0gGXJ99hvTZHFCyZD7Z-O155WD-SjQ4KnuCjFh_TlEs8_hnXmeJG28rgwve2Pm3DfSxwqLoVCBNnMob3TkW",
     };
     var fun = require("../../functions/Basic_methods");
     var response = fun.FCM_MESSAGE(1, message);

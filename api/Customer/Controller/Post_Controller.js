@@ -521,7 +521,7 @@ module.exports = {
             body: 'Ett av dina planerade jobb har avbokats av kunden på grund av oförutsedda händelser. Se "Mina jobb" för mer information.',
             title: "A New Message",
           },
-          to: result[0].notification_id,
+          token: result[0].notification_id,
         };
         fun.FCM_MESSAGE(message);
       }

@@ -36,6 +36,15 @@ cron.schedule("* * * * *", () => {
   CronJobs.notification_24hr_ExpressPass();
   CronJobs.notification_24hr_vacancy();
   CronJobs.notification_24hr_UnfilledReservePool();
+  // var message = {
+  //   token:
+  //     "dIPHYlubQbWIQ2dGABQ81Q:APA91bHpZAXaYxAxSfG7LFuFsaOC1ZdoN1N6u7UJpeK-6lH-JqRIcgkdnk9BfFJT4vPdx_gQ4cgQ16X6k53L7cfj36Olm2XGD0GCF7X_KXfGAycVGpYMCoo",
+  //   notification: {
+  //     body: "En ny tidsrapport väntar på ditt godkännande. Vänligen godkänn inom 48 timmar innan den automatiskt godkänns. Tack för ditt samarbete!",
+  //     title: "A New Message",
+  //   },
+  // };
+  // fun.FCM_MESSAGE(message);
 });
 
 //cron run every 10 min

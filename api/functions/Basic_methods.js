@@ -3,7 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const admin = require("firebase-admin");
-const serviceAccount = require("../../config/dohrab-6e764-firebase-adminsdk-bdnn4-5fa1bb2cbb.json"); // Replace with your service account key file
+const serviceAccount = require("../../config/adminsdk.json"); // Replace with your service account key file
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

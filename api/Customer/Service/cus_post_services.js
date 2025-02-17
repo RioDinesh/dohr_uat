@@ -58,7 +58,26 @@ module.exports = {
   // newtablechange
   GetMyCovered: (data, callback) => {
     pool.query(
-      "select * ,dh_vacancy_new.id as vid from dh_vacancy_new  join dh_customer on dh_vacancy_new.assigned_to_internal=dh_customer.id join dh_uncovered_management on dh_uncovered_management.id=dh_vacancy_new.uncovered_id join dh_my_schedule on dh_uncovered_management.schedule_id= dh_my_schedule.id  where dh_vacancy_new.assigned_from=? AND dh_vacancy_new.vacancy_status=2",
+      `SELECT  M.*,
+    V.*,
+    V.id AS vid,
+    C.*,
+    U.*,
+    S.*
+FROM 
+    dh_vacancy_new V
+JOIN 
+    dh_substitute_consultant C ON V.assigned_to_external = C.id
+JOIN  
+dh_multiple_data M on M.vacancy_id=V.id
+Join
+    dh_uncovered_management U ON U.id = M.uncovered_id
+JOIN 
+    dh_my_schedule S ON U.schedule_id = S.id
+WHERE 
+    V.assigned_from = ? 
+    AND V.vacancy_status = 2;
+`,
       [data.id],
       (error, result, fields) => {
         if (error) {
@@ -73,7 +92,21 @@ module.exports = {
 
   GetICovered: (data, callback) => {
     pool.query(
-      "select  *,dh_vacancy_new.id as vid  from dh_vacancy_new join dh_customer on dh_vacancy_new.assigned_to_internal=dh_customer.id join dh_uncovered_management on dh_uncovered_management.id=dh_vacancy_new.uncovered_id join dh_my_schedule on dh_uncovered_management.schedule_id= dh_my_schedule.id  where dh_vacancy_new.assigned_to_internal=17 AND dh_vacancy_new.vacancy_status=2",
+      `SELECT 
+    V.*, 
+    V.id AS vid, 
+    C.*, 
+    U.*, 
+    S.*, 
+    VUM.uncovered_id 
+FROM dh_vacancy_new V
+JOIN dh_customer C ON V.assigned_to_internal = C.id
+JOIN dh_multiple_data VUM ON VUM.vacancy_id = V.id
+JOIN dh_uncovered_management U ON U.id = VUM.uncovered_id
+JOIN dh_my_schedule S ON U.schedule_id = S.id  
+WHERE V.assigned_to_internal = ? 
+AND V.vacancy_status = 2;
+`,
       [data.id],
       (error, result, fields) => {
         if (error) {
@@ -100,7 +133,23 @@ module.exports = {
   // newtable change
   GetMyVacancyCustomer: (data, callback) => {
     pool.query(
-      "select B.*,C.*,D.*, A.*, A.id as vid from dh_vacancy_new A   join dh_customer B on A.assigned_from=B.id join dh_uncovered_management C on C.id=A.uncovered_id join dh_my_schedule D on C.schedule_id= D.id  where A.assigned_to_internal=? AND A.vacancy_status=? AND A.is_active=1;",
+      `SELECT 
+    A.*, 
+    A.id AS vid, 
+    B.*, 
+    C.*, 
+    D.*, 
+    VUM.uncovered_id
+FROM dh_vacancy_new A
+JOIN dh_customer B ON A.assigned_from = B.id
+JOIN dh_multiple_data VUM ON VUM.vacancy_id = A.id
+JOIN dh_uncovered_management C ON C.id = VUM.uncovered_id
+JOIN dh_my_schedule D ON C.schedule_id = D.id  
+WHERE A.assigned_to_internal = ? 
+AND A.vacancy_status = ? 
+AND A.is_active = 1;
+
+`,
       [data.cus_id, data.status],
       (error, result, fields) => {
         if (error) {

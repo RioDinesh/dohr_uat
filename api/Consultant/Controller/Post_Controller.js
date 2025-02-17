@@ -588,7 +588,7 @@ module.exports = {
 
         if (n_res.length != 0) {
           var message = {
-            to: n_res[0].notification_id,
+            token: n_res[0].notification_id,
             notification: {
               body: "Tyvärr har vikarien avbokat jobbet. Om jobbet publicerades till endast en vikarie måste du publicera ett nytt jobb igen. Annars kommer jobbet automatiskt att vara tillgänglig för andra vikarier.",
               title: "A New Message",

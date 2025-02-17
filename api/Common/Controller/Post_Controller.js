@@ -642,7 +642,7 @@ module.exports = {
             body: "Det finns ett nytt meddelande i din Chatt!",
             title: "A New Message",
           },
-          to: notifcation.notification_id,
+          token: notifcation.notification_id,
         };
 
         fun.FCM_MESSAGE(message);
@@ -676,7 +676,7 @@ module.exports = {
             body: "Det finns ett nytt meddelande i din Chatt!",
             title: "A New Message",
           },
-          to: notifcation.notification_id,
+          token: notifcation.notification_id,
         };
 
         fun.FCM_MESSAGE(message);
@@ -1106,7 +1106,7 @@ module.exports = {
           title: "A New Message",
         },
 
-        to: data.notificationId,
+        token: data.notificationId,
       };
       fun.FCM_MESSAGE(message);
 

@@ -401,29 +401,75 @@ module.exports = {
             lesson_plan_pdf,
             absence_stafName,
             my_consultant
-            ) values ?`,
-      [data.a],
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.a.position,
+        data.a.position_id,
+        data.a.v_date,
+        data.a.day,
+        data.a.from_time,
+        data.a.to_time,
+        data.a.break_time,
+        data.a.total_whrs,
+        data.a.ins_id,
+        0,
+        data.a.other_info,
+        0,
+
+        data.a.assigned_to_external,
+        data.a.absence_id,
+        0,
+        false,
+        true,
+        data.a.isdraft,
+        data.a.location,
+        JSON.stringify(data.a.description),
+        data.a.assigned_from,
+        data.a.created_by,
+        data.a.publish_to,
+        data.a.publish_to_id,
+        data.a.routine_information,
+        data.a.lesson_plan_pdf,
+        data.a.absence_stafName,
+        data.a.my_consultant,
+      ],
       (error, result, fields) => {
         if (error) {
           return callback(error);
         } else {
+          //prepare data
+          var multipleData = [];
           var ids = [];
-          if (data.mergevacancy == true) {
-            ids = data.ids;
-          } else {
-            data.b.externalVacancy.forEach((id) => {
-              ids.push(id.uncovered_id);
-            });
-          }
+          data.b.externalVacancy.forEach((x) => {
+            ids.push(x.uncovered_id);
+            multipleData.push([
+              x.uncovered_id,
+              result.insertId,
+              "Na",
+              data.lesson_plan_pdf,
+              data.assigned_from,
+            ]);
+          });
 
           pool.query(
-            "update dh_uncovered_management set is_covered=true where id In(?)",
-            [ids],
+            "INSERT INTO dh_multiple_data (uncovered_id,vacancy_id,subject, instruction_pdf,assigned_from) VALUES ?",
+            [multipleData],
             (error, result2, fields) => {
               if (error) {
                 return callback(error);
               } else {
-                return callback(null, result2);
+                //return callback(null, result2);
+                pool.query(
+                  "update dh_uncovered_management set is_covered=true where id In(?)",
+                  [ids],
+                  (error, result2, fields) => {
+                    if (error) {
+                      return callback(error);
+                    } else {
+                      return callback(null, result2);
+                    }
+                  }
+                );
               }
             }
           );
@@ -786,7 +832,22 @@ module.exports = {
   // newtable change
   GetInstituteCoveredSchedule: (data, callback) => {
     pool.query(
-      "select V.*,U.*,U.id as uncoveredId ,A.*,S.*,I.*,C.*,C.email_id as cus_email_id  from dh_uncovered_management U  join dh_absence_management A join dh_my_schedule S join dh_institutes I  join dh_customer C join dh_vacancy_new V on U.id=V.uncovered_id  where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=?",
+      `select M.*,M.uncovered_id as uid,V.*,
+U.*,
+U.id as uncoveredId ,
+A.*,
+S.*,
+I.*,
+C.*,
+C.email_id as cus_email_id  
+from dh_uncovered_management U  
+join dh_absence_management A 
+join dh_my_schedule S 
+join dh_institutes I  
+join dh_customer C 
+join dh_multiple_data M on U.id=M.uncovered_id
+join dh_vacancy_new V on M.vacancy_id=V.id  
+where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=3`,
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -799,7 +860,7 @@ module.exports = {
   },
   GetVacancyScheduleInternal: (data, callback) => {
     pool.query(
-      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_customer C on C.id=V.assigned_to_external where V.ins_id=? And V.is_active=1",
+      "select M.*, M.uncovered_id as uid ,V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join dh_multiple_data M on M.vacancy_id=V.id join dh_customer C on C.id=V.assigned_to_external where V.ins_id=3 And V.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -812,7 +873,7 @@ module.exports = {
   },
   GetVacancySchedulExternal: (data, callback) => {
     pool.query(
-      "select V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_substitute_consultant C on C.id=V.assigned_to_external where V.ins_id=? And V.is_active=1",
+      "select M.*, M.uncovered_id as uid, V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_multiple_data M on M.vacancy_id=V.id join dh_substitute_consultant C on C.id=V.assigned_to_external where V.ins_id=3 And V.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {

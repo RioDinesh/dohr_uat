@@ -424,7 +424,7 @@ module.exports = {
         data.a.isdraft,
         data.a.location,
         JSON.stringify(data.a.description),
-        data.a.assigned_from,
+        0,
         data.a.created_by,
         data.a.publish_to,
         data.a.publish_to_id,
@@ -446,13 +446,17 @@ module.exports = {
               x.uncovered_id,
               result.insertId,
               "Na",
-              data.lesson_plan_pdf,
-              data.assigned_from,
+              x.lesson_plan_pdf,
+              x.assigned_from,
             ]);
           });
-
+          console.log(
+            "---------------------------------------------------------"
+          );
+          console.log(data.b);
+          console.log(multipleData);
           pool.query(
-            "INSERT INTO dh_multiple_data (uncovered_id,vacancy_id,subject, instruction_pdf,assigned_from) VALUES ?",
+            "INSERT INTO dh_multiple_data (uncovered_id,vacancy_id,subject,instruction_pdf,assigned_from) VALUES ?",
             [multipleData],
             (error, result2, fields) => {
               if (error) {

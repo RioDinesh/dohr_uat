@@ -75,7 +75,7 @@ Join
 JOIN 
     dh_my_schedule S ON U.schedule_id = S.id
 WHERE 
-    V.assigned_from = ? 
+    M.assigned_from = ? 
     AND V.vacancy_status = 2;
 `,
       [data.id],

@@ -274,7 +274,7 @@ module.exports = {
             title: "A New Message",
           },
 
-          registration_ids: notificationId,
+          tokens: notificationId,
         };
 
         fun.FCM_MESSAGE(message);

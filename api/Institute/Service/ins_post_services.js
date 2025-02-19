@@ -345,24 +345,67 @@ module.exports = {
         if (error) {
           return callback(error);
         } else {
+          //prepare data
+          var multipleData = [];
           var ids = [];
+          data.forEach((x) => {
+            ids.push(x.uncovered_id);
+            multipleData.push([
+              x.uncovered_id,
+              result.insertId,
+              "Na",
+              x.lesson_plan_pdf,
 
-          data.forEach((id) => {
-            console.log(id);
-            ids.push(id[9]);
+              x.assigned_from,
+              assigned_from,
+            ]);
           });
-          console.log(ids);
+          console.log(
+            "---------------------------------------------------------"
+          );
+          console.log(data.b);
+          console.log(multipleData);
           pool.query(
-            "update dh_uncovered_management set is_covered=true where id In(?)",
-            [ids],
+            "INSERT INTO dh_multiple_data (uncovered_id,vacancy_id,subject,instruction_pdf,assigned_from) VALUES ?",
+            [multipleData],
             (error, result2, fields) => {
               if (error) {
                 return callback(error);
               } else {
-                return callback(null, result2);
+                //return callback(null, result2);
+                pool.query(
+                  "update dh_uncovered_management set is_covered=true where id In(?)",
+                  [ids],
+                  (error, result2, fields) => {
+                    if (error) {
+                      return callback(error);
+                    } else {
+                      return callback(null, result2);
+                    }
+                  }
+                );
               }
             }
           );
+
+          // var ids = [];
+
+          // data.forEach((id) => {
+          //   console.log(id);
+          //   ids.push(id[9]);
+          // });
+          // console.log(ids);
+          // pool.query(
+          //   "update dh_uncovered_management set is_covered=true where id In(?)",
+          //   [ids],
+          //   (error, result2, fields) => {
+          //     if (error) {
+          //       return callback(error);
+          //     } else {
+          //       return callback(null, result2);
+          //     }
+          //   }
+          // );
         }
       }
     );

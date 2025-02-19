@@ -87,7 +87,7 @@ module.exports = {
               title: "A New Message",
             },
 
-            registration_ids: notificationIds,
+            tokens: notificationIds,
           };
 
           fun.FCM_MESSAGE(message);
@@ -116,7 +116,7 @@ module.exports = {
                     title: "A New Message",
                   },
 
-                  registration_ids: NIds,
+                  tokens: NIds,
                 };
 
                 fun.FCM_MESSAGE(message);
@@ -199,7 +199,7 @@ module.exports = {
               title: "A New Message",
             },
 
-            registration_ids: notificationIds,
+            tokens: notificationIds,
           };
 
           fun.FCM_MESSAGE(message);
@@ -227,7 +227,7 @@ module.exports = {
                     title: "A New Message",
                   },
 
-                  registration_ids: NIds,
+                  tokens: NIds,
                 };
 
                 fun.FCM_MESSAGE(message);
@@ -318,7 +318,7 @@ module.exports = {
                   title: "A New Message",
                 },
 
-                registration_ids: notificationIds,
+                tokens: notificationIds,
               };
 
               fun.FCM_MESSAGE(message);
@@ -404,7 +404,7 @@ module.exports = {
                 body: "Våra jobb väntar på dig! Var först att acceptera!",
                 title: "A New Message",
               },
-              registration_ids: notificationIds,
+              tokens: notificationIds,
             };
 
             fun.FCM_MESSAGE(message);
@@ -460,7 +460,7 @@ module.exports = {
               title: "A New Message",
             },
 
-            registration_ids: notificationIds,
+            tokens: notificationIds,
           };
 
           fun.FCM_MESSAGE(message);
@@ -530,7 +530,7 @@ module.exports = {
                 title: "A New Message",
               },
 
-              registration_ids: notificationIds,
+              tokens: notificationIds,
             };
 
             fun.FCM_MESSAGE(message);
@@ -604,7 +604,7 @@ module.exports = {
               title: "A New Message",
             },
 
-            registration_ids: notificationIds,
+            tokens: notificationIds,
           };
 
           fun.FCM_MESSAGE(message);
@@ -669,7 +669,7 @@ module.exports = {
             title: "A New Message",
           },
 
-          registration_ids: notificationIds,
+          tokens: notificationIds,
         };
 
         fun.FCM_MESSAGE(message);
@@ -784,7 +784,7 @@ module.exports = {
             title: "A New Message",
           },
 
-          registration_ids: notificationIds,
+          tokens: notificationIds,
         };
 
         fun.FCM_MESSAGE(message);
@@ -892,7 +892,7 @@ module.exports = {
             title: "A New Message",
           },
 
-          registration_ids: notificationIds,
+          tokens: notificationIds,
         };
 
         fun.FCM_MESSAGE(message);

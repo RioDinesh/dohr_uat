@@ -1177,7 +1177,7 @@ module.exports = {
               title: data.title,
             },
 
-            registration_ids: ids,
+            tokens: ids,
           };
 
           fun.FCM_MESSAGE(message);

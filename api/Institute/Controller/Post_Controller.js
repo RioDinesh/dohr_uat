@@ -1327,7 +1327,7 @@ module.exports = {
                 body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                 title: "A New Message",
               },
-              registration_ids: notificationIds,
+              tokens: notificationIds,
             };
 
             fun.FCM_MESSAGE(message);
@@ -1347,7 +1347,7 @@ module.exports = {
                 body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                 title: "A New Message",
               },
-              registration_ids: notificationIds,
+              tokens: notificationIds,
             };
 
             fun.FCM_MESSAGE(message);
@@ -1376,7 +1376,7 @@ module.exports = {
                 body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                 title: "A New Message",
               },
-              registration_ids: notificationIds,
+              tokens: notificationIds,
             };
 
             fun.FCM_MESSAGE(message);
@@ -1472,7 +1472,7 @@ module.exports = {
                   body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                   title: "A New Message",
                 },
-                registration_ids: notificationIds,
+                tokens: notificationIds,
               };
 
               fun.FCM_MESSAGE(message);
@@ -1492,7 +1492,7 @@ module.exports = {
                   body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                   title: "A New Message",
                 },
-                registration_ids: notificationIds,
+                tokens: notificationIds,
               };
 
               fun.FCM_MESSAGE(message);
@@ -1521,7 +1521,7 @@ module.exports = {
                   body: `Ett nytt jobb är tillgängligt för dig att acceptera. Tryck på "Hem"-ikonen för att se alla tillgängliga jobb.`,
                   title: "A New Message",
                 },
-                registration_ids: notificationIds,
+                tokens: notificationIds,
               };
 
               fun.FCM_MESSAGE(message);

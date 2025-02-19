@@ -277,7 +277,7 @@ module.exports = {
           tokens: notificationId,
         };
 
-        fun.FCM_MESSAGE(message);
+        fun.Fcm_Message_Multiple(message);
       });
 
       return res.status(200).json({

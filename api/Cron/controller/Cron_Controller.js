@@ -90,7 +90,7 @@ module.exports = {
             tokens: notificationIds,
           };
 
-          fun.FCM_MESSAGE(message);
+          fun.Fcm_Message_Multiple(message);
         }
 
         if (ids.length != 0) {
@@ -119,7 +119,7 @@ module.exports = {
                   tokens: NIds,
                 };
 
-                fun.FCM_MESSAGE(message);
+                fun.Fcm_Message_Multiple(message);
               }
             });
 
@@ -202,7 +202,7 @@ module.exports = {
             tokens: notificationIds,
           };
 
-          fun.FCM_MESSAGE(message);
+          fun.Fcm_Message_Multiple(message);
         }
 
         if (ids.length != 0) {
@@ -230,7 +230,7 @@ module.exports = {
                   tokens: NIds,
                 };
 
-                fun.FCM_MESSAGE(message);
+                fun.Fcm_Message_Multiple(message);
               }
             });
             return {
@@ -321,7 +321,7 @@ module.exports = {
                 tokens: notificationIds,
               };
 
-              fun.FCM_MESSAGE(message);
+              fun.Fcm_Message_Multiple(message);
             }
 
             return {
@@ -407,7 +407,7 @@ module.exports = {
               tokens: notificationIds,
             };
 
-            fun.FCM_MESSAGE(message);
+            fun.Fcm_Message_Multiple(message);
           }
         });
       }
@@ -463,7 +463,7 @@ module.exports = {
             tokens: notificationIds,
           };
 
-          fun.FCM_MESSAGE(message);
+          fun.Fcm_Message_Multiple(message);
         }
 
         return {
@@ -533,7 +533,7 @@ module.exports = {
               tokens: notificationIds,
             };
 
-            fun.FCM_MESSAGE(message);
+            fun.Fcm_Message_Multiple(message);
           }
 
           return {
@@ -607,7 +607,7 @@ module.exports = {
             tokens: notificationIds,
           };
 
-          fun.FCM_MESSAGE(message);
+          fun.Fcm_Message_Multiple(message);
         }
 
         return {
@@ -672,7 +672,7 @@ module.exports = {
           tokens: notificationIds,
         };
 
-        fun.FCM_MESSAGE(message);
+        fun.Fcm_Message_Multiple(message);
       }
       //send mail
 
@@ -787,7 +787,7 @@ module.exports = {
           tokens: notificationIds,
         };
 
-        fun.FCM_MESSAGE(message);
+        fun.Fcm_Message_Multiple(message);
       }
 
       if (arrayUsersMail.length != 0) {
@@ -895,7 +895,7 @@ module.exports = {
           tokens: notificationIds,
         };
 
-        fun.FCM_MESSAGE(message);
+        fun.Fcm_Message_Multiple(message);
       }
 
       return {

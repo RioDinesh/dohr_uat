@@ -1330,7 +1330,7 @@ module.exports = {
               tokens: notificationIds,
             };
 
-            fun.FCM_MESSAGE(message);
+            fun.Fcm_Message_Multiple(message);
           }
         }
 
@@ -1350,7 +1350,7 @@ module.exports = {
               tokens: notificationIds,
             };
 
-            fun.FCM_MESSAGE(message);
+            fun.Fcm_Message_Multiple(message);
           }
         }
       });
@@ -1379,7 +1379,7 @@ module.exports = {
               tokens: notificationIds,
             };
 
-            fun.FCM_MESSAGE(message);
+            fun.Fcm_Message_Multiple(message);
           }
         }
       });
@@ -1475,7 +1475,7 @@ module.exports = {
                 tokens: notificationIds,
               };
 
-              fun.FCM_MESSAGE(message);
+              fun.Fcm_Message_Multiple(message);
             }
           }
 
@@ -1495,7 +1495,7 @@ module.exports = {
                 tokens: notificationIds,
               };
 
-              fun.FCM_MESSAGE(message);
+              fun.Fcm_Message_Multiple(message);
             }
           }
         });
@@ -1524,7 +1524,7 @@ module.exports = {
                 tokens: notificationIds,
               };
 
-              fun.FCM_MESSAGE(message);
+              fun.Fcm_Message_Multiple(message);
             }
           }
         });

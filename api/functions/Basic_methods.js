@@ -144,7 +144,14 @@ module.exports = {
     //     console.log(error);
     //   });
   },
-
+  Fcm_Message_Multiple: async function FCM_MESSAGE_MULTI(message) {
+    try {
+      const response = await admin.messaging().sendEachForMulticast(message);
+      console.log("Successfully sent message:", response);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  },
   GetDatesOfMonth: function getDaysInMonthUTC(month, year) {
     var date = new Date(Date.UTC(year, month, 1));
     var days = [];

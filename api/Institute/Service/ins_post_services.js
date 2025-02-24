@@ -340,7 +340,7 @@ module.exports = {
             my_consultant,
             location
             ) values ?`,
-      [data],
+      [data.a],
       (error, result, fields) => {
         if (error) {
           return callback(error);
@@ -348,16 +348,15 @@ module.exports = {
           //prepare data
           var multipleData = [];
           var ids = [];
-          data.forEach((x) => {
+          data.b.Vacancy.forEach((x) => {
             ids.push(x.uncovered_id);
             multipleData.push([
               x.uncovered_id,
+
               result.insertId,
               "Na",
               x.lesson_plan_pdf,
-
               x.assigned_from,
-              assigned_from,
             ]);
           });
           console.log(

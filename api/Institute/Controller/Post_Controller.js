@@ -970,8 +970,10 @@ module.exports = {
       }
       var min = 0;
       data.externalVacancy.forEach((X) => {
+        const lastToTime =
+          data.externalVacancy[data.externalVacancy.length - 1].end_time;
         console.log(fun.FindMintuesBetweenTwoTimes(X.from_time, X.to_time));
-        min = min + fun.FindMintuesBetweenTwoTimes(X.from_time, X.to_time);
+        min = min + fun.FindMintuesBetweenTwoTimes(X.start_time, lastToTime);
       });
 
       // let min
@@ -1034,14 +1036,14 @@ module.exports = {
       if (data.externalVacancy.length > 0) {
         const firstObj = data.externalVacancy[0]; // Get first object
         const lastToTime =
-          data.externalVacancy[data.externalVacancy.length - 1].to_time; // Get last to_time
+          data.externalVacancy[data.externalVacancy.length - 1].end_time; // Get last to_time
 
         insert = {
           position: firstObj.position,
           position_id: firstObj.position_id,
           v_date: firstObj.v_date,
           day: firstObj.day,
-          from_time: firstObj.from_time,
+          from_time: firstObj.start_time,
           to_time: lastToTime, // Keep 'to_time' from the last object
           break_time: firstObj.break_time,
           total_whrs: firstObj.total_whrs,
@@ -1197,8 +1199,12 @@ module.exports = {
               Data.location,
             ]);
           });
+          let insertdata = {
+            a: insert,
+            b: data,
+          };
 
-          CreateUncoveredVacancyInternal(insert, (err, results) => {
+          CreateUncoveredVacancyInternal(insertdata, (err, results) => {
             if (err) {
               console.log(err);
               return res.status(500).json({

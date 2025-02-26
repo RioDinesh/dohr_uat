@@ -17,6 +17,7 @@ const {
   GetConsultant,
   GetCons,
   UpadteSchedulePdf,
+  GetMyCoveredInternal,
 } = require("../Service/cus_post_services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
@@ -142,10 +143,30 @@ module.exports = {
         });
       }
 
-      return res.status(200).json({
-        success: true,
-        message: results,
+      GetMyCoveredInternal(data, (err, results2) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            success: false,
+            message: err.sqlMessage,
+          });
+        }
+
+        let dataflow = {
+          consultant: results,
+          customer: results2,
+        };
+
+        return res.status(200).json({
+          success: true,
+          message: dataflow,
+        });
       });
+
+      // return res.status(200).json({
+      //   success: true,
+      //   message: results,
+      // });
     });
   },
   assigned_cover_count: (req, res) => {

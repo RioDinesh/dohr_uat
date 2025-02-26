@@ -88,6 +88,38 @@ WHERE
       }
     );
   },
+
+  GetMyCoveredInternal: (data, callback) => {
+    pool.query(
+      `SELECT  M.*,
+    V.*,
+    V.id AS vid,
+    C.*,
+    U.*,
+    S.*
+FROM 
+    dh_vacancy_new V
+JOIN 
+    dh_customer C ON V.assigned_to_internal = C.id
+JOIN  
+dh_multiple_data M on M.vacancy_id=2
+Join
+    dh_uncovered_management U ON U.id = M.uncovered_id
+JOIN 
+    dh_my_schedule S ON U.schedule_id = S.id
+WHERE 
+    V.assigned_from = ? 
+    AND V.vacancy_status = 2`,
+      [data.id],
+      (error, result, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          return callback(null, result);
+        }
+      }
+    );
+  },
   // newtable change
 
   GetICovered: (data, callback) => {

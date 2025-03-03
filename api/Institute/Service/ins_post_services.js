@@ -893,7 +893,7 @@ join dh_institutes I
 join dh_customer C 
 join dh_multiple_data M on U.id=M.uncovered_id
 join dh_vacancy_new V on M.vacancy_id=V.id  
-where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=3`,
+where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_id AND U.is_covered=1 AND  U.ins_id=?`,
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -906,7 +906,19 @@ where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_
   },
   GetVacancyScheduleInternal: (data, callback) => {
     pool.query(
-      "select M.*, M.uncovered_id as uid ,V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join dh_multiple_data M on M.vacancy_id=V.id join dh_customer C on C.id=V.assigned_to_external where V.ins_id=3 And V.is_active=1",
+      `SELECT M.*, 
+M.uncovered_id AS uid, 
+V.*, 
+C.first_name, 
+C.last_name, 
+C.id AS covered_person_id, 
+C.email_id  
+FROM dh_vacancy_new V 
+JOIN dh_multiple_data M ON V.id = M.vacancy_id 
+JOIN dh_customer C ON C.id = V.assigned_to_internal 
+WHERE V.ins_id = ? 
+AND V.is_active = 1;
+`,
       [data.ins_id],
       (error, result, fields) => {
         if (error) {
@@ -919,7 +931,7 @@ where I.id=U.ins_id AND C.id=U.cus_id AND A.id=U.absence_id AND S.id=U.schedule_
   },
   GetVacancySchedulExternal: (data, callback) => {
     pool.query(
-      "select M.*, M.uncovered_id as uid, V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_multiple_data M on M.vacancy_id=V.id join dh_substitute_consultant C on C.id=V.assigned_to_external where V.ins_id=3 And V.is_active=1",
+      "select M.*, M.uncovered_id as uid, V.*,C.first_name,C.last_name,C.id as covered_person_id,C.email_id  from dh_vacancy_new V join  dh_multiple_data M on M.vacancy_id=V.id join dh_substitute_consultant C on C.id=V.assigned_to_external where V.ins_id=? And V.is_active=1",
       [data.ins_id],
       (error, result, fields) => {
         if (error) {

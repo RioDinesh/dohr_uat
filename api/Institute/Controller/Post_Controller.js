@@ -1033,6 +1033,10 @@ module.exports = {
       //   );
       // });
       let insert;
+      let absentstaffNames = [];
+      data.externalVacancy.forEach((c) => {
+        absentstaffNames.push({ name: c.absence_stafName });
+      });
       if (data.externalVacancy.length > 0) {
         const firstObj = data.externalVacancy[0]; // Get first object
         const lastToTime =
@@ -1065,7 +1069,7 @@ module.exports = {
           publish_to_id: firstObj.publish_to_id,
           routine_information: firstObj.routine_information,
           lesson_plan_pdf: firstObj.lesson_plan_pdf,
-          absence_stafName: firstObj.absence_stafName,
+          absence_stafName: JSON.stringify(absentstaffNames),
           my_consultant: firstObj.my_consultant,
         };
 
@@ -1194,7 +1198,7 @@ module.exports = {
               Data.assigned_from,
               Data.created_by,
               Data.lesson_plan_pdf,
-              Data.absence_stafName,
+              JSON.stringify([{ name: Data.absence_stafName }]),
               Data.my_consultant,
               Data.location,
             ]);
@@ -1604,7 +1608,7 @@ module.exports = {
             x.coveredByInternal = false;
             external.forEach((e) => {
               if (
-                x.uncoveredId == e.uid &&
+                x.uid == e.uid &&
                 x.vacancy_status != 0 &&
                 x.publish_to_external == 1
               ) {
@@ -1616,7 +1620,7 @@ module.exports = {
             });
             internal.forEach((i) => {
               if (
-                x.uncoveredId == i.uncovered_id &&
+                x.uid == i.uid &&
                 x.vacancy_status != 0 &&
                 x.publish_to_internal == 1
               ) {

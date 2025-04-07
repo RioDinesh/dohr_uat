@@ -60,7 +60,7 @@ module.exports = {
     pool.query(
       `SELECT  M.*,
     V.*,
-    V.id AS vid,
+    V.id AS vid,V.v_date as vacancy_date,
     C.*,
     U.*,
     S.*
@@ -93,7 +93,7 @@ WHERE
     pool.query(
       `SELECT  M.*,
     V.*,
-    V.id AS vid,
+    V.id AS vid, V.v_date as vacancy_date,
     C.*,
     U.*,
     S.*

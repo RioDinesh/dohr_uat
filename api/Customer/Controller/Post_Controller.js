@@ -163,10 +163,7 @@ module.exports = {
         });
       });
 
-      // return res.status(200).json({
-      //   success: true,
-      //   message: results,
-      // });
+      
     });
   },
   assigned_cover_count: (req, res) => {

@@ -153,7 +153,7 @@ module.exports = {
 
         fun.sendMail(
           data.email_id,
-          "DoHR - Jobbansökan  / Job application",
+          "DoHR - Från DoHR/From DoHR",
           `
           <html >
 
@@ -165,14 +165,10 @@ module.exports = {
 
     <div>
         <p>Hej!</p>
-        <p>Tack för att du skickade din ansökan till DoHR (/ˈdɔr/)! Vi uppskattar ditt intresse och ser fram emot att granska din ansökan.</p>
-        <p>Vi får ett stort antal ansökningar och det kan ta lite tid för oss att återkomma till dig. I väntan på det fortsätt gärna hålla utkik på "Lediga jobb" på vår hemsida och följ vad som händer hos oss i sociala medier.</p>
-        <p>Vi önskar dig en fin dag och ett stort lycka till i ditt jobbsökande!</p>
+        <p>Vi vill meddela dig att din information nu har registrerats hos DoHR.</p>
         <br>
-        <p>Dear Candidate!</p>
-        <p>Thank you for submitting your application to DoHR (/ˈdɔr/)! We sincerely appreciate your interest and look forward to reviewing your application.</p>
-        <p>We get a considerable amount of applications, so it may take us some time to respond to you. Meanwhile, we encourage you to check our "Vacancies" on our website and follow what's happening with us on social media.</p>
-        <p>We wish you a nice day and the best of luck in your job search!</p>
+        <p>Hi!</p>
+        <p>We would like to inform you that your information has now been registered with DoHR.</p>
         <br>
         <p>Med vänliga hälsningar / Best wishes,</p>
         <p>DoHR (/ˈdɔr/) team</p>

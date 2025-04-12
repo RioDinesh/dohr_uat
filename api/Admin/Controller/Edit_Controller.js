@@ -43,39 +43,50 @@ module.exports = {
         data.email_id,
         "Välkommen till DoHR (/ˈdɔr/) vikarieteam / Welcome to DoHR substitute team!",
 
-        `<html >
+        `
+        
+<html >
+<head>
+    <meta>
+    <title>Välkommen till DoHR appen / Welcome to DoHR mobile app</title>
+</head>
+<body>
+    <p>Välkommen till DoHR appen / Welcome to DoHR mobile app</p>
 
-        <head></head>
-        
-        <body>
-        
-            <div>
-                <p>Hej!</p>
-                <p>Grattis och välkommen till DoHR vikarieteam! Vi ser fram emot att arbeta tillsammans med dig!</p>
-                <p>Ladda ner DoHR mobilappen och logga in med inloggningsuppgifterna nedan.</p>
-                <p>Användarnamn/username: ${data.email_id}</p>
-                <p>Lösenord/password: ${pass}</p>
-                <p>DoHR-mobilappen är lätt att använda och du kan acceptera jobb när det passar dig.  Alla otillsatta jobb finns under "Lediga jobb". Du kommer att få notiser när nya jobb publiceras. Detaljer om dina accepterade jobb hittar du under "Mina jobb/planerade".</p>
-                <p>Vi vill också göra dig uppmärksam på Min profil. Det är viktigt att uppdatera din profil när du loggar in för första gången, särskilt dina föredragna arbetsområden, bankuppgifter och nödkontakter.</p>
-                <p>Vi har också en annan viktig funktion i appen, som är Reservpoolen. Syftet med Reservpoolen är att ge dig möjlighet att reservera dig i förväg så att vi kan möta kundernas önskemål om vikarier med kort varsel. Svar på dina frågor såsom hur man anmäler sig till Reservpoolen och annat, finns på sidan Vanliga frågor. Under Mer/Villkor och policyer hittar du villkoren för jobbet du tackar ja till.</p>
-                <p>Det finns nya lediga jobb som väntar på dig! Var först att tacka ja!</p>
-                <br>
-                <p>Greetings!</p>
-                <p>Congratulations and welcome to our top substitute team! We are looking forward to working with you!</p>
-                <p>Simply download the DoHR mobile app and sign in with the credentials listed in the Swedish text above.  The DoHR mobile app is incredibly simple to use, you can view and accept any job whenever it is convenient for you. "Available jobs" lists all of the unfilled jobs. Additionally, you will be notified when new jobs are published. Details about your accepted job can be found under "My jobs/scheduled"</p>
-                <p>We would also like to bring your attention to My profile. It is important to update your profile when you log in for the first time, especially your preferred location, bank details and emergency contact details.</p>
-                <p>Moreover, we have another important function in the app, which is the Reserve pool. The purpose of the Reserve Pool is to give you the opportunity to reserve yourself in advance so that we can meet the customers' requests for substitutes at short notice. Any questions you have, such as how to register for the Reserve pool, can be found in our FAQ section. Under More/Legal, you can find the terms and conditions for a job you accept.</p>
-                <p>New vacancies are calling you! Get ready to actively accept jobs on the Vacancy board.</p>
-                <br>
-                <p>Med vänliga hälsningar / Best wishes,</p>
-                <p>DoHR (/ˈdɔr/) team</p>
-                <br>
-                <p><a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io">www.dohr.io</a></p>
-            </div>
-        
-        </body>
-        
-        </html>
+    <p>Hej! Välkommen till DoHR appen! Ladda ner DoHR mobilappen och logga in med inloggningsuppgifterna nedan.</p>
+
+    <p><strong>Användarnamn/username:${data.email_id}</strong><br>
+    <strong>Lösenord/password:${pass} </strong></p>
+
+    <p>DoHR-mobilappen är lätt att använda och du kan acceptera jobb när det passar dig. Alla otillsatta jobb finns under "Lediga jobb". Du kommer att få notiser när nya jobb publiceras. Detaljer om dina accepterade jobb hittar du under "Mina jobb/planerade".</p>
+
+    <p>Viktig information för ENDAST DoHR-anställda:</p>
+    <p>Vi vill också göra dig uppmärksam på Min profil. Det är viktigt att uppdatera din profil när du loggar in för första gången, särskilt dina föredragna arbetsområden, bankuppgifter och nödkontakter.</p>
+
+    <p>Vi har också en annan viktig funktion i appen, som är Reservpoolen. Syftet med Reservpoolen är att ge dig möjlighet att reservera dig i förväg så att vi kan möta kundernas önskemål om vikarier med kort varsel. Svar på dina frågor såsom hur man anmäler sig till Reservpoolen och annat, finns på sidan Vanliga frågor. Under Mer/Villkor och policyer hittar du villkoren för jobbet du tackar ja till.</p>
+
+    <p>Det finns nya lediga jobb som väntar på dig! Var först att tacka ja!</p>
+
+    <hr>
+
+    <p>Greetings!</p>
+
+    <p>Welcome to DoHR mobile app! Simply download the DoHR mobile app and sign in with the credentials listed in the Swedish text above.</p>
+
+    <p>The DoHR mobile app is incredibly simple to use, you can view and accept any job whenever it is convenient for you. "Available jobs" lists all of the unfilled jobs. Additionally, you will be notified when new jobs are published. Details about your accepted job can be found under "My jobs/scheduled".</p>
+
+    <p>Important information for DoHR-employees ONLY:</p>
+    <p>We would also like to bring your attention to My profile. It is important to update your profile when you log in for the first time, especially your preferred location, bank details and emergency contact details.</p>
+
+    <p>Moreover, we have another important function in the app, which is the Reserve pool. The purpose of the Reserve Pool is to give you the opportunity to reserve yourself in advance so that we can meet the customers' requests for substitutes at short notice. Any questions you have, such as how to register for the Reserve pool, can be found in our FAQ section. Under More/Legal, you can find the terms and conditions for a job you accept.</p>
+
+    <p>New vacancies are calling you! Get ready to actively accept jobs on the Vacancy board.</p>
+
+    <p>Med vänliga hälsningar / Best wishes,<br>
+    DoHR (/ˈdɔr/) team<br>
+    <a href="mailto:support@dohr.io">support@dohr.io</a> | <a href="https://www.dohr.io" target="_blank">www.dohr.io</a></p>
+</body>
+</html>
         `
       );
 

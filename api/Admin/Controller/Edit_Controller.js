@@ -41,19 +41,15 @@ module.exports = {
 
       fun.sendMail(
         data.email_id,
-        "Välkommen till DoHR (/ˈdɔr/) vikarieteam / Welcome to DoHR substitute team!",
+        "Välkommen till DoHR appen / Welcome to DoHR mobile app",
 
         `
         
 <html >
-<head>
-    <meta>
-    <title>Välkommen till DoHR appen / Welcome to DoHR mobile app</title>
-</head>
-<body>
-    <p>Välkommen till DoHR appen / Welcome to DoHR mobile app</p>
 
-    <p>Hej! Välkommen till DoHR appen! Ladda ner DoHR mobilappen och logga in med inloggningsuppgifterna nedan.</p>
+<body>
+<p>Hej!</p>
+    <p> Välkommen till DoHR appen! Ladda ner DoHR mobilappen och logga in med inloggningsuppgifterna nedan.</p>
 
     <p><strong>Användarnamn/username:${data.email_id}</strong><br>
     <strong>Lösenord/password:${pass} </strong></p>

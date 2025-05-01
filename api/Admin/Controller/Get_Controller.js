@@ -156,8 +156,41 @@ module.exports = {
         success: true,
         message: results,
       });
+      
     });
   },
+
+  Pdf_viwer: (req, res) => {
+    const lang = req.query.lang;
+    const type = req.query.type;
+    const base = req.query.base;
+    console.log(type);
+    GetTitle((err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          success: false,
+          message: err.sqlMessage,
+        });
+      }
+      const langKey = lang.toLowerCase() === 'en' ? 'inEnglish' : 'inSwedish';
+      const filtered = results.filter(doc => 
+        doc[langKey] === 1 && doc.legal_type === type
+      );
+    let obj =filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+      console.log(results);
+
+
+      let pdfPath = base+obj.pdf;
+
+      res.render("pdf_viewer",{ pdfPath});
+
+      
+    });
+
+    
+  }, 
 
   get_faq: (req, res) => {
     GETFAQ((err, results) => {

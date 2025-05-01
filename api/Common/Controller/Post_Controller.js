@@ -942,6 +942,11 @@ module.exports = {
       s.render("forgot_password_failed");
     }
   },
+
+  
+
+
+
   Forgot_Password_View_2: (req, res) => {
     const data = req.body;
     const { token } = req.params;

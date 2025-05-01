@@ -33,6 +33,8 @@ const {
 
 const Router = require("express").Router();
 const { checkToken } = require("../auth/TokenValidation");
+const path = require('path');
+const fs = require('fs');
 
 //>=====================================================================================Admin==================================================================================================
 
@@ -72,6 +74,7 @@ Router.get("/Get_DenyList", ADMIN_GET.get_Deny_list);
 Router.get("/Get_AllConsultant", ADMIN_GET.get_consultant_list);
 Router.get("/Get_Express_Pass", ADMIN_GET.get_express_pass);
 Router.get("/Get_Legal", ADMIN_GET.get_Legal);
+Router.get("/view_Legal", ADMIN_GET.Pdf_viwer);
 Router.get("/Get_Faq", ADMIN_GET.get_faq);
 Router.get("/Get_ContactUs", ADMIN_POST.Get_ContactUs);
 Router.get("/Get_Feedback_for_dohr", ADMIN_GET.get_feedback_for_dohr);
@@ -354,5 +357,45 @@ Router.post("/delete_sub_email", COMMON_DELETE.delete_sub_email);
 Router.post("/delete_sub_email", COMMON_DELETE.delete_sub_email);
 
 //========================================================================================DELETE=====================================================================================================
+
+// Function to get the latest legal document by type
+const getLatestLegalDocument = (legalType, language) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT pdf 
+      FROM legal_documents 
+      WHERE legal_type = ? 
+      AND is_active = 1 
+      AND ${language === 'en' ? 'inEnglish = 1' : 'inSwedish = 1'}
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `;
+    
+    db.query(query, [legalType], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]?.pdf || null);
+      }
+    });
+  });
+};
+
+// PDF Viewer Route
+Router.get('/view-pdf/:legalType/:language', async (req, res) => {
+  try {
+    const { legalType, language } = req.params;
+    const pdfPath = await getLatestLegalDocument(legalType, language);
+    
+    if (!pdfPath) {
+      return res.status(404).send('PDF not found');
+    }
+
+    res.render('pdf_viewer', { pdfPath });
+  } catch (error) {
+    console.error('Error viewing PDF:', error);
+    res.status(500).send('Error viewing PDF');
+  }
+});
 
 module.exports = Router;

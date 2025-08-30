@@ -354,7 +354,7 @@ module.exports = {
 
   DeleteContactUs(data, callback) {
     pool.query(
-      "Update dh_dohr_contactUs set is_active=0 where id=?",
+      "Update dh_dohr_contactus set is_active=0 where id=?",
       [data.id],
       (error, result, fields) => {
         if (error) {

@@ -175,7 +175,7 @@ module.exports = {
 
   AddContactUsMessage: (data, callback) => {
     pool.query(
-      `insert into dh_dohr_contactUs(first_name,last_name,cons_id,cus_id,message,email,know_more,from_web) values(?,?,?,?,?,?,?,?)`,
+      `insert into dh_dohr_contactus(first_name,last_name,cons_id,cus_id,message,email,know_more,from_web) values(?,?,?,?,?,?,?,?)`,
       [
         data.first_name,
         data.last_name,
@@ -197,7 +197,7 @@ module.exports = {
 
   GetContactUsCustomer: (callback) => {
     pool.query(
-      `select A.*,B.id as cus_id from dh_dohr_contactUs A inner join dh_customer B on A.cus_id=B.id  where A.is_active=1`,
+      `select A.*,B.id as cus_id from dh_dohr_contactus A inner join dh_customer B on A.cus_id=B.id  where A.is_active=1`,
       [],
       (error, result, fields) => {
         if (error) {
@@ -210,7 +210,7 @@ module.exports = {
 
   GetContactUsWeb: (callback) => {
     pool.query(
-      `select * from dh_dohr_contactUs  where is_active=1 AND from_web=1`,
+      `select * from dh_dohr_contactus  where is_active=1 AND from_web=1`,
       [],
       (error, result, fields) => {
         if (error) {
@@ -223,7 +223,7 @@ module.exports = {
 
   GetFeedBackDohrConsultant: (callback) => {
     pool.query(
-      "select A.*,B.id as cons_id  from dh_dohr_contactUs A inner join dh_substitute_consultant B on A.cons_id=B.id  where A.is_active=1",
+      "select A.*,B.id as cons_id  from dh_dohr_contactus A inner join dh_substitute_consultant B on A.cons_id=B.id  where A.is_active=1",
       [],
       (error, result, fields) => {
         if (error) {
@@ -366,7 +366,7 @@ module.exports = {
 
   GetContactUs: (callback) => {
     pool.query(
-      "select * from dh_dohr_contactUs where is_active=1",
+      "select * from dh_dohr_contactus where is_active=1",
       [],
       (error, result, fields) => {
         if (error) {
